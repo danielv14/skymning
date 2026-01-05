@@ -59,19 +59,29 @@ const HomePage = () => {
         </Card>
 
         {/* Streak */}
-        {streak > 0 && (
-          <Card className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/20">
-            <div className="flex items-center gap-4">
-              <StreakFlame size={40} className="text-amber-400" />
-              <div>
-                <p className="text-2xl font-bold text-white">{streak} {streak === 1 ? 'dag' : 'dagar'}</p>
-                <p className="text-slate-400 text-sm">
-                  {streak === 1 ? 'Du har börjat en streak!' : 'i rad med reflektion'}
-                </p>
-              </div>
+        <Card className={streak > 0 
+          ? "bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/20"
+          : "bg-gradient-to-r from-slate-500/10 to-slate-600/10 border-slate-500/20"
+        }>
+          <div className="flex items-center gap-4">
+            <StreakFlame size={40} className={streak > 0 ? "text-amber-400" : "text-slate-500"} />
+            <div>
+              {streak > 0 ? (
+                <>
+                  <p className="text-2xl font-bold text-white">{streak} {streak === 1 ? 'dag' : 'dagar'}</p>
+                  <p className="text-slate-400 text-sm">
+                    {streak === 1 ? 'Du har börjat en streak!' : 'i rad med reflektion'}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-lg font-semibold text-white">Ingen aktiv streak</p>
+                  <p className="text-slate-400 text-sm">Skriv idag för att starta en ny!</p>
+                </>
+              )}
             </div>
-          </Card>
-        )}
+          </div>
+        </Card>
 
         {/* Moodtrend */}
         {moodTrend.length > 0 && (

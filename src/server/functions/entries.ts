@@ -110,6 +110,17 @@ const getWeekDateRange = (year: number, week: number) => {
 // Exportera hjälpfunktionen för användning i andra filer
 export { getWeekDateRange }
 
+// Hjälpfunktion för att subtrahera dagar från ett datumstring (YYYY-MM-DD)
+const subtractDays = (dateStr: string, days: number): string => {
+  const [year, month, day] = dateStr.split('-').map(Number)
+  const date = new Date(year, month - 1, day)
+  date.setDate(date.getDate() - days)
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
 // Räkna streak (antal dagar i rad med inlägg)
 export const getStreak = createServerFn({ method: 'GET' }).handler(async () => {
   // Hämta alla entries sorterade på datum (nyast först)
@@ -120,30 +131,27 @@ export const getStreak = createServerFn({ method: 'GET' }).handler(async () => {
 
   if (allEntries.length === 0) return 0
 
-  let streak = 0
   const today = new Date()
-  today.setHours(0, 0, 0, 0)
-
-  // Kolla om dagens entry finns, annars börja räkna från igår
   const todayStr = today.toISOString().split('T')[0]
-  const hasToday = allEntries[0]?.date === todayStr
+  const yesterdayStr = subtractDays(todayStr, 1)
 
-  let checkDate = new Date(today)
-  if (!hasToday) {
-    // Om inget inlägg idag, kolla om det finns ett från igår
-    checkDate.setDate(checkDate.getDate() - 1)
+  const latestEntryDate = allEntries[0]?.date
+
+  // Streak är bruten om senaste entry varken är från idag eller igår
+  if (latestEntryDate !== todayStr && latestEntryDate !== yesterdayStr) {
+    return 0
   }
 
-  for (const entry of allEntries) {
-    const checkDateStr = checkDate.toISOString().split('T')[0]
+  // Skapa en Set för snabb lookup av vilka datum som har entries
+  const entryDates = new Set(allEntries.map((e) => e.date))
 
-    if (entry.date === checkDateStr) {
-      streak++
-      checkDate.setDate(checkDate.getDate() - 1)
-    } else if (entry.date < checkDateStr) {
-      // Streaken är bruten
-      break
-    }
+  // Räkna streak bakåt från senaste entry
+  let streak = 0
+  let checkDateStr = latestEntryDate
+
+  while (entryDates.has(checkDateStr)) {
+    streak++
+    checkDateStr = subtractDays(checkDateStr, 1)
   }
 
   return streak
