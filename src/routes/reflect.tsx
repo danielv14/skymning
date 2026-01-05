@@ -211,8 +211,8 @@ const ReflectPage = () => {
       </div>
 
       {/* Input area */}
-      <div className="shrink-0 bg-slate-800/80 border-t border-slate-700/50 backdrop-blur-sm">
-        <div className="max-w-2xl mx-auto px-6 sm:px-8 py-5">
+      <div className="shrink-0 px-4 sm:px-6 py-4">
+        <div className="max-w-2xl mx-auto bg-slate-800/70 border border-slate-700/50 backdrop-blur-sm rounded-2xl px-4 sm:px-5 py-4">
           {messages.length >= 2 && !isLoading && (
             <div className="mb-3">
               <Button
