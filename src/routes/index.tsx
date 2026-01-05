@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { Calendar, User } from 'lucide-react'
 import { getTodayEntry, getMoodTrend, getStreak } from '../server/functions/entries'
 import { hasAnyEntries } from '../server/functions/entries'
 import { MoodTrend } from '../components/mood/MoodTrend'
@@ -20,9 +21,27 @@ const HomePage = () => {
     <div className="min-h-screen">
       {/* Header med gradient */}
       <header className="bg-horizon stars-header py-6 sm:py-8 px-6 sm:px-8 view-transition-header">
-        <div className="max-w-2xl mx-auto">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">Skymning</h1>
-          <p className="text-slate-300 mt-1">Din dagliga reflektion</p>
+        <div className="max-w-2xl mx-auto flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white">Skymning</h1>
+            <p className="text-slate-300 mt-1">Din dagliga reflektion</p>
+          </div>
+          <nav className="flex gap-4">
+            <Link
+              to="/timeline"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-white/10 transition-colors text-slate-300 hover:text-white"
+            >
+              <Calendar className="w-4 h-4" />
+              <span className="text-sm">Tidslinje</span>
+            </Link>
+            <Link
+              to="/about-me"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-white/10 transition-colors text-slate-300 hover:text-white"
+            >
+              <User className="w-4 h-4" />
+              <span className="text-sm">Om mig</span>
+            </Link>
+          </nav>
         </div>
       </header>
 
@@ -90,20 +109,6 @@ const HomePage = () => {
             <MoodTrend data={moodTrend} />
           </Card>
         )}
-
-        {/* Navigation */}
-        <div className="flex gap-3">
-          <Link to="/timeline" className="flex-1">
-            <Button variant="secondary" className="w-full">
-              Se tidslinje
-            </Button>
-          </Link>
-          <Link to="/about-me" className="flex-1">
-            <Button variant="secondary" className="w-full">
-              Om mig
-            </Button>
-          </Link>
-        </div>
       </main>
     </div>
   )
