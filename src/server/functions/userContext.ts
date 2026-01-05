@@ -13,7 +13,7 @@ export const getUserContext = createServerFn({ method: 'GET' }).handler(
     if (!context) {
       const [newContext] = await db
         .insert(userContext)
-        .values({ content: '' })
+        .values({ content: '', historyCount: 10 })
         .returning()
       context = newContext
     }
@@ -25,6 +25,7 @@ export const getUserContext = createServerFn({ method: 'GET' }).handler(
 // Uppdatera user context
 const updateContextSchema = z.object({
   content: z.string(),
+  historyCount: z.number().min(0).max(20),
 })
 
 export const updateUserContext = createServerFn({ method: 'POST' })
@@ -39,6 +40,7 @@ export const updateUserContext = createServerFn({ method: 'POST' })
         .update(userContext)
         .set({
           content: data.content,
+          historyCount: data.historyCount,
           updatedAt: new Date().toISOString(),
         })
         .where(eq(userContext.id, context.id))
@@ -48,7 +50,7 @@ export const updateUserContext = createServerFn({ method: 'POST' })
       // Skapa ny
       const [newContext] = await db
         .insert(userContext)
-        .values({ content: data.content })
+        .values({ content: data.content, historyCount: data.historyCount })
         .returning()
       return newContext
     }

@@ -6,21 +6,31 @@ import { Card } from '../components/ui/Card'
 import { PageHeader } from '../components/ui/PageHeader'
 import { Check } from 'lucide-react'
 
+const HISTORY_OPTIONS = [
+  { value: 0, label: 'Ingen historik' },
+  { value: 5, label: '5 reflektioner' },
+  { value: 10, label: '10 reflektioner' },
+  { value: 20, label: '20 reflektioner' },
+]
+
 const AboutMePage = () => {
   const { userContext } = Route.useLoaderData()
   const [content, setContent] = useState(userContext.content)
+  const [historyCount, setHistoryCount] = useState(userContext.historyCount)
   const [isSaving, setIsSaving] = useState(false)
   const [showSaved, setShowSaved] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
 
   useEffect(() => {
-    setHasChanges(content !== userContext.content)
-  }, [content, userContext.content])
+    setHasChanges(
+      content !== userContext.content || historyCount !== userContext.historyCount
+    )
+  }, [content, historyCount, userContext.content, userContext.historyCount])
 
   const handleSave = async () => {
     setIsSaving(true)
     try {
-      await updateUserContext({ data: { content } })
+      await updateUserContext({ data: { content, historyCount } })
       setShowSaved(true)
       setHasChanges(false)
       setTimeout(() => setShowSaved(false), 2000)
@@ -56,9 +66,36 @@ const AboutMePage = () => {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="T.ex. Jag heter Anna och bor i Stockholm. Jag har två barn, Gustav (8 år) och Oscar (5 år). Jag jobbar som lärare på en grundskola..."
-              rows={10}
+              rows={8}
               className="w-full px-4 py-3 rounded-xl border border-slate-600 bg-slate-700/50 text-slate-100 placeholder-slate-500 focus:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none"
             />
+
+            <div className="pt-4 border-t border-slate-700">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                Historik i chatten
+              </label>
+              <p className="text-slate-400 text-sm mb-3">
+                Välj hur många tidigare reflektioner AI:n ska ha tillgång till för att ge bättre kontext.
+              </p>
+              <div className="relative">
+                <select
+                  value={historyCount}
+                  onChange={(e) => setHistoryCount(Number(e.target.value))}
+                  className="w-full px-4 py-3 pr-10 rounded-xl border border-slate-600 bg-slate-700/50 text-slate-100 focus:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors appearance-none cursor-pointer"
+                >
+                  {HISTORY_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4">
+                  <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
 
             <div className="flex items-center justify-between">
               <p className="text-sm text-slate-500">
