@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
+import { toast } from 'sonner'
 import { getUserContext, updateUserContext } from '../server/functions/userContext'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
+import { Textarea } from '../components/ui/Textarea'
 import { PageHeader } from '../components/ui/PageHeader'
 import { Check } from 'lucide-react'
 
@@ -36,6 +38,7 @@ const AboutMePage = () => {
       setTimeout(() => setShowSaved(false), 2000)
     } catch (error) {
       console.error('Failed to save context:', error)
+      toast.error('Kunde inte spara inställningarna')
     } finally {
       setIsSaving(false)
     }
@@ -62,12 +65,11 @@ const AboutMePage = () => {
               </p>
             </div>
 
-            <textarea
+            <Textarea
               value={content}
-              onChange={(e) => setContent(e.target.value)}
+              onChange={setContent}
               placeholder="T.ex. Jag heter Anna och bor i Stockholm. Jag har två barn, Gustav (8 år) och Oscar (5 år). Jag jobbar som lärare på en grundskola..."
               rows={8}
-              className="w-full px-4 py-3 rounded-xl border border-slate-600 bg-slate-700/50 text-slate-100 placeholder-slate-500 focus:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none"
             />
 
             <div className="pt-4 border-t border-slate-700">

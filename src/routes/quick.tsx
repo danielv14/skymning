@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
+import { toast } from 'sonner'
 import { getTodayEntry, createEntry } from '../server/functions/entries'
-import { MoodEmoji } from '../components/mood/MoodEmoji'
+import { MoodSelector } from '../components/reflection/MoodSelector'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
+import { Textarea } from '../components/ui/Textarea'
 import { PageHeader } from '../components/ui/PageHeader'
 import { QuickPolishModal } from '../components/reflection/QuickPolishModal'
 
@@ -34,6 +36,8 @@ const QuickPage = () => {
       router.navigate({ to: '/' })
     } catch (error) {
       console.error('Failed to save entry:', error)
+      toast.error('Kunde inte spara dagens reflektion')
+    } finally {
       setIsSaving(false)
     }
   }
@@ -61,21 +65,7 @@ const QuickPage = () => {
           <h2 className="text-lg font-semibold text-white mb-4">
             Hur har din dag varit?
           </h2>
-          <div className="flex justify-around py-2">
-            {[1, 2, 3, 4, 5].map((mood) => (
-              <button
-                key={mood}
-                onClick={() => setSelectedMood(mood)}
-                className={`p-3 sm:p-4 rounded-2xl transition-all ${
-                  selectedMood === mood
-                    ? 'bg-indigo-500/30 scale-110 ring-2 ring-indigo-400'
-                    : 'hover:bg-slate-700/50'
-                }`}
-              >
-                <MoodEmoji mood={mood} size="lg" showLabel />
-              </button>
-            ))}
-          </div>
+          <MoodSelector value={selectedMood} onChange={setSelectedMood} />
         </Card>
 
         <Card>
@@ -85,19 +75,18 @@ const QuickPage = () => {
           <p className="text-slate-400 text-sm mb-4">
             Skriv några rader om vad som hände eller hur du kände dig
           </p>
-          <textarea
+          <Textarea
             value={summary}
-            onChange={(e) => setSummary(e.target.value)}
+            onChange={setSummary}
             placeholder="T.ex. En lugn dag på jobbet. Tog en promenad på lunchen och kände mig avslappnad..."
             rows={4}
-            className="w-full px-4 py-3 rounded-xl border border-slate-600 bg-slate-700/50 text-slate-100 placeholder-slate-500 focus:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none"
           />
           <div className="flex justify-between items-center mt-2">
             <Button
               variant="secondary"
+              size="sm"
               onClick={() => setPolishModalOpen(true)}
               disabled={summary.length < 20}
-              className="!px-3 !py-1.5 text-sm"
             >
               Förbättra med AI
             </Button>

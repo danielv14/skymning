@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
-import { Dialog } from '@base-ui-components/react/dialog'
+import { toast } from 'sonner'
+import { Modal, ModalClose } from '../ui/Modal'
 import { MoodSelector } from './MoodSelector'
 import { SummaryEditor } from './SummaryEditor'
 import { Button } from '../ui/Button'
+import { useAsyncGeneration } from '../../hooks/useAsyncGeneration'
 import { generateDaySummary } from '../../server/ai'
 
 type ChatMessage = {
@@ -24,130 +26,101 @@ export const CompletionModal = ({
   onSave,
 }: CompletionModalProps) => {
   const [selectedMood, setSelectedMood] = useState<number | null>(null)
-  const [summary, setSummary] = useState('')
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [isRegenerating, setIsRegenerating] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const abortControllerRef = useRef<AbortController | null>(null)
-  const hasGeneratedRef = useRef(false)
+  const prevOpenRef = useRef(false)
+
+  const {
+    result: summary,
+    isGenerating,
+    isRegenerating,
+    regenerate,
+    reset,
+    setResult: setSummary,
+  } = useAsyncGeneration({
+    generateFn: async () => {
+      const result = await generateDaySummary({ data: { messages } })
+      return typeof result === 'string' ? result : String(result)
+    },
+    fallbackValue: 'Kunde inte generera sammanfattning. Skriv din egen!',
+    errorMessage: 'Kunde inte generera sammanfattning',
+    autoGenerate: false,
+  })
 
   useEffect(() => {
-    if (open && messages.length > 0 && !hasGeneratedRef.current) {
-      hasGeneratedRef.current = true
-      generateSummary()
-    }
-    if (!open) {
-      hasGeneratedRef.current = false
-    }
-    return () => {
-      abortControllerRef.current?.abort()
-    }
-  }, [open, messages.length])
+    const wasOpen = prevOpenRef.current
+    prevOpenRef.current = open
 
-  const generateSummary = async (isRegenerate = false) => {
-    abortControllerRef.current?.abort()
-    abortControllerRef.current = new AbortController()
-
-    if (isRegenerate) {
-      setIsRegenerating(true)
-    } else {
-      setIsGenerating(true)
+    if (open && !wasOpen && messages.length > 0) {
+      reset()
+      regenerate()
     }
-
-    try {
-      const result = await generateDaySummary({ data: { messages } })
-      if (abortControllerRef.current?.signal.aborted) return
-
-      setSummary(typeof result === 'string' ? result : String(result))
-    } catch (error) {
-      if ((error as Error).name !== 'AbortError') {
-        console.error('Failed to generate summary:', error)
-        setSummary('Kunde inte generera sammanfattning. Skriv din egen!')
-      }
-    } finally {
-      setIsGenerating(false)
-      setIsRegenerating(false)
-    }
-  }
-
-  const handleRegenerate = () => {
-    generateSummary(true)
-  }
+  }, [open, messages.length, reset, regenerate])
 
   const handleSave = async () => {
-    if (!selectedMood || !summary.trim()) return
+    if (!selectedMood || !summary?.trim()) return
 
     setIsSaving(true)
     try {
       await onSave(selectedMood, summary)
       setSelectedMood(null)
-      setSummary('')
+      reset()
     } catch (error) {
       console.error('Failed to save:', error)
+      toast.error('Kunde inte spara dagens reflektion')
+    } finally {
       setIsSaving(false)
     }
   }
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
-      abortControllerRef.current?.abort()
       setSelectedMood(null)
-      setSummary('')
-      setIsGenerating(false)
-      setIsRegenerating(false)
+      reset()
     }
     onOpenChange(newOpen)
   }
 
   return (
-    <Dialog.Root open={open} onOpenChange={handleOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-200 data-[ending-style]:opacity-0 data-[starting-style]:opacity-0" />
-        <Dialog.Popup className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl bg-slate-800 border border-slate-700 p-6 shadow-xl transition-all duration-200 data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0">
-          <Dialog.Title className="text-xl font-semibold text-stone-100 mb-2">
-            Sammanfatta din dag
-          </Dialog.Title>
-          <Dialog.Description className="text-slate-400 mb-6">
-            Välj hur dagen kändes och redigera sammanfattningen om du vill
-          </Dialog.Description>
+    <Modal
+      open={open}
+      onOpenChange={handleOpenChange}
+      title="Sammanfatta din dag"
+      description="Välj hur dagen kändes och redigera sammanfattningen om du vill"
+    >
+      <div className="mb-6">
+        <h3 className="text-sm font-medium text-slate-300 mb-3">
+          Hur kändes dagen?
+        </h3>
+        <MoodSelector value={selectedMood} onChange={setSelectedMood} />
+      </div>
 
-          <div className="mb-6">
-            <h3 className="text-sm font-medium text-slate-300 mb-3">
-              Hur kändes dagen?
-            </h3>
-            <MoodSelector value={selectedMood} onChange={setSelectedMood} />
-          </div>
+      <div className="mb-6">
+        <h3 className="text-sm font-medium text-slate-300 mb-3">
+          Sammanfattning
+        </h3>
+        <SummaryEditor
+          value={summary ?? ''}
+          onChange={setSummary}
+          isLoading={isGenerating || (isRegenerating && !summary)}
+          onRegenerate={regenerate}
+          isRegenerating={isRegenerating && !!summary}
+        />
+      </div>
 
-          <div className="mb-6">
-            <h3 className="text-sm font-medium text-slate-300 mb-3">
-              Sammanfattning
-            </h3>
-            <SummaryEditor
-              value={summary}
-              onChange={setSummary}
-              isLoading={isGenerating}
-              onRegenerate={handleRegenerate}
-              isRegenerating={isRegenerating}
-            />
-          </div>
-
-          <div className="flex gap-3">
-            <Dialog.Close className="flex-1">
-              <Button variant="secondary" className="w-full">
-                Avbryt
-              </Button>
-            </Dialog.Close>
-            <Button
-              onClick={handleSave}
-              disabled={!selectedMood || !summary.trim() || isSaving || isGenerating}
-              className="flex-1"
-              glow
-            >
-              {isSaving ? 'Sparar...' : 'Spara dagen'}
-            </Button>
-          </div>
-        </Dialog.Popup>
-      </Dialog.Portal>
-    </Dialog.Root>
+      <div className="flex gap-3">
+        <ModalClose className="flex-1">
+          <Button variant="secondary" className="w-full">
+            Avbryt
+          </Button>
+        </ModalClose>
+        <Button
+          onClick={handleSave}
+          disabled={!selectedMood || !summary?.trim() || isSaving || isGenerating}
+          className="flex-1"
+        >
+          {isSaving ? 'Sparar...' : 'Spara dagen'}
+        </Button>
+      </div>
+    </Modal>
   )
 }

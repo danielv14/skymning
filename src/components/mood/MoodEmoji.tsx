@@ -1,4 +1,4 @@
-import { MOOD_ICONS } from './MoodIcons'
+import { getMoodIcon } from './MoodIcons'
 import { getMoodLabel } from '../../constants'
 
 type MoodEmojiProps = {
@@ -15,7 +15,7 @@ export const MoodEmoji = ({
   layout = 'vertical',
 }: MoodEmojiProps) => {
   const label = getMoodLabel(mood)
-  const IconComponent = MOOD_ICONS[mood as keyof typeof MOOD_ICONS] || MOOD_ICONS[3]
+  const IconComponent = getMoodIcon(mood)
 
   const iconSizes = {
     sm: 18,

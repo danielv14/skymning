@@ -115,6 +115,10 @@ export const MOOD_ICONS = {
   5: MoodSunny,
 } as const
 
+export const getMoodIcon = (mood: number) => {
+  return MOOD_ICONS[mood as keyof typeof MOOD_ICONS] ?? MOOD_ICONS[3]
+}
+
 // Streak-ikon: Eld/flamma
 export const StreakFlame = ({ size = 24, className = '' }: IconProps) => (
   <svg

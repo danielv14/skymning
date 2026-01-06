@@ -22,7 +22,7 @@ export const Welcome = () => {
         </div>
 
         <Link to="/reflect">
-          <Button glow className="text-lg px-8 py-4">Börja din första reflektion</Button>
+          <Button size="lg">Börja din första reflektion</Button>
         </Link>
       </div>
     </div>

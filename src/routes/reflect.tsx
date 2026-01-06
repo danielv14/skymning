@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useChat, fetchServerSentEvents } from '@tanstack/ai-react'
 import { getTodayEntry, createEntry } from '../server/functions/entries'
 import { Button } from '../components/ui/Button'
+import { Textarea } from '../components/ui/Textarea'
 import { PageHeader } from '../components/ui/PageHeader'
 import { CompletionModal } from '../components/reflection/CompletionModal'
 
@@ -23,15 +24,6 @@ const ReflectPage = () => {
     router.navigate({ to: '/' })
     return null
   }
-
-  // Auto-resize textarea
-  const adjustTextareaHeight = useCallback(() => {
-    const textarea = textareaRef.current
-    if (textarea) {
-      textarea.style.height = 'auto'
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 150)}px`
-    }
-  }, [])
 
   // Scrolla till botten när nya meddelanden kommer eller uppdateras (streaming)
   useEffect(() => {
@@ -91,6 +83,13 @@ const ReflectPage = () => {
       .filter((p) => p.type === 'text')
       .map((p) => p.content)
       .join('')
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSendMessage()
+    }
   }
 
   return (
@@ -168,23 +167,17 @@ const ReflectPage = () => {
           )}
 
           <div className="flex gap-3 items-end">
-            <textarea
+            <Textarea
               ref={textareaRef}
               value={input}
-              onChange={(e) => {
-                setInput(e.target.value)
-                adjustTextareaHeight()
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault()
-                  handleSendMessage()
-                }
-              }}
+              onChange={setInput}
+              onKeyDown={handleKeyDown}
               placeholder="Dela dina tankar..."
               rows={1}
-              className="flex-1 px-4 py-3 rounded-2xl border border-slate-600 bg-slate-700/50 text-slate-100 placeholder-slate-500 focus:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none overflow-hidden"
               disabled={isLoading}
+              autoResize
+              maxHeight={150}
+              className="flex-1 rounded-2xl"
             />
             <Button onClick={handleSendMessage} disabled={!input.trim() || isLoading}>
               {isLoading ? '...' : 'Skicka'}

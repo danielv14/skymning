@@ -7,41 +7,45 @@ import { db } from '../../server/db'
 import { entries } from '../../server/db/schema'
 import { getMoodLabel } from '../../constants'
 
+type ChatMessage = {
+  role: 'user' | 'assistant'
+  content: string
+}
+
 export const Route = createFileRoute('/api/chat')({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { messages } = await request.json()
+        const { messages } = (await request.json()) as { messages: ChatMessage[] }
 
-        // Hämta user context om det finns
-        const userContext = await db.query.userContext.findFirst()
-        const userContextContent = userContext?.content?.trim()
-        const historyCount = userContext?.historyCount ?? 10
-
-        // Hämta tidigare reflektioner om historyCount > 0
-        let previousEntriesPrompt = ''
-        if (historyCount > 0) {
-          const recentEntries = await db.query.entries.findMany({
+        const [userContext, recentEntriesResult] = await Promise.all([
+          db.query.userContext.findFirst(),
+          db.query.entries.findMany({
             columns: {
               date: true,
               mood: true,
               summary: true,
             },
             orderBy: [desc(entries.date)],
-            limit: historyCount,
-          })
+            limit: 20,
+          }),
+        ])
 
-          if (recentEntries.length > 0) {
-            // Kronologisk ordning (äldst först)
-            const entriesText = recentEntries
-              .reverse()
-              .map(
-                (e) => `[${e.date}] Humör: ${getMoodLabel(e.mood)}\n${e.summary}`
-              )
-              .join('\n\n')
+        const userContextContent = userContext?.content?.trim()
+        const historyCount = userContext?.historyCount ?? 10
 
-            previousEntriesPrompt = `## Användarens tidigare reflektioner\nHär är användarens senaste reflektioner för att ge dig kontext om vad som hänt i deras liv:\n\n${entriesText}`
-          }
+        let previousEntriesPrompt = ''
+        if (historyCount > 0 && recentEntriesResult.length > 0) {
+          const limitedEntries = recentEntriesResult.slice(0, historyCount)
+          // Kronologisk ordning (äldst först)
+          const entriesText = limitedEntries
+            .reverse()
+            .map(
+              (e) => `[${e.date}] Humör: ${getMoodLabel(e.mood)}\n${e.summary}`
+            )
+            .join('\n\n')
+
+          previousEntriesPrompt = `## Användarens tidigare reflektioner\nHär är användarens senaste reflektioner för att ge dig kontext om vad som hänt i deras liv:\n\n${entriesText}`
         }
 
         // Bygg system prompts

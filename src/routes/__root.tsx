@@ -4,6 +4,7 @@ import {
   Scripts,
   createRootRoute,
 } from '@tanstack/react-router'
+import { Toaster } from 'sonner'
 
 import appCss from '../styles.css?url'
 
@@ -15,6 +16,17 @@ const RootComponent = () => {
       </head>
       <body className="min-h-screen bg-slate-900 text-stone-100 font-sans">
         <Outlet />
+        <Toaster
+          position="top-center"
+          richColors
+          toastOptions={{
+            style: {
+              background: '#1e293b',
+              border: '1px solid #334155',
+              color: '#f1f5f9',
+            },
+          }}
+        />
         <Scripts />
       </body>
     </html>

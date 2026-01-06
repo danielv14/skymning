@@ -5,11 +5,12 @@ import { entries } from '../db/schema'
 import { eq, desc, and, gte, lt } from 'drizzle-orm'
 import { startOfISOWeek, endOfISOWeek, format } from 'date-fns'
 import { weekInputSchema } from '../../constants'
+import { getTodayDateString, subtractDays } from '../../utils/date'
 
 // Hämta dagens inlägg (om det finns)
 export const getTodayEntry = createServerFn({ method: 'GET' }).handler(
   async () => {
-    const today = new Date().toISOString().split('T')[0]
+    const today = getTodayDateString()
     const entry = await db.query.entries.findFirst({
       where: eq(entries.date, today),
     })
@@ -49,7 +50,7 @@ const createEntrySchema = z.object({
 export const createEntry = createServerFn({ method: 'POST' })
   .inputValidator((data: unknown) => createEntrySchema.parse(data))
   .handler(async ({ data }) => {
-    const today = new Date().toISOString().split('T')[0]
+    const today = getTodayDateString()
 
     const [entry] = await db
       .insert(entries)
@@ -110,17 +111,6 @@ const getWeekDateRange = (year: number, week: number) => {
 // Exportera hjälpfunktionen för användning i andra filer
 export { getWeekDateRange }
 
-// Hjälpfunktion för att subtrahera dagar från ett datumstring (YYYY-MM-DD)
-const subtractDays = (dateStr: string, days: number): string => {
-  const [year, month, day] = dateStr.split('-').map(Number)
-  const date = new Date(year, month - 1, day)
-  date.setDate(date.getDate() - days)
-  const y = date.getFullYear()
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const d = String(date.getDate()).padStart(2, '0')
-  return `${y}-${m}-${d}`
-}
-
 const recentMoodSchema = z.object({
   days: z.number().min(1).max(30).optional().default(7),
 })
@@ -128,7 +118,7 @@ const recentMoodSchema = z.object({
 export const getRecentMoodAverage = createServerFn({ method: 'GET' })
   .inputValidator((data: unknown) => recentMoodSchema.parse(data))
   .handler(async ({ data }) => {
-    const today = new Date().toISOString().split('T')[0]
+    const today = getTodayDateString()
     const startDate = subtractDays(today, data.days)
 
     const recentEntries = await db.query.entries.findMany({
@@ -158,8 +148,7 @@ export const getStreak = createServerFn({ method: 'GET' }).handler(async () => {
 
   if (allEntries.length === 0) return 0
 
-  const today = new Date()
-  const todayStr = today.toISOString().split('T')[0]
+  const todayStr = getTodayDateString()
   const yesterdayStr = subtractDays(todayStr, 1)
 
   const latestEntryDate = allEntries[0]?.date

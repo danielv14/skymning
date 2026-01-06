@@ -1,8 +1,10 @@
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
+import { toast } from 'sonner'
 import { getEntriesForWeek } from '../../../server/functions/entries'
 import {
   getWeeklySummary,
   createWeeklySummary,
+  getCurrentWeek,
 } from '../../../server/functions/weeklySummaries'
 import { generateWeeklySummary } from '../../../server/ai'
 import { MoodEmoji } from '../../../components/mood/MoodEmoji'
@@ -18,6 +20,10 @@ const TimelineWeekPage = () => {
   const { year, week, entries, weeklySummary, averageMood } = Route.useLoaderData()
   const router = useRouter()
   const [isGenerating, setIsGenerating] = useState(false)
+
+  // Kolla om vi är på nuvarande vecka
+  const currentWeek = getCurrentWeek()
+  const isCurrentWeek = year === currentWeek.year && week === currentWeek.week
 
   const handleGenerateSummary = async () => {
     if (entries.length === 0) return
@@ -47,6 +53,7 @@ const TimelineWeekPage = () => {
       router.invalidate()
     } catch (error) {
       console.error('Failed to generate summary:', error)
+      toast.error('Kunde inte generera veckosummering')
     } finally {
       setIsGenerating(false)
     }
@@ -80,7 +87,7 @@ const TimelineWeekPage = () => {
             <div className="w-9" /> {/* Spacer */}
           </div>
 
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center">
             <Link
               to="/timeline/$year/$week"
               params={{ year: String(prevWeek.year), week: String(prevWeek.week) }}
@@ -89,6 +96,19 @@ const TimelineWeekPage = () => {
               <button className="flex items-center gap-1 text-slate-300 hover:text-white transition-colors cursor-pointer">
                 <ChevronLeft className="w-4 h-4" />
                 Förra
+              </button>
+            </Link>
+            <Link
+              to="/timeline/$year/$week"
+              params={{ year: String(currentWeek.year), week: String(currentWeek.week) }}
+              viewTransition={false}
+              disabled={isCurrentWeek}
+            >
+              <button
+                className="text-slate-300 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-slate-300"
+                disabled={isCurrentWeek}
+              >
+                Denna vecka
               </button>
             </Link>
             <Link
@@ -164,6 +184,11 @@ export const Route = createFileRoute('/timeline/$year/$week')({
   loader: async ({ params }) => {
     const year = parseInt(params.year, 10)
     const week = parseInt(params.week, 10)
+
+    // Validera URL-parametrar
+    if (isNaN(year) || isNaN(week) || week < 1 || week > 53 || year < 2020 || year > 2100) {
+      throw new Error('Ogiltiga parametrar för vecka')
+    }
 
     const [entries, weeklySummary] = await Promise.all([
       getEntriesForWeek({ data: { year, week } }),
