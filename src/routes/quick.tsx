@@ -5,6 +5,7 @@ import { MoodEmoji } from '../components/mood/MoodEmoji'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
 import { PageHeader } from '../components/ui/PageHeader'
+import { QuickPolishModal } from '../components/reflection/QuickPolishModal'
 
 const QuickPage = () => {
   const router = useRouter()
@@ -12,8 +13,8 @@ const QuickPage = () => {
   const [selectedMood, setSelectedMood] = useState<number | null>(null)
   const [summary, setSummary] = useState('')
   const [isSaving, setIsSaving] = useState(false)
+  const [polishModalOpen, setPolishModalOpen] = useState(false)
 
-  // Redirect om redan gjort
   if (todayEntry) {
     router.navigate({ to: '/' })
     return null
@@ -37,15 +38,25 @@ const QuickPage = () => {
     }
   }
 
+  const handleUsePolished = (polishedText: string) => {
+    setSummary(polishedText)
+  }
+
   return (
     <div className="min-h-screen bg-slate-900">
+      <QuickPolishModal
+        open={polishModalOpen}
+        onOpenChange={setPolishModalOpen}
+        originalText={summary}
+        onUse={handleUsePolished}
+      />
+
       <PageHeader
-        title="Snabb reflektion"
-        subtitle="Logga utan att chatta"
+        title="Skriv själv"
+        subtitle="Reflektera utan AI-chatt"
       />
 
       <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6">
-        {/* Mood-väljare */}
         <Card>
           <h2 className="text-lg font-semibold text-white mb-4">
             Hur har din dag varit?
@@ -67,7 +78,6 @@ const QuickPage = () => {
           </div>
         </Card>
 
-        {/* Summering */}
         <Card>
           <h2 className="text-lg font-semibold text-white mb-2">
             Sammanfatta dagen
@@ -82,23 +92,33 @@ const QuickPage = () => {
             rows={4}
             className="w-full px-4 py-3 rounded-xl border border-slate-600 bg-slate-700/50 text-slate-100 placeholder-slate-500 focus:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none"
           />
-          <p className="text-sm text-slate-500 mt-2 text-right">
-            {summary.length} tecken
-          </p>
+          <div className="flex justify-between items-center mt-2">
+            <Button
+              variant="secondary"
+              onClick={() => setPolishModalOpen(true)}
+              disabled={summary.length < 20}
+              className="!px-3 !py-1.5 text-sm"
+            >
+              Förbättra med AI
+            </Button>
+            <p className="text-sm text-slate-500">
+              {summary.length} tecken
+            </p>
+          </div>
         </Card>
 
-        {/* Spara */}
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <Button
             variant="secondary"
             onClick={() => router.navigate({ to: '/reflect' })}
+            className="w-full sm:w-auto"
           >
             Prata med AI istället
           </Button>
           <Button
             onClick={handleSave}
             disabled={!selectedMood || !summary.trim() || isSaving}
-            className="flex-1"
+            className="flex-1 min-w-0 sm:min-w-fit"
           >
             {isSaving ? 'Sparar...' : 'Spara dagen'}
           </Button>
@@ -110,7 +130,7 @@ const QuickPage = () => {
 
 export const Route = createFileRoute('/quick')({
   head: () => ({
-    meta: [{ title: 'Snabb reflektion - Skymning' }],
+    meta: [{ title: 'Skriv själv - Skymning' }],
   }),
   loader: async () => {
     const todayEntry = await getTodayEntry()

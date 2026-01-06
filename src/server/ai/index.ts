@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { chat } from '@tanstack/ai'
 import { z } from 'zod'
-import { DAY_SUMMARY_SYSTEM_PROMPT, WEEK_SUMMARY_SYSTEM_PROMPT } from './prompts'
+import { DAY_SUMMARY_SYSTEM_PROMPT, WEEK_SUMMARY_SYSTEM_PROMPT, QUICK_POLISH_SYSTEM_PROMPT } from './prompts'
 import { openai } from './client'
 import { getMoodLabel } from '../../constants'
 
@@ -10,7 +10,6 @@ const messageSchema = z.object({
   content: z.string(),
 })
 
-// Generera dagssummering från chatthistorik
 const generateDaySummarySchema = z.object({
   messages: z.array(messageSchema),
 })
@@ -18,7 +17,6 @@ const generateDaySummarySchema = z.object({
 export const generateDaySummary = createServerFn({ method: 'POST' })
   .inputValidator((data: unknown) => generateDaySummarySchema.parse(data))
   .handler(async ({ data }) => {
-    // Formatera chatthistoriken som text
     const conversationText = data.messages
       .map((m) => `${m.role === 'user' ? 'Användare' : 'AI'}: ${m.content}`)
       .join('\n\n')
@@ -38,7 +36,6 @@ export const generateDaySummary = createServerFn({ method: 'POST' })
     return response
   })
 
-// Generera veckosummering från dagsinlägg
 const generateWeeklySummarySchema = z.object({
   entries: z.array(
     z.object({
@@ -52,7 +49,6 @@ const generateWeeklySummarySchema = z.object({
 export const generateWeeklySummary = createServerFn({ method: 'POST' })
   .inputValidator((data: unknown) => generateWeeklySummarySchema.parse(data))
   .handler(async ({ data }) => {
-    // Formatera inläggen som text
     const entriesText = data.entries
       .map(
         (e) =>
@@ -67,6 +63,28 @@ export const generateWeeklySummary = createServerFn({ method: 'POST' })
         {
           role: 'user',
           content: entriesText,
+        },
+      ],
+      stream: false,
+    })
+
+    return response
+  })
+
+const polishQuickEntrySchema = z.object({
+  text: z.string().min(10),
+})
+
+export const polishQuickEntry = createServerFn({ method: 'POST' })
+  .inputValidator((data: unknown) => polishQuickEntrySchema.parse(data))
+  .handler(async ({ data }) => {
+    const response = await chat({
+      adapter: openai,
+      systemPrompts: [QUICK_POLISH_SYSTEM_PROMPT],
+      messages: [
+        {
+          role: 'user',
+          content: data.text,
         },
       ],
       stream: false,

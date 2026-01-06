@@ -72,7 +72,7 @@ const HomePage = () => {
                   <Button className="w-full">Prata med AI</Button>
                 </Link>
                 <Link to="/quick" className="flex-1">
-                  <Button variant="secondary" className="w-full">Snabb logg</Button>
+                  <Button variant="secondary" className="w-full">Skriv själv</Button>
                 </Link>
               </div>
             </div>

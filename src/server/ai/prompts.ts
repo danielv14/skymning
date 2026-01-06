@@ -18,3 +18,9 @@ Max 1-3 korta meningar. Svara ENDAST med sammanfattningen.`
 
 // Veckosummeringsprompt
 export const WEEK_SUMMARY_SYSTEM_PROMPT = `Här är dagboksinlägg från en vecka. Sammanfatta veckan på svenska: vilka teman eller mönster syns? Hur har stämningsläget varit? Lyft fram både utmaningar och ljuspunkter. Håll det kort och reflekterande, max ett stycke. Svara ENDAST med sammanfattningen, ingen inledning eller avslutning.`
+
+// Poleringspromt för manuell text
+export const QUICK_POLISH_SYSTEM_PROMPT = `Förbättra användarens text utan att ändra innehållet.
+Rätta stavfel och grammatik. Gör meningarna tydligare om de är osammanhängande.
+Hitta INTE på nya detaljer eller känslor. Behåll ungefär samma längd.
+Skriv i första person. Svara ENDAST med den förbättrade texten.`

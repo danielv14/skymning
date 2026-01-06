@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { Button } from '../ui/Button'
 
 type SummaryEditorProps = {
@@ -15,6 +16,16 @@ export const SummaryEditor = ({
   onRegenerate,
   isRegenerating = false,
 }: SummaryEditorProps) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    const textarea = textareaRef.current
+    if (textarea) {
+      textarea.style.height = 'auto'
+      textarea.style.height = `${textarea.scrollHeight}px`
+    }
+  }, [value])
+
   if (isLoading) {
     return (
       <div className="space-y-3">
@@ -27,10 +38,11 @@ export const SummaryEditor = ({
   return (
     <div className="space-y-2">
       <textarea
+        ref={textareaRef}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        rows={4}
-        className="w-full px-4 py-3 rounded-xl border border-slate-600 bg-slate-700/50 text-slate-100 placeholder-slate-500 focus:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none"
+        rows={3}
+        className="w-full px-4 py-3 rounded-xl border border-slate-600 bg-slate-700/50 text-slate-100 placeholder-slate-500 focus:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none overflow-hidden"
         placeholder="Din sammanfattning..."
       />
       <div className="flex justify-end">
