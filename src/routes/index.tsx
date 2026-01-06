@@ -1,16 +1,24 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Calendar, User } from 'lucide-react'
-import { getTodayEntry, getMoodTrend, getStreak } from '../server/functions/entries'
+import {
+  getTodayEntry,
+  getMoodTrend,
+  getStreak,
+  getRecentMoodAverage,
+} from '../server/functions/entries'
 import { hasAnyEntries } from '../server/functions/entries'
+import { getLastWeekSummary } from '../server/functions/weeklySummaries'
 import { MoodTrend } from '../components/mood/MoodTrend'
 import { MoodEmoji } from '../components/mood/MoodEmoji'
 import { StreakFlame } from '../components/mood/MoodIcons'
 import { Welcome } from '../components/Welcome'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
+import { getPeriodMoodDescription } from '../constants/mood'
 
 const HomePage = () => {
-  const { hasEntries, todayEntry, moodTrend, streak } = Route.useLoaderData()
+  const { hasEntries, todayEntry, moodTrend, streak, recentMood, lastWeekSummary } =
+    Route.useLoaderData()
 
   // Visa välkomstvy om inga inlägg finns
   if (!hasEntries) {
@@ -79,30 +87,76 @@ const HomePage = () => {
           )}
         </Card>
 
-        {/* Streak */}
-        <Card className={streak > 0 
-          ? "bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/20"
-          : "bg-gradient-to-r from-slate-500/10 to-slate-600/10 border-slate-500/20"
-        }>
-          <div className="flex items-center gap-4">
-            <StreakFlame size={40} className={streak > 0 ? "text-amber-400" : "text-slate-500"} />
-            <div>
-              {streak > 0 ? (
-                <>
-                  <p className="text-2xl font-bold text-white">{streak} {streak === 1 ? 'dag' : 'dagar'}</p>
-                  <p className="text-slate-400 text-sm">
-                    {streak === 1 ? 'Du har börjat en streak!' : 'i rad med reflektion'}
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className="text-lg font-semibold text-white">Ingen aktiv streak</p>
-                  <p className="text-slate-400 text-sm">Skriv idag för att starta en ny!</p>
-                </>
-              )}
+        {/* Streak och snitthumör */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Streak */}
+          <Card
+            className={
+              streak > 0
+                ? 'bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/20'
+                : 'bg-gradient-to-r from-slate-500/10 to-slate-600/10 border-slate-500/20'
+            }
+          >
+            <div className="flex items-center gap-4">
+              <StreakFlame
+                size={40}
+                className={streak > 0 ? 'text-amber-400' : 'text-slate-500'}
+              />
+              <div>
+                {streak > 0 ? (
+                  <>
+                    <p className="text-2xl font-bold text-white">
+                      {streak} {streak === 1 ? 'dag' : 'dagar'}
+                    </p>
+                    <p className="text-slate-400 text-sm">
+                      {streak === 1 ? 'Du har börjat en streak!' : 'i rad med reflektion'}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-lg font-semibold text-white">Ingen aktiv streak</p>
+                    <p className="text-slate-400 text-sm">Skriv idag för att starta en ny!</p>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+
+          {/* Snitthumör senaste 7 dagarna */}
+          {recentMood && (
+            <Card className="bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border-indigo-500/20">
+              <div className="flex items-center gap-4">
+                <MoodEmoji mood={Math.round(recentMood.average)} size="lg" showLabel={false} />
+                <div>
+                  <p className="text-lg font-semibold text-white">
+                    {getPeriodMoodDescription(recentMood.average)}
+                  </p>
+                  <p className="text-slate-400 text-sm">Senaste 7 dagarna</p>
+                </div>
+              </div>
+            </Card>
+          )}
+        </div>
+
+        {/* Förra veckans summering */}
+        {lastWeekSummary && (
+          <Card>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-sm font-medium text-slate-400">Förra veckan</h3>
+              <Link
+                to="/timeline/$year/$week"
+                params={{
+                  year: String(lastWeekSummary.year),
+                  week: String(lastWeekSummary.week),
+                }}
+                className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+              >
+                Se hela veckan →
+              </Link>
+            </div>
+            <p className="text-slate-300 line-clamp-3">{lastWeekSummary.summary}</p>
+          </Card>
+        )}
 
         {/* Moodtrend */}
         {moodTrend.length > 0 && (
@@ -121,18 +175,23 @@ export const Route = createFileRoute('/')({
     meta: [{ title: 'Skymning' }],
   }),
   loader: async () => {
-    const [hasEntries, todayEntry, moodTrend, streak] = await Promise.all([
-      hasAnyEntries(),
-      getTodayEntry(),
-      getMoodTrend({ data: { limit: 30 } }),
-      getStreak(),
-    ])
+    const [hasEntries, todayEntry, moodTrend, streak, recentMood, lastWeekSummary] =
+      await Promise.all([
+        hasAnyEntries(),
+        getTodayEntry(),
+        getMoodTrend({ data: { limit: 30 } }),
+        getStreak(),
+        getRecentMoodAverage({ data: { days: 7 } }),
+        getLastWeekSummary(),
+      ])
 
     return {
       hasEntries,
       todayEntry,
       moodTrend,
       streak,
+      recentMood,
+      lastWeekSummary,
     }
   },
   component: HomePage,

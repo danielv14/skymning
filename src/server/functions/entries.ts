@@ -121,6 +121,33 @@ const subtractDays = (dateStr: string, days: number): string => {
   return `${y}-${m}-${d}`
 }
 
+const recentMoodSchema = z.object({
+  days: z.number().min(1).max(30).optional().default(7),
+})
+
+export const getRecentMoodAverage = createServerFn({ method: 'GET' })
+  .inputValidator((data: unknown) => recentMoodSchema.parse(data))
+  .handler(async ({ data }) => {
+    const today = new Date().toISOString().split('T')[0]
+    const startDate = subtractDays(today, data.days)
+
+    const recentEntries = await db.query.entries.findMany({
+      columns: { mood: true },
+      where: gte(entries.date, startDate),
+    })
+
+    if (recentEntries.length === 0) return null
+
+    const average =
+      recentEntries.reduce((sum, entry) => sum + entry.mood, 0) /
+      recentEntries.length
+
+    return {
+      average,
+      count: recentEntries.length,
+    }
+  })
+
 // Räkna streak (antal dagar i rad med inlägg)
 export const getStreak = createServerFn({ method: 'GET' }).handler(async () => {
   // Hämta alla entries sorterade på datum (nyast först)

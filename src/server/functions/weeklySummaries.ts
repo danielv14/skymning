@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { db } from '../db'
 import { weeklySummaries } from '../db/schema'
 import { and, eq } from 'drizzle-orm'
-import { getISOWeek, getISOWeekYear } from 'date-fns'
+import { getISOWeek, getISOWeekYear, subWeeks } from 'date-fns'
 import { weekInputSchema } from '../../constants'
 
 // Hämta veckosummering (om den finns)
@@ -50,3 +50,22 @@ export const getCurrentWeek = (): { year: number; week: number } => {
     week: getISOWeek(now),
   }
 }
+
+export const getLastWeekSummary = createServerFn({ method: 'GET' }).handler(
+  async () => {
+    const oneWeekAgo = subWeeks(new Date(), 1)
+    const lastWeek = {
+      year: getISOWeekYear(oneWeekAgo),
+      week: getISOWeek(oneWeekAgo),
+    }
+
+    const summary = await db.query.weeklySummaries.findFirst({
+      where: and(
+        eq(weeklySummaries.year, lastWeek.year),
+        eq(weeklySummaries.week, lastWeek.week)
+      ),
+    })
+
+    return summary ? { ...summary, ...lastWeek } : null
+  }
+)
