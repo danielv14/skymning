@@ -195,15 +195,20 @@ bun scripts/test-utils.ts clear-today # Rensar dagens entry (för att testa summ
 ```
 src/
   components/       # Reusable UI components
-    mood/           # Mood-related components
-    ui/             # Generic UI (Button, Card)
+    mood/           # Mood-related components (MoodEmoji, MoodTrend, etc.)
+    reflection/     # Reflection components (MoodSelector, SummaryEditor, etc.)
+    ui/             # Generic UI (Button, Card, Modal, etc.)
+  constants/        # Constants and Zod schemas
+  hooks/            # Custom React hooks (useAsyncGeneration)
   routes/           # TanStack Router pages
-    api/            # API endpoints
+    api/            # API endpoints (chat)
+    timeline/       # Timeline views ($year/$week.tsx)
   server/           # Server-side code
-    ai/             # AI/LLM integration
+    ai/             # AI/LLM integration (client, prompts)
     db/             # Database schema and connection
-    functions/      # Server functions (RPC)
-scripts/            # Utility scripts
+    functions/      # Server functions (entries, userContext, weeklySummaries)
+  utils/            # Utility functions (date, error)
+scripts/            # Utility scripts (test-utils.ts)
 ```
 
 ## Common Patterns
