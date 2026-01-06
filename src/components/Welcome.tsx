@@ -1,9 +1,11 @@
 import { Link } from '@tanstack/react-router'
 import { Button } from './ui/Button'
+import { StarField } from './StarField'
 
 export const Welcome = () => {
   return (
-    <div className="min-h-screen bg-night stars flex items-center justify-center p-6 sm:p-8">
+    <div className="min-h-screen bg-night relative flex items-center justify-center p-6 sm:p-8">
+      <StarField starCount={50} className="bottom-1/2" />
       <div className="max-w-md text-center space-y-6 sm:space-y-8 relative z-10 px-1">
         <div className="space-y-4">
           <div className="text-5xl sm:text-6xl mb-4 sm:mb-6">🌙</div>

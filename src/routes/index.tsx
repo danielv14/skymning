@@ -5,8 +5,8 @@ import {
   getMoodTrend,
   getStreak,
   getRecentMoodAverage,
+  hasAnyEntries,
 } from '../server/functions/entries'
-import { hasAnyEntries } from '../server/functions/entries'
 import { getLastWeekSummary } from '../server/functions/weeklySummaries'
 import { MoodTrend } from '../components/mood/MoodTrend'
 import { MoodEmoji } from '../components/mood/MoodEmoji'
@@ -14,6 +14,7 @@ import { StreakFlame } from '../components/mood/MoodIcons'
 import { Welcome } from '../components/Welcome'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
+import { StarField } from '../components/StarField'
 import { getPeriodMoodDescription } from '../constants/mood'
 
 const HomePage = () => {
@@ -28,8 +29,9 @@ const HomePage = () => {
   return (
     <div className="min-h-screen">
       {/* Header med gradient */}
-      <header className="bg-horizon stars-header py-6 sm:py-8 px-6 sm:px-8 view-transition-header">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
+      <header className="bg-horizon relative overflow-hidden py-6 sm:py-8 px-6 sm:px-8 view-transition-header">
+        <StarField starCount={20} />
+        <div className="max-w-2xl mx-auto flex items-center justify-between relative z-10">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-white">Skymning</h1>
             <p className="text-slate-300 mt-1">Din dagliga reflektion</p>

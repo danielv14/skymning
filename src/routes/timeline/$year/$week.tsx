@@ -10,6 +10,7 @@ import { generateWeeklySummary } from '../../../server/ai'
 import { MoodEmoji } from '../../../components/mood/MoodEmoji'
 import { Button } from '../../../components/ui/Button'
 import { Card } from '../../../components/ui/Card'
+import { StarField } from '../../../components/StarField'
 import { ChevronLeft, ChevronRight, Home } from 'lucide-react'
 import { useState } from 'react'
 import { format, parseISO } from 'date-fns'
@@ -70,8 +71,9 @@ const TimelineWeekPage = () => {
   return (
     <div className="min-h-screen">
       {/* Header med gradient */}
-      <header className="bg-horizon stars-header py-6 sm:py-8 px-6 sm:px-8">
-        <div className="max-w-2xl mx-auto">
+      <header className="bg-horizon relative overflow-hidden py-6 sm:py-8 px-6 sm:px-8">
+        <StarField starCount={20} />
+        <div className="max-w-2xl mx-auto relative z-10">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
             <Link to="/">
               <button className="p-2 -ml-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer">
