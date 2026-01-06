@@ -2,20 +2,14 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useChat, fetchServerSentEvents } from '@tanstack/ai-react'
 import { getTodayEntry, createEntry } from '../server/functions/entries'
-import { generateDaySummary } from '../server/ai'
-import { MoodEmoji } from '../components/mood/MoodEmoji'
 import { Button } from '../components/ui/Button'
-import { Card } from '../components/ui/Card'
 import { PageHeader } from '../components/ui/PageHeader'
-
-type Step = 'chat' | 'save'
+import { CompletionModal } from '../components/reflection/CompletionModal'
 
 const ReflectPage = () => {
   const router = useRouter()
   const { todayEntry } = Route.useLoaderData()
-  const [step, setStep] = useState<Step>('chat')
-  const [selectedMood, setSelectedMood] = useState<number | null>(null)
-  const [isSaving, setIsSaving] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
   const [input, setInput] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -67,46 +61,31 @@ const ReflectPage = () => {
     }
   }
 
-  const handleFinishChat = () => {
+  const handleOpenModal = () => {
     if (messages.length > 0) {
-      setStep('save')
+      setModalOpen(true)
     }
   }
 
-  const handleSave = async () => {
-    if (!selectedMood) return
-
-    setIsSaving(true)
-    try {
-      // Förbered meddelanden för summering
-      const chatMessages = messages.map((m) => ({
-        role: m.role as 'user' | 'assistant',
-        content: m.parts
-          .filter((p) => p.type === 'text')
-          .map((p) => p.content)
-          .join(''),
-      }))
-
-      // Generera summering
-      const summary = await generateDaySummary({ data: { messages: chatMessages } })
-
-      // Spara inlägget
-      await createEntry({
-        data: {
-          mood: selectedMood,
-          summary: typeof summary === 'string' ? summary : String(summary),
-        },
-      })
-
-      // Navigera tillbaka till startsidan
-      router.navigate({ to: '/' })
-    } catch (error) {
-      console.error('Failed to save entry:', error)
-      setIsSaving(false)
-    }
+  const handleSave = async (mood: number, summary: string) => {
+    await createEntry({
+      data: {
+        mood,
+        summary,
+      },
+    })
+    setModalOpen(false)
+    router.navigate({ to: '/' })
   }
 
-  // Hämta text från message parts
+  const chatMessages = messages.map((m) => ({
+    role: m.role as 'user' | 'assistant',
+    content: m.parts
+      .filter((p) => p.type === 'text')
+      .map((p) => p.content)
+      .join(''),
+  }))
+
   const getMessageText = (parts: typeof messages[0]['parts']) => {
     return parts
       .filter((p) => p.type === 'text')
@@ -114,51 +93,14 @@ const ReflectPage = () => {
       .join('')
   }
 
-  if (step === 'save') {
-    return (
-      <div className="min-h-screen bg-night stars flex items-center justify-center p-6 sm:p-8">
-        <div className="w-full max-w-md relative z-10">
-          <header className="mb-6 sm:mb-8 text-center">
-            <h1 className="text-2xl font-bold text-white">Hur kändes dagen?</h1>
-            <p className="text-slate-300 mt-1">Välj den känsla som bäst beskriver din dag</p>
-          </header>
-
-          <Card className="mb-5 sm:mb-6">
-            <div className="flex justify-around py-2 sm:py-4">
-              {[1, 2, 3, 4, 5].map((mood) => (
-                <button
-                  key={mood}
-                  onClick={() => setSelectedMood(mood)}
-                  className={`p-3 sm:p-4 rounded-2xl transition-all ${
-                    selectedMood === mood
-                      ? 'bg-indigo-500/30 scale-110 ring-2 ring-indigo-400'
-                      : 'hover:bg-slate-700/50'
-                  }`}
-                >
-                  <MoodEmoji mood={mood} size="lg" showLabel />
-                </button>
-              ))}
-            </div>
-          </Card>
-
-          <div className="flex gap-3">
-            <Button variant="secondary" onClick={() => setStep('chat')}>
-              Tillbaka
-            </Button>
-            <Button
-              onClick={handleSave}
-              disabled={!selectedMood || isSaving}
-              className="flex-1"
-            >
-              {isSaving ? 'Sparar...' : 'Spara dagen'}
-            </Button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
+    <>
+      <CompletionModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        messages={chatMessages}
+        onSave={handleSave}
+      />
     <div className="h-screen flex flex-col bg-slate-900">
       {/* Header med gradient */}
       <PageHeader
@@ -217,7 +159,7 @@ const ReflectPage = () => {
             <div className="mb-3">
               <Button
                 variant="secondary"
-                onClick={handleFinishChat}
+                onClick={handleOpenModal}
                 className="w-full"
               >
                 Jag är klar – spara dagen
@@ -251,6 +193,7 @@ const ReflectPage = () => {
         </div>
       </div>
     </div>
+    </>
   )
 }
 

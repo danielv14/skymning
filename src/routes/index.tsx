@@ -26,20 +26,22 @@ const HomePage = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-white">Skymning</h1>
             <p className="text-slate-300 mt-1">Din dagliga reflektion</p>
           </div>
-          <nav className="flex gap-4">
+          <nav className="flex gap-2 sm:gap-4">
             <Link
               to="/timeline"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-white/10 transition-colors text-slate-300 hover:text-white"
+              className="flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-full hover:bg-white/10 transition-colors text-slate-300 hover:text-white"
+              title="Tidslinje"
             >
-              <Calendar className="w-4 h-4" />
-              <span className="text-sm">Tidslinje</span>
+              <Calendar className="w-5 h-5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline text-sm">Tidslinje</span>
             </Link>
             <Link
               to="/about-me"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full hover:bg-white/10 transition-colors text-slate-300 hover:text-white"
+              className="flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-full hover:bg-white/10 transition-colors text-slate-300 hover:text-white"
+              title="Om mig"
             >
-              <User className="w-4 h-4" />
-              <span className="text-sm">Om mig</span>
+              <User className="w-5 h-5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline text-sm">Om mig</span>
             </Link>
           </nav>
         </div>
@@ -65,7 +67,7 @@ const HomePage = () => {
               <p className="text-slate-300">
                 Ta en stund att reflektera över dagens händelser och känslor.
               </p>
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Link to="/reflect" className="flex-1">
                   <Button className="w-full">Prata med AI</Button>
                 </Link>

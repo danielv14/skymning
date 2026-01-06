@@ -15,6 +15,7 @@
     "db:clear-today": "bun scripts/test-utils.ts clear-today"
   },
   "dependencies": {
+    "@base-ui-components/react": "^1.0.0-rc.0",
     "@tailwindcss/vite": "^4.0.6",
     "@tanstack/ai": "^0.2.0",
     "@tanstack/ai-openai": "^0.2.0",

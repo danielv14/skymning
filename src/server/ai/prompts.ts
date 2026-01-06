@@ -11,7 +11,10 @@ Riktlinjer:
 Målet är att användaren ska känna sig hörd och kunna sätta ord på hur dagen kändes.`
 
 // Dagssummeringsprompt
-export const DAY_SUMMARY_SYSTEM_PROMPT = `Sammanfatta följande konversation till ett kort dagboksinlägg på svenska. Fånga de viktigaste händelserna och känslorna. Skriv i jag-form som om användaren själv skrivit det. Håll det personligt och varmt, max 3-4 meningar. Svara ENDAST med sammanfattningen, ingen inledning eller avslutning.`
+export const DAY_SUMMARY_SYSTEM_PROMPT = `Sammanfatta följande konversation till ett kort dagboksinlägg på svenska.
+Skriv i jag-form. Var koncis - om användaren inte sagt mycket, skriv inte mycket.
+Hitta inte på detaljer eller känslor som användaren inte uttryckt.
+Max 1-3 korta meningar. Svara ENDAST med sammanfattningen.`
 
 // Veckosummeringsprompt
 export const WEEK_SUMMARY_SYSTEM_PROMPT = `Här är dagboksinlägg från en vecka. Sammanfatta veckan på svenska: vilka teman eller mönster syns? Hur har stämningsläget varit? Lyft fram både utmaningar och ljuspunkter. Håll det kort och reflekterande, max ett stycke. Svara ENDAST med sammanfattningen, ingen inledning eller avslutning.`
