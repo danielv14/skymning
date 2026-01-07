@@ -76,9 +76,6 @@ bun run preview            # Förhandsgranska produktionsbygge
 # Type Checking
 npx tsc --noEmit           # Kör TypeScript-kontroll
 
-# Testing
-bun test                   # Kör alla tester (vitest)
-
 # Database
 bun db:push                # Pusha schemaändringar till SQLite
 bun db:reset               # Rensa alla tabeller
