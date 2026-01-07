@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import { getTodayEntry, createEntry } from '../server/functions/entries'
-import { MoodSelector } from '../components/reflection/MoodSelector'
-import { Button } from '../components/ui/Button'
-import { Card } from '../components/ui/Card'
-import { Textarea } from '../components/ui/Textarea'
-import { PageHeader } from '../components/ui/PageHeader'
-import { QuickPolishModal } from '../components/reflection/QuickPolishModal'
+import { getTodayEntry, createEntry } from '../../server/functions/entries'
+import { MoodSelector } from '../../components/reflection/MoodSelector'
+import { Button } from '../../components/ui/Button'
+import { Card } from '../../components/ui/Card'
+import { Textarea } from '../../components/ui/Textarea'
+import { PageHeader } from '../../components/ui/PageHeader'
+import { QuickPolishModal } from '../../components/reflection/QuickPolishModal'
 
 const QuickPage = () => {
   const router = useRouter()
@@ -117,7 +117,7 @@ const QuickPage = () => {
   )
 }
 
-export const Route = createFileRoute('/quick')({
+export const Route = createFileRoute('/_authed/quick')({
   head: () => ({
     meta: [{ title: 'Skriv själv - Skymning' }],
   }),

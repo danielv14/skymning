@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, useRouter } from '@tanstack/react-router'
-import { getCurrentWeek } from '../server/functions/weeklySummaries'
+import { getCurrentWeek } from '../../server/functions/weeklySummaries'
 import { useEffect } from 'react'
 
 const TimelineLayout = () => {
@@ -20,7 +20,7 @@ const TimelineLayout = () => {
   return <Outlet />
 }
 
-export const Route = createFileRoute('/timeline')({
+export const Route = createFileRoute('/_authed/timeline')({
   head: () => ({
     meta: [{ title: 'Tidslinje - Skymning' }],
   }),

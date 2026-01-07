@@ -1,21 +1,21 @@
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import { getEntriesForWeek } from '../../../server/functions/entries'
+import { getEntriesForWeek } from '../../../../server/functions/entries'
 import {
   getWeeklySummary,
   createWeeklySummary,
   getCurrentWeek,
-} from '../../../server/functions/weeklySummaries'
-import { generateWeeklySummary } from '../../../server/ai'
-import { MoodEmoji } from '../../../components/mood/MoodEmoji'
-import { Button } from '../../../components/ui/Button'
-import { Card } from '../../../components/ui/Card'
-import { StarField } from '../../../components/StarField'
+} from '../../../../server/functions/weeklySummaries'
+import { generateWeeklySummary } from '../../../../server/ai'
+import { MoodEmoji } from '../../../../components/mood/MoodEmoji'
+import { Button } from '../../../../components/ui/Button'
+import { Card } from '../../../../components/ui/Card'
+import { StarField } from '../../../../components/StarField'
 import { ChevronLeft, ChevronRight, Home } from 'lucide-react'
 import { useState } from 'react'
 import { format, parseISO } from 'date-fns'
 import { sv } from 'date-fns/locale'
-import { getWeekMoodDescription } from '../../../constants/mood'
+import { getWeekMoodDescription } from '../../../../constants/mood'
 
 const TimelineWeekPage = () => {
   const { year, week, entries, weeklySummary, averageMood } = Route.useLoaderData()
@@ -182,7 +182,7 @@ const TimelineWeekPage = () => {
   )
 }
 
-export const Route = createFileRoute('/timeline/$year/$week')({
+export const Route = createFileRoute('/_authed/timeline/$year/$week')({
   loader: async ({ params }) => {
     const year = parseInt(params.year, 10)
     const week = parseInt(params.week, 10)

@@ -9,153 +9,155 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TimelineRouteImport } from './routes/timeline'
-import { Route as ReflectRouteImport } from './routes/reflect'
-import { Route as QuickRouteImport } from './routes/quick'
-import { Route as AboutMeRouteImport } from './routes/about-me'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as AuthedRouteImport } from './routes/_authed'
+import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
-import { Route as TimelineYearWeekRouteImport } from './routes/timeline/$year/$week'
+import { Route as AuthedTimelineRouteImport } from './routes/_authed/timeline'
+import { Route as AuthedReflectRouteImport } from './routes/_authed/reflect'
+import { Route as AuthedQuickRouteImport } from './routes/_authed/quick'
+import { Route as AuthedAboutMeRouteImport } from './routes/_authed/about-me'
+import { Route as AuthedTimelineYearWeekRouteImport } from './routes/_authed/timeline/$year/$week'
 
-const TimelineRoute = TimelineRouteImport.update({
-  id: '/timeline',
-  path: '/timeline',
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ReflectRoute = ReflectRouteImport.update({
-  id: '/reflect',
-  path: '/reflect',
+const AuthedRoute = AuthedRouteImport.update({
+  id: '/_authed',
   getParentRoute: () => rootRouteImport,
 } as any)
-const QuickRoute = QuickRouteImport.update({
-  id: '/quick',
-  path: '/quick',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AboutMeRoute = AboutMeRouteImport.update({
-  id: '/about-me',
-  path: '/about-me',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
+const AuthedIndexRoute = AuthedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthedRoute,
 } as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TimelineYearWeekRoute = TimelineYearWeekRouteImport.update({
+const AuthedTimelineRoute = AuthedTimelineRouteImport.update({
+  id: '/timeline',
+  path: '/timeline',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedReflectRoute = AuthedReflectRouteImport.update({
+  id: '/reflect',
+  path: '/reflect',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedQuickRoute = AuthedQuickRouteImport.update({
+  id: '/quick',
+  path: '/quick',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedAboutMeRoute = AuthedAboutMeRouteImport.update({
+  id: '/about-me',
+  path: '/about-me',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedTimelineYearWeekRoute = AuthedTimelineYearWeekRouteImport.update({
   id: '/$year/$week',
   path: '/$year/$week',
-  getParentRoute: () => TimelineRoute,
+  getParentRoute: () => AuthedTimelineRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/about-me': typeof AboutMeRoute
-  '/quick': typeof QuickRoute
-  '/reflect': typeof ReflectRoute
-  '/timeline': typeof TimelineRouteWithChildren
+  '/login': typeof LoginRoute
+  '/about-me': typeof AuthedAboutMeRoute
+  '/quick': typeof AuthedQuickRoute
+  '/reflect': typeof AuthedReflectRoute
+  '/timeline': typeof AuthedTimelineRouteWithChildren
   '/api/chat': typeof ApiChatRoute
-  '/timeline/$year/$week': typeof TimelineYearWeekRoute
+  '/': typeof AuthedIndexRoute
+  '/timeline/$year/$week': typeof AuthedTimelineYearWeekRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/about-me': typeof AboutMeRoute
-  '/quick': typeof QuickRoute
-  '/reflect': typeof ReflectRoute
-  '/timeline': typeof TimelineRouteWithChildren
+  '/login': typeof LoginRoute
+  '/about-me': typeof AuthedAboutMeRoute
+  '/quick': typeof AuthedQuickRoute
+  '/reflect': typeof AuthedReflectRoute
+  '/timeline': typeof AuthedTimelineRouteWithChildren
   '/api/chat': typeof ApiChatRoute
-  '/timeline/$year/$week': typeof TimelineYearWeekRoute
+  '/': typeof AuthedIndexRoute
+  '/timeline/$year/$week': typeof AuthedTimelineYearWeekRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/about-me': typeof AboutMeRoute
-  '/quick': typeof QuickRoute
-  '/reflect': typeof ReflectRoute
-  '/timeline': typeof TimelineRouteWithChildren
+  '/_authed': typeof AuthedRouteWithChildren
+  '/login': typeof LoginRoute
+  '/_authed/about-me': typeof AuthedAboutMeRoute
+  '/_authed/quick': typeof AuthedQuickRoute
+  '/_authed/reflect': typeof AuthedReflectRoute
+  '/_authed/timeline': typeof AuthedTimelineRouteWithChildren
   '/api/chat': typeof ApiChatRoute
-  '/timeline/$year/$week': typeof TimelineYearWeekRoute
+  '/_authed/': typeof AuthedIndexRoute
+  '/_authed/timeline/$year/$week': typeof AuthedTimelineYearWeekRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
+    | '/login'
     | '/about-me'
     | '/quick'
     | '/reflect'
     | '/timeline'
     | '/api/chat'
+    | '/'
     | '/timeline/$year/$week'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
+    | '/login'
     | '/about-me'
     | '/quick'
     | '/reflect'
     | '/timeline'
     | '/api/chat'
+    | '/'
     | '/timeline/$year/$week'
   id:
     | '__root__'
-    | '/'
-    | '/about-me'
-    | '/quick'
-    | '/reflect'
-    | '/timeline'
+    | '/_authed'
+    | '/login'
+    | '/_authed/about-me'
+    | '/_authed/quick'
+    | '/_authed/reflect'
+    | '/_authed/timeline'
     | '/api/chat'
-    | '/timeline/$year/$week'
+    | '/_authed/'
+    | '/_authed/timeline/$year/$week'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  AboutMeRoute: typeof AboutMeRoute
-  QuickRoute: typeof QuickRoute
-  ReflectRoute: typeof ReflectRoute
-  TimelineRoute: typeof TimelineRouteWithChildren
+  AuthedRoute: typeof AuthedRouteWithChildren
+  LoginRoute: typeof LoginRoute
   ApiChatRoute: typeof ApiChatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/timeline': {
-      id: '/timeline'
-      path: '/timeline'
-      fullPath: '/timeline'
-      preLoaderRoute: typeof TimelineRouteImport
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/reflect': {
-      id: '/reflect'
-      path: '/reflect'
-      fullPath: '/reflect'
-      preLoaderRoute: typeof ReflectRouteImport
+    '/_authed': {
+      id: '/_authed'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/quick': {
-      id: '/quick'
-      path: '/quick'
-      fullPath: '/quick'
-      preLoaderRoute: typeof QuickRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/about-me': {
-      id: '/about-me'
-      path: '/about-me'
-      fullPath: '/about-me'
-      preLoaderRoute: typeof AboutMeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
+    '/_authed/': {
+      id: '/_authed/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthedIndexRouteImport
+      parentRoute: typeof AuthedRoute
     }
     '/api/chat': {
       id: '/api/chat'
@@ -164,34 +166,78 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/timeline/$year/$week': {
-      id: '/timeline/$year/$week'
+    '/_authed/timeline': {
+      id: '/_authed/timeline'
+      path: '/timeline'
+      fullPath: '/timeline'
+      preLoaderRoute: typeof AuthedTimelineRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/reflect': {
+      id: '/_authed/reflect'
+      path: '/reflect'
+      fullPath: '/reflect'
+      preLoaderRoute: typeof AuthedReflectRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/quick': {
+      id: '/_authed/quick'
+      path: '/quick'
+      fullPath: '/quick'
+      preLoaderRoute: typeof AuthedQuickRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/about-me': {
+      id: '/_authed/about-me'
+      path: '/about-me'
+      fullPath: '/about-me'
+      preLoaderRoute: typeof AuthedAboutMeRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/timeline/$year/$week': {
+      id: '/_authed/timeline/$year/$week'
       path: '/$year/$week'
       fullPath: '/timeline/$year/$week'
-      preLoaderRoute: typeof TimelineYearWeekRouteImport
-      parentRoute: typeof TimelineRoute
+      preLoaderRoute: typeof AuthedTimelineYearWeekRouteImport
+      parentRoute: typeof AuthedTimelineRoute
     }
   }
 }
 
-interface TimelineRouteChildren {
-  TimelineYearWeekRoute: typeof TimelineYearWeekRoute
+interface AuthedTimelineRouteChildren {
+  AuthedTimelineYearWeekRoute: typeof AuthedTimelineYearWeekRoute
 }
 
-const TimelineRouteChildren: TimelineRouteChildren = {
-  TimelineYearWeekRoute: TimelineYearWeekRoute,
+const AuthedTimelineRouteChildren: AuthedTimelineRouteChildren = {
+  AuthedTimelineYearWeekRoute: AuthedTimelineYearWeekRoute,
 }
 
-const TimelineRouteWithChildren = TimelineRoute._addFileChildren(
-  TimelineRouteChildren,
+const AuthedTimelineRouteWithChildren = AuthedTimelineRoute._addFileChildren(
+  AuthedTimelineRouteChildren,
 )
 
+interface AuthedRouteChildren {
+  AuthedAboutMeRoute: typeof AuthedAboutMeRoute
+  AuthedQuickRoute: typeof AuthedQuickRoute
+  AuthedReflectRoute: typeof AuthedReflectRoute
+  AuthedTimelineRoute: typeof AuthedTimelineRouteWithChildren
+  AuthedIndexRoute: typeof AuthedIndexRoute
+}
+
+const AuthedRouteChildren: AuthedRouteChildren = {
+  AuthedAboutMeRoute: AuthedAboutMeRoute,
+  AuthedQuickRoute: AuthedQuickRoute,
+  AuthedReflectRoute: AuthedReflectRoute,
+  AuthedTimelineRoute: AuthedTimelineRouteWithChildren,
+  AuthedIndexRoute: AuthedIndexRoute,
+}
+
+const AuthedRouteWithChildren =
+  AuthedRoute._addFileChildren(AuthedRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  AboutMeRoute: AboutMeRoute,
-  QuickRoute: QuickRoute,
-  ReflectRoute: ReflectRoute,
-  TimelineRoute: TimelineRouteWithChildren,
+  AuthedRoute: AuthedRouteWithChildren,
+  LoginRoute: LoginRoute,
   ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport

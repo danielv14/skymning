@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useChat, fetchServerSentEvents } from '@tanstack/ai-react'
-import { getTodayEntry, createEntry } from '../server/functions/entries'
-import { Button } from '../components/ui/Button'
-import { Textarea } from '../components/ui/Textarea'
-import { PageHeader } from '../components/ui/PageHeader'
-import { CompletionModal } from '../components/reflection/CompletionModal'
+import { getTodayEntry, createEntry } from '../../server/functions/entries'
+import { Button } from '../../components/ui/Button'
+import { Textarea } from '../../components/ui/Textarea'
+import { PageHeader } from '../../components/ui/PageHeader'
+import { CompletionModal } from '../../components/reflection/CompletionModal'
 
 const ReflectPage = () => {
   const router = useRouter()
@@ -190,7 +190,7 @@ const ReflectPage = () => {
   )
 }
 
-export const Route = createFileRoute('/reflect')({
+export const Route = createFileRoute('/_authed/reflect')({
   head: () => ({
     meta: [{ title: 'Reflektera - Skymning' }],
   }),

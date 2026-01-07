@@ -10,6 +10,7 @@ Skymning is a Swedish personal reflection/journaling app built with:
 - **Database**: SQLite with Drizzle ORM
 - **Styling**: Tailwind CSS v4
 - **AI**: TanStack AI with OpenAI (gpt-4o-mini)
+- **Auth**: TanStack Start sessions with encrypted httpOnly cookies
 - **Language**: TypeScript (strict mode)
 
 ## Build/Lint/Test Commands
@@ -139,10 +140,11 @@ bun scripts/test-utils.ts clear-today # Rensar dagens entry (för att testa summ
 ### Routes (TanStack Router)
 
 - Routes live in `src/routes/`
+- Protected routes live in `src/routes/_authed/` (requires authentication)
 - Use `createFileRoute` for page routes
 - Loaders fetch data before render:
   ```typescript
-  export const Route = createFileRoute('/path')({
+  export const Route = createFileRoute('/_authed/path')({
     loader: async () => {
       const data = await fetchData()
       return { data }
@@ -150,6 +152,34 @@ bun scripts/test-utils.ts clear-today # Rensar dagens entry (för att testa summ
     component: PageComponent,
   })
   ```
+
+### Authentication
+
+- Uses TanStack Start's built-in `useSession` for session management
+- Sessions are stored in encrypted httpOnly cookies (30-day expiry)
+- Protected routes are nested under `_authed/` layout route
+- Login validates against `AUTH_SECRET` environment variable
+
+Key files:
+- `src/server/auth/session.ts` - Session configuration with `useAppSession` hook
+- `src/server/functions/auth.ts` - `loginFn`, `logoutFn`, `isAuthenticatedFn`
+- `src/routes/_authed.tsx` - Layout route that checks auth via `beforeLoad`
+- `src/routes/login.tsx` - Public login page
+
+Environment variables:
+```bash
+# User's login password (any string)
+AUTH_SECRET=your-login-password
+
+# Session encryption key (minimum 32 characters)
+# Generate with: openssl rand -base64 32
+SESSION_SECRET=your-32-char-encryption-key
+```
+
+| Variable | Purpose | Used by |
+|----------|---------|---------|
+| `AUTH_SECRET` | Login password | User types this to log in |
+| `SESSION_SECRET` | Encrypts session cookies | Server only (invisible to user) |
 
 ### Styling (Tailwind CSS v4)
 
@@ -201,12 +231,14 @@ src/
   constants/        # Constants and Zod schemas
   hooks/            # Custom React hooks (useAsyncGeneration)
   routes/           # TanStack Router pages
+    _authed/        # Protected routes (requires login)
+      timeline/     # Timeline views ($year/$week.tsx)
     api/            # API endpoints (chat)
-    timeline/       # Timeline views ($year/$week.tsx)
   server/           # Server-side code
     ai/             # AI/LLM integration (client, prompts)
+    auth/           # Authentication (session.ts)
     db/             # Database schema and connection
-    functions/      # Server functions (entries, userContext, weeklySummaries)
+    functions/      # Server functions (entries, userContext, weeklySummaries, auth)
   utils/            # Utility functions (date, error)
 scripts/            # Utility scripts (test-utils.ts)
 ```

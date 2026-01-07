@@ -6,16 +6,16 @@ import {
   getStreak,
   getRecentMoodAverage,
   hasAnyEntries,
-} from '../server/functions/entries'
-import { getLastWeekSummary } from '../server/functions/weeklySummaries'
-import { MoodTrend } from '../components/mood/MoodTrend'
-import { MoodEmoji } from '../components/mood/MoodEmoji'
-import { StreakFlame } from '../components/mood/MoodIcons'
-import { Welcome } from '../components/Welcome'
-import { Button } from '../components/ui/Button'
-import { Card } from '../components/ui/Card'
-import { StarField } from '../components/StarField'
-import { getPeriodMoodDescription } from '../constants/mood'
+} from '../../server/functions/entries'
+import { getLastWeekSummary } from '../../server/functions/weeklySummaries'
+import { MoodTrend } from '../../components/mood/MoodTrend'
+import { MoodEmoji } from '../../components/mood/MoodEmoji'
+import { StreakFlame } from '../../components/mood/MoodIcons'
+import { Welcome } from '../../components/Welcome'
+import { Button } from '../../components/ui/Button'
+import { Card } from '../../components/ui/Card'
+import { StarField } from '../../components/StarField'
+import { getPeriodMoodDescription } from '../../constants/mood'
 
 const HomePage = () => {
   const { hasEntries, todayEntry, moodTrend, streak, recentMood, lastWeekSummary } =
@@ -172,7 +172,7 @@ const HomePage = () => {
   )
 }
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute('/_authed/')({
   head: () => ({
     meta: [{ title: 'Skymning' }],
   }),

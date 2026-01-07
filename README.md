@@ -10,6 +10,7 @@ En personlig reflektions- och dagboksapp på svenska. Följ ditt mående över t
 - **Veckosammanfattningar** - Automatiska AI-genererade sammanfattningar per vecka
 - **Timeline** - Se dina reflektioner över tid med mood-trender
 - **Personlig kontext** - Spara information om dig själv som AI:n använder för bättre svar
+- **Autentisering** - Skyddad med lösenord och krypterade sessioner
 
 ## Tech Stack
 
@@ -28,19 +29,39 @@ En personlig reflektions- och dagboksapp på svenska. Följ ditt mående över t
 bun install
 ```
 
-2. Kopiera `.env.example` till `.env` och lägg till din OpenAI API-nyckel:
+2. Kopiera `.env.example` till `.env` och konfigurera:
 
 ```bash
 cp .env.example .env
 ```
 
-3. Starta utvecklingsservern:
+3. Fyll i miljövariablerna i `.env`:
+
+```bash
+# OpenAI API-nyckel för AI-funktioner
+OPENAI_API_KEY=sk-...
+
+# Ditt inloggningslösenord (valfri sträng)
+AUTH_SECRET=ditt-hemliga-losenord
+
+# Krypteringsnyckel för sessioner (minst 32 tecken)
+# Generera med: openssl rand -base64 32
+SESSION_SECRET=din-32-tecken-langa-krypteringsnyckel
+```
+
+| Variabel | Beskrivning | Krav |
+|----------|-------------|------|
+| `OPENAI_API_KEY` | API-nyckel från OpenAI | Krävs för AI-funktioner |
+| `AUTH_SECRET` | Lösenordet du anger vid inloggning | Valfri sträng |
+| `SESSION_SECRET` | Intern nyckel för att kryptera session-cookies | Minst 32 tecken |
+
+4. Starta utvecklingsservern:
 
 ```bash
 bun dev
 ```
 
-Appen körs på http://localhost:3000
+Appen körs på http://localhost:3000 - du kommer dirigeras till `/login` där du anger ditt `AUTH_SECRET` för att komma in.
 
 ## Scripts
 
@@ -77,10 +98,11 @@ src/
   constants/            # Konstanter och scheman
   hooks/                # Custom React hooks
   routes/               # TanStack Router sidor
+    _authed/            # Skyddade sidor (kräver inloggning)
     api/                # API endpoints
-    timeline/           # Timeline-sidor
   server/               # Server-side kod
     ai/                 # AI/LLM-integration
+    auth/               # Autentisering och sessioner
     db/                 # Databasschema och anslutning
     functions/          # Server functions (RPC)
   utils/                # Hjälpfunktioner

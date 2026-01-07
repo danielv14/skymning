@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import { getUserContext, updateUserContext } from '../server/functions/userContext'
-import { Button } from '../components/ui/Button'
-import { Card } from '../components/ui/Card'
-import { Textarea } from '../components/ui/Textarea'
-import { PageHeader } from '../components/ui/PageHeader'
-import { Check } from 'lucide-react'
+import { getUserContext, updateUserContext } from '../../server/functions/userContext'
+import { logoutFn } from '../../server/functions/auth'
+import { Button } from '../../components/ui/Button'
+import { Card } from '../../components/ui/Card'
+import { Textarea } from '../../components/ui/Textarea'
+import { PageHeader } from '../../components/ui/PageHeader'
+import { Check, LogOut } from 'lucide-react'
 
 const HISTORY_OPTIONS = [
   { value: 0, label: 'Ingen historik' },
@@ -16,12 +17,14 @@ const HISTORY_OPTIONS = [
 ]
 
 const AboutMePage = () => {
+  const router = useRouter()
   const { userContext } = Route.useLoaderData()
   const [content, setContent] = useState(userContext.content)
   const [historyCount, setHistoryCount] = useState(userContext.historyCount)
   const [isSaving, setIsSaving] = useState(false)
   const [showSaved, setShowSaved] = useState(false)
   const [hasChanges, setHasChanges] = useState(false)
+  const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   useEffect(() => {
     setHasChanges(
@@ -41,6 +44,19 @@ const AboutMePage = () => {
       toast.error('Kunde inte spara inställningarna')
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true)
+    try {
+      await logoutFn()
+      router.navigate({ to: '/login' })
+    } catch (error) {
+      console.error('Failed to logout:', error)
+      toast.error('Kunde inte logga ut')
+    } finally {
+      setIsLoggingOut(false)
     }
   }
 
@@ -131,12 +147,24 @@ const AboutMePage = () => {
             </p>
           </div>
         </Card>
+
+        {/* Logout section */}
+        <div className="pt-6 border-t border-slate-800">
+          <button
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="flex items-center gap-2 text-slate-400 hover:text-slate-200 transition-colors disabled:opacity-50"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="text-sm">{isLoggingOut ? 'Loggar ut...' : 'Logga ut'}</span>
+          </button>
+        </div>
       </main>
     </div>
   )
 }
 
-export const Route = createFileRoute('/about-me')({
+export const Route = createFileRoute('/_authed/about-me')({
   head: () => ({
     meta: [{ title: 'Om mig - Skymning' }],
   }),
