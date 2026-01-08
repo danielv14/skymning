@@ -68,3 +68,30 @@ export const getLastWeekSummary = createServerFn({ method: 'GET' }).handler(
     return summary ? { ...summary, ...lastWeek } : null
   }
 )
+
+const updateWeeklySummarySchema = z.object({
+  year: z.number(),
+  week: z.number().min(1).max(53),
+  summary: z.string().min(1),
+})
+
+export const updateWeeklySummary = createServerFn({ method: 'POST' })
+  .inputValidator((data: unknown) => updateWeeklySummarySchema.parse(data))
+  .handler(async ({ data }) => {
+    const db = getDb()
+    const [updated] = await db
+      .update(weeklySummaries)
+      .set({
+        summary: data.summary,
+        createdAt: new Date().toISOString(),
+      })
+      .where(
+        and(
+          eq(weeklySummaries.year, data.year),
+          eq(weeklySummaries.week, data.week)
+        )
+      )
+      .returning()
+
+    return updated
+  })

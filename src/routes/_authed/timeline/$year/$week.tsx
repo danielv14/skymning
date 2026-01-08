@@ -4,6 +4,7 @@ import { getEntriesForWeek } from '../../../../server/functions/entries'
 import {
   getWeeklySummary,
   createWeeklySummary,
+  updateWeeklySummary,
   getCurrentWeek,
 } from '../../../../server/functions/weeklySummaries'
 import { generateWeeklySummary } from '../../../../server/ai'
@@ -11,7 +12,8 @@ import { MoodEmoji } from '../../../../components/mood/MoodEmoji'
 import { Button } from '../../../../components/ui/Button'
 import { Card } from '../../../../components/ui/Card'
 import { StarField } from '../../../../components/StarField'
-import { ChevronLeft, ChevronRight, Home } from 'lucide-react'
+import { RegenerateConfirmModal } from '../../../../components/reflection/RegenerateConfirmModal'
+import { ChevronLeft, ChevronRight, Home, RotateCw } from 'lucide-react'
 import { useState } from 'react'
 import { format, parseISO } from 'date-fns'
 import { sv } from 'date-fns/locale'
@@ -21,6 +23,8 @@ const TimelineWeekPage = () => {
   const { year, week, entries, weeklySummary, averageMood } = Route.useLoaderData()
   const router = useRouter()
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isRegenerating, setIsRegenerating] = useState(false)
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false)
 
   const currentWeek = getCurrentWeek()
   const isCurrentWeek = year === currentWeek.year && week === currentWeek.week
@@ -57,6 +61,39 @@ const TimelineWeekPage = () => {
     }
   }
 
+  const handleRegenerateSummary = async () => {
+    if (entries.length === 0) return
+
+    setConfirmModalOpen(false)
+    setIsRegenerating(true)
+    try {
+      const summaryText = await generateWeeklySummary({
+        data: {
+          entries: entries.map((e) => ({
+            date: e.date,
+            mood: e.mood,
+            summary: e.summary,
+          })),
+        },
+      })
+
+      await updateWeeklySummary({
+        data: {
+          year,
+          week,
+          summary: typeof summaryText === 'string' ? summaryText : String(summaryText),
+        },
+      })
+
+      router.invalidate()
+    } catch (error) {
+      console.error('Failed to regenerate summary:', error)
+      toast.error('Kunde inte generera veckosummering')
+    } finally {
+      setIsRegenerating(false)
+    }
+  }
+
   const prevWeek = week === 1 ? { year: year - 1, week: 52 } : { year, week: week - 1 }
   const nextWeek = week === 52 ? { year: year + 1, week: 1 } : { year, week: week + 1 }
 
@@ -64,9 +101,16 @@ const TimelineWeekPage = () => {
   const moodDescription = getWeekMoodDescription(averageMood)
 
   return (
-    <div className="min-h-screen">
-      {/* Header med gradient */}
-      <header className="bg-horizon relative overflow-hidden py-6 sm:py-8 px-6 sm:px-8">
+    <>
+      <RegenerateConfirmModal
+        open={confirmModalOpen}
+        onOpenChange={setConfirmModalOpen}
+        onConfirm={handleRegenerateSummary}
+        isLoading={isRegenerating}
+      />
+      <div className="min-h-screen">
+        {/* Header med gradient */}
+        <header className="bg-horizon relative overflow-hidden py-6 sm:py-8 px-6 sm:px-8">
         <StarField starCount={20} />
         <div className="max-w-2xl mx-auto relative z-10">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
@@ -123,11 +167,21 @@ const TimelineWeekPage = () => {
         {/* Veckosummering */}
         {weeklySummary ? (
           <Card gradient>
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 mb-3">
               <h2 className="text-lg font-semibold text-white">Veckans summering</h2>
-              {moodDescription && (
-                <span className="text-sm text-slate-400">{moodDescription}</span>
-              )}
+              <div className="flex items-center gap-3">
+                {moodDescription && (
+                  <span className="text-sm text-slate-400">{moodDescription}</span>
+                )}
+                <button
+                  onClick={() => setConfirmModalOpen(true)}
+                  disabled={isRegenerating}
+                  className="text-slate-400 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  aria-label="Regenerera summering"
+                >
+                  <RotateCw className={`w-4 h-4 ${isRegenerating ? 'animate-spin' : ''}`} />
+                </button>
+              </div>
             </div>
             <p className="text-slate-300">{weeklySummary.summary}</p>
           </Card>
@@ -181,6 +235,7 @@ const TimelineWeekPage = () => {
         )}
       </main>
     </div>
+    </>
   )
 }
 
