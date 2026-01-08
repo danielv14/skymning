@@ -81,6 +81,29 @@ When changing the database schema:
 
 **Note:** Migration scripts in package.json reference specific migration files. Update these when new migrations are generated.
 
+### GitHub Actions Deployment
+
+Automated deployments via GitHub Actions:
+
+| Workflow | Trigger | What it does |
+|----------|---------|--------------|
+| `deploy.yml` | Push to `master` | Deploys to production Worker |
+| `preview.yml` | PR to `master` | Deploys preview Worker, comments URL on PR |
+| `preview.yml` | PR closed | Deletes preview Worker |
+
+**Preview URLs:** `https://skymning-pr-{number}.daniel-vernberg-6f2.workers.dev`
+
+**GitHub Secrets Required:**
+| Secret | Purpose |
+|--------|---------|
+| `CLOUDFLARE_API_TOKEN` | Wrangler authentication |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID |
+| `AUTH_SECRET` | App login password (for previews) |
+| `SESSION_SECRET` | Session encryption (for previews) |
+| `OPENAI_API_KEY` | AI features (for previews) |
+
+**Note:** Preview Workers share the production D1 database.
+
 ## Code Style Guidelines
 
 ### Functions & Variables
