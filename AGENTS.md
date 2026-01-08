@@ -272,9 +272,36 @@ Key files:
 
 ### Comments
 
-- Write comments in Swedish (project language)
-- Keep comments concise and meaningful
-- Document complex logic, not obvious code
+- Write comments in English
+- **Only add comments to explain WHY, not WHAT**
+- Code should be self-explanatory through clear naming and structure
+- Good reasons to add comments:
+  - Non-obvious edge cases or business logic
+  - Performance optimizations or workarounds
+  - Explaining complex algorithms or mathematical formulas
+  - Important limitations or constraints (e.g., "Resets on Worker cold-start")
+- Bad reasons to add comments:
+  - Describing what a function does (the name should do that)
+  - Repeating what the code obviously does
+  - Explaining trivial operations
+
+Examples:
+```typescript
+// Bad - obvious from function name and code
+// Get today's entry
+export const getTodayEntry = ...
+
+// Bad - obvious from variable name
+// Calculate average mood
+const averageMood = entries.reduce(...) / entries.length
+
+// Good - explains non-obvious ISO week behavior
+// Create a date in the desired week (Thursday of week X is always in week X)
+
+// Good - explains important constraint
+// In-memory rate limiting for login attempts
+// Resets on Worker cold-start, but sufficient for basic brute-force protection
+```
 
 ## Project Structure
 

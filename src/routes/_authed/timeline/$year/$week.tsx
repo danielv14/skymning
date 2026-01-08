@@ -22,7 +22,6 @@ const TimelineWeekPage = () => {
   const router = useRouter()
   const [isGenerating, setIsGenerating] = useState(false)
 
-  // Kolla om vi är på nuvarande vecka
   const currentWeek = getCurrentWeek()
   const isCurrentWeek = year === currentWeek.year && week === currentWeek.week
 
@@ -41,7 +40,6 @@ const TimelineWeekPage = () => {
         },
       })
 
-      // Spara summeringen
       await createWeeklySummary({
         data: {
           year,
@@ -50,7 +48,6 @@ const TimelineWeekPage = () => {
         },
       })
 
-      // Invalidera och hämta om data för att visa den nya summeringen
       router.invalidate()
     } catch (error) {
       console.error('Failed to generate summary:', error)
@@ -60,11 +57,9 @@ const TimelineWeekPage = () => {
     }
   }
 
-  // Beräkna föregående och nästa vecka
   const prevWeek = week === 1 ? { year: year - 1, week: 52 } : { year, week: week - 1 }
   const nextWeek = week === 52 ? { year: year + 1, week: 1 } : { year, week: week + 1 }
 
-  // Formatera vecka för visning
   const weekLabel = `Vecka ${week}, ${year}`
   const moodDescription = getWeekMoodDescription(averageMood)
 
@@ -82,9 +77,6 @@ const TimelineWeekPage = () => {
             </Link>
             <div className="text-center">
               <h1 className="text-xl font-semibold text-white">{weekLabel}</h1>
-              {moodDescription && (
-                <p className="text-sm text-slate-400 mt-0.5">{moodDescription}</p>
-              )}
             </div>
             <div className="w-9" /> {/* Spacer */}
           </div>
@@ -131,12 +123,22 @@ const TimelineWeekPage = () => {
         {/* Veckosummering */}
         {weeklySummary ? (
           <Card gradient>
-            <h2 className="text-lg font-semibold text-white mb-3">Veckans summering</h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold text-white">Veckans summering</h2>
+              {moodDescription && (
+                <span className="text-sm text-slate-400">{moodDescription}</span>
+              )}
+            </div>
             <p className="text-slate-300">{weeklySummary.summary}</p>
           </Card>
         ) : entries.length > 0 ? (
           <Card gradient>
-            <h2 className="text-lg font-semibold text-white mb-3">Veckans summering</h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold text-white">Veckans summering</h2>
+              {moodDescription && (
+                <span className="text-sm text-slate-400">{moodDescription}</span>
+              )}
+            </div>
             <p className="text-slate-400 mb-4">
               Ingen summering finns ännu för denna vecka.
             </p>
@@ -187,7 +189,6 @@ export const Route = createFileRoute('/_authed/timeline/$year/$week')({
     const year = parseInt(params.year, 10)
     const week = parseInt(params.week, 10)
 
-    // Validera URL-parametrar
     if (isNaN(year) || isNaN(week) || week < 1 || week > 53 || year < 2020 || year > 2100) {
       throw new Error('Ogiltiga parametrar för vecka')
     }
@@ -197,7 +198,6 @@ export const Route = createFileRoute('/_authed/timeline/$year/$week')({
       getWeeklySummary({ data: { year, week } }),
     ])
 
-    // Beräkna genomsnittligt mood
     const averageMood = entries.length > 0
       ? entries.reduce((sum, e) => sum + e.mood, 0) / entries.length
       : null

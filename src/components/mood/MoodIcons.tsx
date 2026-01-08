@@ -3,7 +3,7 @@ type IconProps = {
   className?: string
 }
 
-// Nivå 1: Åskväder - tungt och mörkt
+// Level 1: Thunderstorm - heavy and dark
 export const MoodStormy = ({ size = 24, className = '' }: IconProps) => (
   <svg
     width={size}
@@ -21,7 +21,7 @@ export const MoodStormy = ({ size = 24, className = '' }: IconProps) => (
   </svg>
 )
 
-// Nivå 2: Regnigt - lite grått
+// Level 2: Rainy - a bit grey
 export const MoodRainy = ({ size = 24, className = '' }: IconProps) => (
   <svg
     width={size}
@@ -41,7 +41,7 @@ export const MoodRainy = ({ size = 24, className = '' }: IconProps) => (
   </svg>
 )
 
-// Nivå 3: Molnigt - neutralt
+// Level 3: Cloudy - neutral
 export const MoodCloudy = ({ size = 24, className = '' }: IconProps) => (
   <svg
     width={size}
@@ -59,7 +59,7 @@ export const MoodCloudy = ({ size = 24, className = '' }: IconProps) => (
   </svg>
 )
 
-// Nivå 4: Sol med lätta moln - bra känsla
+// Level 4: Sun with light clouds - good feeling
 export const MoodPartlySunny = ({ size = 24, className = '' }: IconProps) => (
   <svg
     width={size}
@@ -82,7 +82,7 @@ export const MoodPartlySunny = ({ size = 24, className = '' }: IconProps) => (
   </svg>
 )
 
-// Nivå 5: Strålande sol - jättebra
+// Level 5: Bright sun - great
 export const MoodSunny = ({ size = 24, className = '' }: IconProps) => (
   <svg
     width={size}

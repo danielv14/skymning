@@ -1,20 +1,19 @@
 /**
- * Test utilities för Skymning
+ * Test utilities for Skymning
  * 
- * Användning:
- *   bun scripts/test-utils.ts reset       - Rensar alla tabeller
- *   bun scripts/test-utils.ts seed        - Seedar 4 veckor med reflektioner
- *   bun scripts/test-utils.ts reseed      - Reset + seed i ett kommando
- *   bun scripts/test-utils.ts clear-today - Rensar dagens entry
+ * Usage:
+ *   bun scripts/test-utils.ts reset       - Clear all tables
+ *   bun scripts/test-utils.ts seed        - Seed 4 weeks of reflections
+ *   bun scripts/test-utils.ts reseed      - Reset + seed combined
+ *   bun scripts/test-utils.ts clear-today - Clear today's entry
  * 
- * OBS: Dessa kommandon körs mot lokal D1-databas via wrangler.
- * För remote (produktion), lägg till --remote flaggan i package.json scripts.
+ * NOTE: These commands run against local D1 database via wrangler.
+ * For remote (production), add --remote flag in package.json scripts.
  */
 
 import { format, getISOWeek, getISOWeekYear, subDays } from 'date-fns'
 import { $ } from 'bun'
 
-// Exempel-summeringar för olika mood-nivåer
 const SUMMARIES_BY_MOOD: Record<number, string[]> = {
   1: [
     'En riktigt tung dag. Allt kändes motigt och jag hade svårt att hitta energi till något alls.',
@@ -50,12 +49,10 @@ const WEEKLY_SUMMARIES = [
   'Veckan präglades av lugn och vardagsrutiner. Inget dramatiskt men en trygg känsla överlag.',
 ]
 
-// Slumpa ett värde från en array
 const randomFrom = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)]
 
-// Generera en mood med viss variation men tendens mot mitten
 const generateMood = (): number => {
-  const weights = [0.1, 0.2, 0.35, 0.25, 0.1] // Viktat mot 3 (okej)
+  const weights = [0.1, 0.2, 0.35, 0.25, 0.1]
   const random = Math.random()
   let cumulative = 0
   for (let i = 0; i < weights.length; i++) {
@@ -65,41 +62,35 @@ const generateMood = (): number => {
   return 3
 }
 
-// Kör SQL mot lokal D1 via wrangler
 const execSql = async (sql: string) => {
   await $`bunx wrangler d1 execute skymning-db --local --command=${sql}`.quiet()
 }
 
-// Reset - rensar alla tabeller
 const reset = async () => {
-  console.log('Rensar tabeller...')
+  console.log('Clearing tables...')
   await execSql('DELETE FROM entries')
   await execSql('DELETE FROM weekly_summaries')
   await execSql('DELETE FROM user_context')
-  console.log('Tabeller rensade!')
+  console.log('Tables cleared!')
 }
 
-// Clear today - rensar dagens entry
 const clearToday = async () => {
   const today = format(new Date(), 'yyyy-MM-dd')
-  console.log(`Rensar dagens entry (${today})...`)
+  console.log(`Clearing today's entry (${today})...`)
   await execSql(`DELETE FROM entries WHERE date = '${today}'`)
-  console.log('Dagens entry rensad!')
+  console.log('Today\'s entry cleared!')
 }
 
-// Seed - skapar 4 veckor med data
 const seed = async () => {
-  console.log('Seedar databas med 4 veckor av reflektioner...')
+  console.log('Seeding database with 4 weeks of reflections...')
   
   const today = new Date()
   const entriesData: { date: string; mood: number; summary: string }[] = []
   const weeksToSeed = new Set<string>()
   
-  // Gå 28 dagar bakåt (4 veckor)
   for (let daysBack = 27; daysBack >= 0; daysBack--) {
     const date = subDays(today, daysBack)
     
-    // Skippa några dagar slumpmässigt (ca 15% chans) för realism
     if (Math.random() < 0.15 && daysBack > 0) {
       continue
     }
@@ -113,12 +104,10 @@ const seed = async () => {
       summary,
     })
     
-    // Spara vecka för veckosummering (ISO vecka)
     const weekKey = `${getISOWeekYear(date)}-${getISOWeek(date)}`
     weeksToSeed.add(weekKey)
   }
   
-  // Infoga entries
   for (const entry of entriesData) {
     const escapedSummary = entry.summary.replace(/'/g, "''")
     const createdAt = new Date().toISOString()
@@ -126,14 +115,13 @@ const seed = async () => {
       `INSERT INTO entries (date, mood, summary, created_at) VALUES ('${entry.date}', ${entry.mood}, '${escapedSummary}', '${createdAt}')`
     )
   }
-  console.log(`   ${entriesData.length} reflektioner skapade`)
+  console.log(`   ${entriesData.length} reflections created`)
   
-  // Skapa veckosummeringar (förutom nuvarande vecka)
   const currentWeekKey = `${getISOWeekYear(today)}-${getISOWeek(today)}`
   let weekCount = 0
   
   for (const weekKey of weeksToSeed) {
-    if (weekKey === currentWeekKey) continue // Skippa nuvarande vecka
+    if (weekKey === currentWeekKey) continue
     
     const [yearStr, weekStr] = weekKey.split('-')
     const summaryText = randomFrom(WEEKLY_SUMMARIES).replace(/'/g, "''")
@@ -143,9 +131,9 @@ const seed = async () => {
     )
     weekCount++
   }
-  console.log(`   ${weekCount} veckosummeringar skapade`)
+  console.log(`   ${weekCount} weekly summaries created`)
   
-  console.log('Seeding klar!')
+  console.log('Seeding complete!')
 }
 
 // Main
@@ -169,10 +157,10 @@ switch (command) {
     console.log(`
 Skymning Test Utilities
 
-Användning:
-  bun scripts/test-utils.ts reset       - Rensar alla tabeller
-  bun scripts/test-utils.ts seed        - Seedar 4 veckor med reflektioner
-  bun scripts/test-utils.ts reseed      - Reset + seed i ett kommando
-  bun scripts/test-utils.ts clear-today - Rensar dagens entry (för att testa summering)
+Usage:
+  bun scripts/test-utils.ts reset       - Clear all tables
+  bun scripts/test-utils.ts seed        - Seed 4 weeks of reflections
+  bun scripts/test-utils.ts reseed      - Reset + seed combined
+  bun scripts/test-utils.ts clear-today - Clear today's entry (to test summaries)
 `)
 }

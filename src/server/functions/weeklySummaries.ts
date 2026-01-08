@@ -6,8 +6,6 @@ import { and, eq } from 'drizzle-orm'
 import { getISOWeek, getISOWeekYear, subWeeks } from 'date-fns'
 import { weekInputSchema } from '../../constants'
 
-// Hämta veckosummering (om den finns)
-
 export const getWeeklySummary = createServerFn({ method: 'GET' })
   .inputValidator((data: unknown) => weekInputSchema.parse(data))
   .handler(async ({ data }) => {
@@ -21,7 +19,6 @@ export const getWeeklySummary = createServerFn({ method: 'GET' })
     return summary ?? null
   })
 
-// Spara veckosummering
 const createWeeklySummarySchema = z.object({
   year: z.number(),
   week: z.number().min(1).max(53),
@@ -44,7 +41,6 @@ export const createWeeklySummary = createServerFn({ method: 'POST' })
     return summary
   })
 
-// Hjälpfunktion: hämta aktuell vecka (ISO 8601)
 export const getCurrentWeek = (): { year: number; week: number } => {
   const now = new Date()
   return {

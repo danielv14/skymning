@@ -1,5 +1,5 @@
-// In-memory rate limiting för login-försök
-// Återställs vid Worker cold-start, men tillräckligt för grundläggande brute-force-skydd
+// In-memory rate limiting for login attempts
+// Resets on Worker cold-start, but sufficient for basic brute-force protection
 
 type AttemptRecord = {
   count: number
@@ -9,13 +9,13 @@ type AttemptRecord = {
 const failedAttempts = new Map<string, AttemptRecord>()
 
 const MAX_ATTEMPTS = 5
-const WINDOW_MS = 15 * 60 * 1000 // 15 minuter
+const WINDOW_MS = 15 * 60 * 1000 // 15 minutes
 
 export const isRateLimited = (ip: string): boolean => {
   const record = failedAttempts.get(ip)
   if (!record) return false
 
-  // Återställ om tidsfönstret har passerat
+  // Reset if the time window has passed
   if (Date.now() - record.firstAttempt > WINDOW_MS) {
     failedAttempts.delete(ip)
     return false

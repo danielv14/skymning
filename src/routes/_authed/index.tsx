@@ -21,7 +21,6 @@ const HomePage = () => {
   const { hasEntries, todayEntry, moodTrend, streak, recentMood, lastWeekSummary } =
     Route.useLoaderData()
 
-  // Visa välkomstvy om inga inlägg finns
   if (!hasEntries) {
     return <Welcome />
   }

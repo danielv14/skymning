@@ -15,13 +15,12 @@ const loginSchema = z.object({
 export const loginFn = createServerFn({ method: 'POST' })
   .inputValidator((data: unknown) => loginSchema.parse(data))
   .handler(async ({ data }) => {
-    // Hämta klient-IP från Cloudflare header (fallback till 'unknown' lokalt)
     const clientIp = getRequestHeader('CF-Connecting-IP') ?? 'unknown'
 
     if (isRateLimited(clientIp)) {
       return {
         success: false as const,
-        error: 'För många försök. Vänta 15 minuter.',
+        error: 'Too many attempts. Wait 15 minutes.',
       }
     }
 
@@ -29,12 +28,12 @@ export const loginFn = createServerFn({ method: 'POST' })
 
     if (!authSecret) {
       console.error('AUTH_SECRET is not configured')
-      return { success: false as const, error: 'Serverfel: Auth ej konfigurerat' }
+      return { success: false as const, error: 'Server error: Auth not configured' }
     }
 
     if (data.secret !== authSecret) {
       recordFailedAttempt(clientIp)
-      return { success: false as const, error: 'Fel lösenord' }
+      return { success: false as const, error: 'Wrong password' }
     }
 
     clearFailedAttempts(clientIp)

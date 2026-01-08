@@ -19,23 +19,19 @@ const ReflectPage = () => {
     connection: fetchServerSentEvents('/api/chat'),
   })
 
-  // Redirect om redan gjort
   if (todayEntry) {
     router.navigate({ to: '/' })
     return null
   }
 
-  // Scrolla till botten när nya meddelanden kommer eller uppdateras (streaming)
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Fokusera textarea när sidan laddas och efter bot svarar
   useEffect(() => {
     textareaRef.current?.focus()
   }, [])
 
-  // Fokusera igen när bot är klar med att svara
   useEffect(() => {
     if (!isLoading) {
       textareaRef.current?.focus()

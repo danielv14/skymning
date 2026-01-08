@@ -38,7 +38,6 @@ export const Route = createFileRoute('/api/chat')({
         let previousEntriesPrompt = ''
         if (historyCount > 0 && recentEntriesResult.length > 0) {
           const limitedEntries = recentEntriesResult.slice(0, historyCount)
-          // Kronologisk ordning (äldst först)
           const entriesText = limitedEntries
             .reverse()
             .map(
@@ -49,7 +48,6 @@ export const Route = createFileRoute('/api/chat')({
           previousEntriesPrompt = `## Användarens tidigare reflektioner\nHär är användarens senaste reflektioner för att ge dig kontext om vad som hänt i deras liv:\n\n${entriesText}`
         }
 
-        // Bygg system prompts
         const systemPrompts = [REFLECTION_SYSTEM_PROMPT]
 
         if (userContextContent) {

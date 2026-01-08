@@ -6,7 +6,6 @@ const TimelineLayout = () => {
   const router = useRouter()
   const { year, week, shouldRedirect } = Route.useLoaderData()
 
-  // Redirect till aktuell vecka om vi är på /timeline utan params
   useEffect(() => {
     if (shouldRedirect) {
       router.navigate({
@@ -16,7 +15,6 @@ const TimelineLayout = () => {
     }
   }, [router, year, week, shouldRedirect])
 
-  // Rendera child routes
   return <Outlet />
 }
 
@@ -26,7 +24,6 @@ export const Route = createFileRoute('/_authed/timeline')({
   }),
   loader: ({ location }) => {
     const { year, week } = getCurrentWeek()
-    // Kolla om vi är på exakt /timeline (ska redirecta) eller en child route
     const shouldRedirect = location.pathname === '/timeline'
     return { year, week, shouldRedirect }
   },

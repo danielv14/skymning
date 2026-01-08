@@ -8,28 +8,24 @@ type MoodTrendHeatmapProps = {
 }
 
 export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
-  // Gruppera data per vecka (ISO-veckor, måndag först)
   const dataByDate = new Map(data.map((d) => [d.date, d.mood]))
 
-  // Hitta min och max datum
   const dates = data.map((d) => parseISO(d.date))
   const minDate = new Date(Math.min(...dates.map((d) => d.getTime())))
   const maxDate = new Date(Math.max(...dates.map((d) => d.getTime())))
 
-  // Bygg upp veckor från första till sista datum
   const weeks: { weekNum: number; year: number; days: (TrendData | null)[] }[] =
     []
 
   const currentDate = startOfISOWeek(minDate)
   const endDate = new Date(maxDate)
-  endDate.setDate(endDate.getDate() + 7) // Inkludera sista veckan
+  endDate.setDate(endDate.getDate() + 7)
 
   while (currentDate <= endDate) {
     const weekNum = getISOWeek(currentDate)
     const year = currentDate.getFullYear()
     const days: (TrendData | null)[] = []
 
-    // 7 dagar i veckan (mån-sön)
     for (let i = 0; i < 7; i++) {
       const dateStr = format(currentDate, 'yyyy-MM-dd')
       const mood = dataByDate.get(dateStr)
@@ -43,7 +39,6 @@ export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
       currentDate.setDate(currentDate.getDate() + 1)
     }
 
-    // Lägg bara till veckan om den har minst en dag med data
     if (days.some((d) => d !== null)) {
       weeks.push({ weekNum, year, days })
     }
