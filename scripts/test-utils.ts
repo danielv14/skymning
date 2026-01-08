@@ -1,19 +1,18 @@
 /**
- * Test utilities för Skymning MVP
+ * Test utilities för Skymning
  * 
  * Användning:
- *   bun scripts/test-utils.ts reset    - Rensar alla tabeller
- *   bun scripts/test-utils.ts seed     - Seedar 4 veckor med reflektioner
- *   bun scripts/test-utils.ts reseed   - Reset + seed i ett kommando
+ *   bun scripts/test-utils.ts reset       - Rensar alla tabeller
+ *   bun scripts/test-utils.ts seed        - Seedar 4 veckor med reflektioner
+ *   bun scripts/test-utils.ts reseed      - Reset + seed i ett kommando
+ *   bun scripts/test-utils.ts clear-today - Rensar dagens entry
+ * 
+ * OBS: Dessa kommandon körs mot lokal D1-databas via wrangler.
+ * För remote (produktion), lägg till --remote flaggan i package.json scripts.
  */
 
-import { drizzle } from 'drizzle-orm/bun-sqlite'
-import { Database } from 'bun:sqlite'
-import { entries, weeklySummaries } from '../src/server/db/schema'
 import { format, getISOWeek, getISOWeekYear, subDays } from 'date-fns'
-
-const sqlite = new Database('skymning.db')
-const db = drizzle(sqlite)
+import { $ } from 'bun'
 
 // Exempel-summeringar för olika mood-nivåer
 const SUMMARIES_BY_MOOD: Record<number, string[]> = {
@@ -66,28 +65,31 @@ const generateMood = (): number => {
   return 3
 }
 
-// Reset - rensar alla tabeller
-const reset = async () => {
-  console.log('🗑️  Rensar tabeller...')
-  await db.delete(entries)
-  await db.delete(weeklySummaries)
-  console.log('✅ Tabeller rensade!')
+// Kör SQL mot lokal D1 via wrangler
+const execSql = async (sql: string) => {
+  await $`bunx wrangler d1 execute skymning-db --local --command=${sql}`.quiet()
 }
 
-// Clear today - rensar dagens entry så man kan testa summering igen
+// Reset - rensar alla tabeller
+const reset = async () => {
+  console.log('Rensar tabeller...')
+  await execSql('DELETE FROM entries')
+  await execSql('DELETE FROM weekly_summaries')
+  await execSql('DELETE FROM user_context')
+  console.log('Tabeller rensade!')
+}
+
+// Clear today - rensar dagens entry
 const clearToday = async () => {
   const today = format(new Date(), 'yyyy-MM-dd')
-  console.log(`🗑️  Rensar dagens entry (${today})...`)
-  
-  const { eq } = await import('drizzle-orm')
-  await db.delete(entries).where(eq(entries.date, today))
-  
-  console.log('✅ Dagens entry rensad!')
+  console.log(`Rensar dagens entry (${today})...`)
+  await execSql(`DELETE FROM entries WHERE date = '${today}'`)
+  console.log('Dagens entry rensad!')
 }
 
 // Seed - skapar 4 veckor med data
 const seed = async () => {
-  console.log('🌱 Seedar databas med 4 veckor av reflektioner...')
+  console.log('Seedar databas med 4 veckor av reflektioner...')
   
   const today = new Date()
   const entriesData: { date: string; mood: number; summary: string }[] = []
@@ -118,9 +120,13 @@ const seed = async () => {
   
   // Infoga entries
   for (const entry of entriesData) {
-    await db.insert(entries).values(entry)
+    const escapedSummary = entry.summary.replace(/'/g, "''")
+    const createdAt = new Date().toISOString()
+    await execSql(
+      `INSERT INTO entries (date, mood, summary, created_at) VALUES ('${entry.date}', ${entry.mood}, '${escapedSummary}', '${createdAt}')`
+    )
   }
-  console.log(`   📝 ${entriesData.length} reflektioner skapade`)
+  console.log(`   ${entriesData.length} reflektioner skapade`)
   
   // Skapa veckosummeringar (förutom nuvarande vecka)
   const currentWeekKey = `${getISOWeekYear(today)}-${getISOWeek(today)}`
@@ -130,16 +136,16 @@ const seed = async () => {
     if (weekKey === currentWeekKey) continue // Skippa nuvarande vecka
     
     const [yearStr, weekStr] = weekKey.split('-')
-    await db.insert(weeklySummaries).values({
-      year: parseInt(yearStr),
-      week: parseInt(weekStr),
-      summary: randomFrom(WEEKLY_SUMMARIES),
-    })
+    const summaryText = randomFrom(WEEKLY_SUMMARIES).replace(/'/g, "''")
+    const createdAt = new Date().toISOString()
+    await execSql(
+      `INSERT INTO weekly_summaries (year, week, summary, created_at) VALUES (${yearStr}, ${weekStr}, '${summaryText}', '${createdAt}')`
+    )
     weekCount++
   }
-  console.log(`   📅 ${weekCount} veckosummeringar skapade`)
+  console.log(`   ${weekCount} veckosummeringar skapade`)
   
-  console.log('✅ Seeding klar!')
+  console.log('Seeding klar!')
 }
 
 // Main
@@ -170,5 +176,3 @@ Användning:
   bun scripts/test-utils.ts clear-today - Rensar dagens entry (för att testa summering)
 `)
 }
-
-sqlite.close()

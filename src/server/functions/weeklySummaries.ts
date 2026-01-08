@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { db } from '../db'
+import { getDb } from '../db'
 import { weeklySummaries } from '../db/schema'
 import { and, eq } from 'drizzle-orm'
 import { getISOWeek, getISOWeekYear, subWeeks } from 'date-fns'
@@ -11,6 +11,7 @@ import { weekInputSchema } from '../../constants'
 export const getWeeklySummary = createServerFn({ method: 'GET' })
   .inputValidator((data: unknown) => weekInputSchema.parse(data))
   .handler(async ({ data }) => {
+    const db = getDb()
     const summary = await db.query.weeklySummaries.findFirst({
       where: and(
         eq(weeklySummaries.year, data.year),
@@ -30,6 +31,7 @@ const createWeeklySummarySchema = z.object({
 export const createWeeklySummary = createServerFn({ method: 'POST' })
   .inputValidator((data: unknown) => createWeeklySummarySchema.parse(data))
   .handler(async ({ data }) => {
+    const db = getDb()
     const [summary] = await db
       .insert(weeklySummaries)
       .values({
@@ -53,6 +55,7 @@ export const getCurrentWeek = (): { year: number; week: number } => {
 
 export const getLastWeekSummary = createServerFn({ method: 'GET' }).handler(
   async () => {
+    const db = getDb()
     const oneWeekAgo = subWeeks(new Date(), 1)
     const lastWeek = {
       year: getISOWeekYear(oneWeekAgo),

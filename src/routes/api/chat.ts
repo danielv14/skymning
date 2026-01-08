@@ -3,7 +3,7 @@ import { chat, toStreamResponse } from '@tanstack/ai'
 import { desc } from 'drizzle-orm'
 import { REFLECTION_SYSTEM_PROMPT } from '../../server/ai/prompts'
 import { openai } from '../../server/ai/client'
-import { db } from '../../server/db'
+import { getDb } from '../../server/db'
 import { entries } from '../../server/db/schema'
 import { getMoodLabel } from '../../constants'
 
@@ -18,6 +18,7 @@ export const Route = createFileRoute('/api/chat')({
       POST: async ({ request }) => {
         const { messages } = (await request.json()) as { messages: ChatMessage[] }
 
+        const db = getDb()
         const [userContext, recentEntriesResult] = await Promise.all([
           db.query.userContext.findFirst(),
           db.query.entries.findMany({

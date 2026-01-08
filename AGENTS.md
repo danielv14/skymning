@@ -5,9 +5,9 @@ This file contains guidelines for AI coding agents working in this repository.
 ## Project Overview
 
 Skymning is a Swedish personal reflection/journaling app built with:
-- **Runtime**: Bun
 - **Framework**: TanStack Start (React + SSR)
-- **Database**: SQLite with Drizzle ORM
+- **Database**: Cloudflare D1 (SQLite-compatible) with Drizzle ORM
+- **Hosting**: Cloudflare Workers
 - **Styling**: Tailwind CSS v4
 - **AI**: TanStack AI with OpenAI (gpt-4o-mini)
 - **Auth**: TanStack Start sessions with encrypted httpOnly cookies
@@ -17,12 +17,13 @@ Skymning is a Swedish personal reflection/journaling app built with:
 
 ```bash
 # Development
-bun dev                    # Start dev server on port 3000
+bun dev                    # Start dev server on port 3000 (uses local D1 via miniflare)
 bun start                  # Same as dev
 
 # Build & Preview
 bun run build              # Production build
 bun run preview            # Preview production build
+bun run deploy             # Build and deploy to Cloudflare Workers
 
 # Type Checking
 npx tsc --noEmit           # Check TypeScript errors
@@ -32,18 +33,53 @@ bun test                   # Run all tests (vitest)
 bun test <path>            # Run single test file
 bun test --watch           # Watch mode
 
-# Database
-bun db:push                # Push schema changes to SQLite
-bun db:reset               # Clear all tables
-bun db:seed                # Seed 4 weeks of test data
-bun db:reseed              # Reset + seed combined
+# Database (local D1)
+bun db:migrate:local       # Apply migrations to local D1
+bun db:reset               # Clear all tables (local)
+bun db:seed                # Seed 4 weeks of test data (local)
+bun db:reseed              # Reset + seed combined (local)
+bun db:clear-today         # Clear today's entry (local)
 
-# Database Testing (via scripts)
-bun scripts/test-utils.ts reset       # Rensar alla tabeller
-bun scripts/test-utils.ts seed        # Seedar 4 veckor med reflektioner
-bun scripts/test-utils.ts reseed      # Reset + seed kombinerat
-bun scripts/test-utils.ts clear-today # Rensar dagens entry (för att testa summering)
+# Database (remote/production D1)
+bun db:migrate:remote      # Apply migrations to production D1
+
+# Database Development
+bun db:migrate:generate    # Generate new migration from schema changes
+bun d1:studio              # Open D1 database studio
 ```
+
+## Cloudflare Deployment
+
+The app is deployed to Cloudflare Workers with D1 database.
+
+### Configuration Files
+- `wrangler.toml` - Cloudflare Workers configuration
+- `src/env.d.ts` - TypeScript types for Cloudflare environment bindings
+
+### Environment Variables (set in Cloudflare Dashboard)
+| Variable | Purpose |
+|----------|---------|
+| `AUTH_SECRET` | Login password |
+| `SESSION_SECRET` | Encrypts session cookies (min 32 chars) |
+| `OPENAI_API_KEY` | OpenAI API key for AI features |
+
+### Database
+- Uses Cloudflare D1 (SQLite-compatible)
+- Local development uses miniflare's D1 emulator (data in `.wrangler/state/`)
+- Production uses remote D1 database
+- Schema defined in `src/server/db/schema.ts`
+- Migrations in `drizzle/` directory
+
+### Migration Workflow
+When changing the database schema:
+1. Update `src/server/db/schema.ts`
+2. Run `bun db:migrate:generate` to create new migration
+3. Run `bun db:migrate:local` to apply locally
+4. Test locally with `bun dev`
+5. Run `bun db:migrate:remote` to apply to production
+6. Deploy with `bun run deploy`
+
+**Note:** Migration scripts in package.json reference specific migration files. Update these when new migrations are generated.
 
 ## Code Style Guidelines
 
@@ -136,6 +172,16 @@ bun scripts/test-utils.ts clear-today # Rensar dagens entry (för att testa summ
 - Specify method: `{ method: 'GET' }` or `{ method: 'POST' }`
 - Always validate input with `.inputValidator()`
 - Return `null` (not `undefined`) for empty results
+- Get database via `getDb()` from `@/server/db`:
+  ```typescript
+  import { getDb } from '../db'
+  
+  export const myFunction = createServerFn({ method: 'GET' })
+    .handler(async () => {
+      const db = getDb()
+      // ... use db
+    })
+  ```
 
 ### Routes (TanStack Router)
 
@@ -166,21 +212,6 @@ Key files:
 - `src/routes/_authed.tsx` - Layout route that checks auth via `beforeLoad`
 - `src/routes/login.tsx` - Public login page
 
-Environment variables:
-```bash
-# User's login password (any string)
-AUTH_SECRET=your-login-password
-
-# Session encryption key (minimum 32 characters)
-# Generate with: openssl rand -base64 32
-SESSION_SECRET=your-32-char-encryption-key
-```
-
-| Variable | Purpose | Used by |
-|----------|---------|---------|
-| `AUTH_SECRET` | Login password | User types this to log in |
-| `SESSION_SECRET` | Encrypts session cookies | Server only (invisible to user) |
-
 ### Styling (Tailwind CSS v4)
 
 - Use Tailwind utility classes
@@ -188,9 +219,11 @@ SESSION_SECRET=your-32-char-encryption-key
 - Color scheme: slate backgrounds, indigo/violet accents
 - Responsive: mobile-first with `sm:` breakpoints
 
-### Database (Drizzle + SQLite)
+### Database (Drizzle + D1)
 
 - Schema in `src/server/db/schema.ts`
+- Database access via `getDb()` from `src/server/db/index.ts`
+- Uses Cloudflare D1 (accessed via `cloudflare:workers` env)
 - Use query builder for reads, insert/update/delete for writes
 - Dates stored as ISO strings (TEXT columns)
 - Always use `eq`, `and`, `gte`, `lt` from `drizzle-orm`
@@ -241,6 +274,7 @@ src/
     functions/      # Server functions (entries, userContext, weeklySummaries, auth)
   utils/            # Utility functions (date, error)
 scripts/            # Utility scripts (test-utils.ts)
+drizzle/            # Database migrations
 ```
 
 ## Common Patterns
@@ -255,6 +289,7 @@ const { data } = Route.useLoaderData()
 export const myFunction = createServerFn({ method: 'GET' })
   .inputValidator((data: unknown) => schema.parse(data))
   .handler(async ({ data }) => {
+    const db = getDb()
     // Implementation
   })
 ```

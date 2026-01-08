@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { db } from '../db'
+import { getDb } from '../db'
 import { entries } from '../db/schema'
 import { eq, desc, and, gte, lt } from 'drizzle-orm'
 import { startOfISOWeek, endOfISOWeek, format } from 'date-fns'
@@ -10,6 +10,7 @@ import { getTodayDateString, subtractDays } from '../../utils/date'
 // Hämta dagens inlägg (om det finns)
 export const getTodayEntry = createServerFn({ method: 'GET' }).handler(
   async () => {
+    const db = getDb()
     const today = getTodayDateString()
     const entry = await db.query.entries.findFirst({
       where: eq(entries.date, today),
@@ -21,6 +22,7 @@ export const getTodayEntry = createServerFn({ method: 'GET' }).handler(
 // Kolla om det finns några inlägg alls (för välkomstvy)
 export const hasAnyEntries = createServerFn({ method: 'GET' }).handler(
   async () => {
+    const db = getDb()
     const entry = await db.query.entries.findFirst()
     return entry !== undefined
   }
@@ -30,6 +32,7 @@ export const hasAnyEntries = createServerFn({ method: 'GET' }).handler(
 export const getEntriesForWeek = createServerFn({ method: 'GET' })
   .inputValidator((data: unknown) => weekInputSchema.parse(data))
   .handler(async ({ data }) => {
+    const db = getDb()
     // Räkna ut start- och slutdatum för veckan
     const { startDate, endDate } = getWeekDateRange(data.year, data.week)
 
@@ -50,6 +53,7 @@ const createEntrySchema = z.object({
 export const createEntry = createServerFn({ method: 'POST' })
   .inputValidator((data: unknown) => createEntrySchema.parse(data))
   .handler(async ({ data }) => {
+    const db = getDb()
     const today = getTodayDateString()
 
     const [entry] = await db
@@ -72,6 +76,7 @@ const trendInputSchema = z.object({
 export const getMoodTrend = createServerFn({ method: 'GET' })
   .inputValidator((data: unknown) => trendInputSchema.parse(data))
   .handler(async ({ data }) => {
+    const db = getDb()
     const trendEntries = await db.query.entries.findMany({
       columns: {
         date: true,
@@ -118,6 +123,7 @@ const recentMoodSchema = z.object({
 export const getRecentMoodAverage = createServerFn({ method: 'GET' })
   .inputValidator((data: unknown) => recentMoodSchema.parse(data))
   .handler(async ({ data }) => {
+    const db = getDb()
     const today = getTodayDateString()
     const startDate = subtractDays(today, data.days)
 
@@ -140,6 +146,7 @@ export const getRecentMoodAverage = createServerFn({ method: 'GET' })
 
 // Räkna streak (antal dagar i rad med inlägg)
 export const getStreak = createServerFn({ method: 'GET' }).handler(async () => {
+  const db = getDb()
   // Hämta alla entries sorterade på datum (nyast först)
   const allEntries = await db.query.entries.findMany({
     columns: { date: true },
