@@ -48,7 +48,6 @@ export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
 
   return (
     <div className="space-y-2">
-      {/* Dagnamn */}
       <div className="flex gap-1 ml-12">
         {dayLabels.map((day, i) => (
           <div key={i} className="w-8 h-4 text-xs text-slate-500 text-center">
@@ -57,7 +56,6 @@ export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
         ))}
       </div>
 
-      {/* Veckor */}
       <div className="space-y-1">
         {weeks.map((week, weekIndex) => (
           <div key={weekIndex} className="flex items-center gap-1">
@@ -74,7 +72,6 @@ export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
                     : 'rgba(51, 65, 85, 0.3)',
                 }}
               >
-                {/* Tooltip */}
                 {day && (
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-800 rounded-lg text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 border border-slate-700">
                     <p className="text-slate-400">
@@ -89,7 +86,6 @@ export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
         ))}
       </div>
 
-      {/* Legend */}
       <div className="flex items-center justify-center gap-2 pt-2">
         <span className="text-xs text-slate-500">Kass</span>
         {[1, 2, 3, 4, 5].map((mood) => (

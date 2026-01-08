@@ -27,7 +27,6 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Header med gradient */}
       <header className="bg-horizon relative overflow-hidden py-6 sm:py-8 px-6 sm:px-8 view-transition-header">
         <StarField starCount={20} />
         <div className="max-w-2xl mx-auto flex items-center justify-between relative z-10">
@@ -57,7 +56,6 @@ const HomePage = () => {
       </header>
 
       <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 -mt-4">
-        {/* Dagens status */}
         <Card gradient>
           {todayEntry ? (
             <div className="space-y-3">
@@ -88,9 +86,7 @@ const HomePage = () => {
           )}
         </Card>
 
-        {/* Streak och snitthumör */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Streak */}
           <Card
             className={
               streak > 0
@@ -123,7 +119,6 @@ const HomePage = () => {
             </div>
           </Card>
 
-          {/* Snitthumör senaste 7 dagarna */}
           {recentMood && (
             <Card className="bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border-indigo-500/20">
               <div className="flex items-center gap-4">
@@ -139,7 +134,6 @@ const HomePage = () => {
           )}
         </div>
 
-        {/* Förra veckans summering */}
         {lastWeekSummary && (
           <Card>
             <div className="flex items-center justify-between mb-2">
@@ -159,7 +153,6 @@ const HomePage = () => {
           </Card>
         )}
 
-        {/* Moodtrend */}
         {moodTrend.length > 0 && (
           <Card>
             <h2 className="text-lg font-semibold text-white mb-4">Hur du har mått</h2>

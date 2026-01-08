@@ -148,7 +148,6 @@ const AboutMePage = () => {
           </div>
         </Card>
 
-        {/* Logout section */}
         <div className="pt-6 border-t border-slate-800">
           <button
             onClick={handleLogout}

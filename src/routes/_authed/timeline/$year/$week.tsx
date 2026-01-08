@@ -109,7 +109,6 @@ const TimelineWeekPage = () => {
         isLoading={isRegenerating}
       />
       <div className="min-h-screen">
-        {/* Header med gradient */}
         <header className="bg-horizon relative overflow-hidden py-6 sm:py-8 px-6 sm:px-8">
         <StarField starCount={20} />
         <div className="max-w-2xl mx-auto relative z-10">
@@ -164,7 +163,6 @@ const TimelineWeekPage = () => {
       </header>
 
       <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 -mt-4">
-        {/* Veckosummering */}
         {weeklySummary ? (
           <Card gradient>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 mb-3">
@@ -202,7 +200,6 @@ const TimelineWeekPage = () => {
           </Card>
         ) : null}
 
-        {/* Veckans inlägg */}
         {entries.length > 0 ? (
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-slate-200 px-1">Veckans dagar</h2>

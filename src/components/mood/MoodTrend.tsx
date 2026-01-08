@@ -34,7 +34,6 @@ export const MoodTrend = ({ data }: MoodTrendProps) => {
 
   return (
     <div>
-      {/* Tabs */}
       <div className="flex gap-2 mb-4">
         <button
           onClick={() => setViewMode('heatmap')}
