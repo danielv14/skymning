@@ -1,6 +1,6 @@
-# AGENTS.md - Skymning
+# CLAUDE.md
 
-This file contains guidelines for AI coding agents working in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
@@ -113,7 +113,7 @@ Automated deployments via GitHub Actions:
   // Good
   const handleClick = () => { ... }
   const MyComponent = () => { ... }
-  
+
   // Bad
   function handleClick() { ... }
   function MyComponent() { ... }
@@ -124,7 +124,7 @@ Automated deployments via GitHub Actions:
   // Good
   const processManager = new ProcessManager()
   const userContext = await db.query.userContext.findFirst()
-  
+
   // Bad
   const pm = new ProcessManager()
   const ctx = await db.query.userContext.findFirst()
@@ -137,7 +137,7 @@ Automated deployments via GitHub Actions:
   // Good
   <Button glow disabled />
   <Card gradient />
-  
+
   // Bad
   <Button glow={true} disabled={true} />
   ```
@@ -177,7 +177,7 @@ Automated deployments via GitHub Actions:
     mood: z.number().min(1).max(5),
     summary: z.string().min(1),
   })
-  
+
   export const createEntry = createServerFn({ method: 'POST' })
     .inputValidator((data: unknown) => inputSchema.parse(data))
     .handler(async ({ data }) => { ... })
@@ -198,7 +198,7 @@ Automated deployments via GitHub Actions:
 - Get database via `getDb()` from `@/server/db`:
   ```typescript
   import { getDb } from '../db'
-  
+
   export const myFunction = createServerFn({ method: 'GET' })
     .handler(async () => {
       const db = getDb()
