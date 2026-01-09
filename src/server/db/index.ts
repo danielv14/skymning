@@ -1,6 +1,9 @@
-import { drizzle } from 'drizzle-orm/bun-sqlite'
-import { Database } from 'bun:sqlite'
+import { drizzle } from 'drizzle-orm/d1'
+import { env } from 'cloudflare:workers'
 import * as schema from './schema'
 
-const sqlite = new Database('skymning.db')
-export const db = drizzle(sqlite, { schema })
+export const getDb = () => {
+  return drizzle(env.DB, { schema })
+}
+
+export type DbClient = ReturnType<typeof getDb>

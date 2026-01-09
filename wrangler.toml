@@ -1,0 +1,29 @@
+# Cloudflare Workers/Pages konfiguration för Skymning
+# Dokumentation: https://developers.cloudflare.com/workers/wrangler/configuration/
+
+name = "skymning"
+compatibility_date = "2026-01-08"
+compatibility_flags = ["nodejs_compat"]
+
+# TanStack Start server entry point
+main = "@tanstack/react-start/server-entry"
+
+# D1 databas-binding
+[[d1_databases]]
+binding = "DB"
+database_name = "skymning-db"
+database_id = "a92bf951-ee0c-49af-8f5b-06c75bf61c3f"
+
+# Environment variables sätts i Cloudflare Dashboard, inte här
+# Gå till: Settings → Environment variables → Add variables
+# Lägg till (markera alla som "Encrypted"):
+#   - AUTH_SECRET
+#   - SESSION_SECRET
+#   - OPENAI_API_KEY
+
+# Aktivera Worker Logs för felsökning
+[observability]
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true

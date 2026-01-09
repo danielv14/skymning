@@ -1,15 +1,14 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { db } from '../db'
+import { getDb } from '../db'
 import { userContext } from '../db/schema'
 import { eq } from 'drizzle-orm'
 
-// Hämta user context (skapar en tom om ingen finns)
 export const getUserContext = createServerFn({ method: 'GET' }).handler(
   async () => {
+    const db = getDb()
     let context = await db.query.userContext.findFirst()
 
-    // Om ingen kontext finns, skapa en tom
     if (!context) {
       const [newContext] = await db
         .insert(userContext)
@@ -22,7 +21,6 @@ export const getUserContext = createServerFn({ method: 'GET' }).handler(
   }
 )
 
-// Uppdatera user context
 const updateContextSchema = z.object({
   content: z.string(),
   historyCount: z.number().min(0).max(20),
@@ -31,11 +29,10 @@ const updateContextSchema = z.object({
 export const updateUserContext = createServerFn({ method: 'POST' })
   .inputValidator((data: unknown) => updateContextSchema.parse(data))
   .handler(async ({ data }) => {
-    // Hämta först för att se om det finns
+    const db = getDb()
     let context = await db.query.userContext.findFirst()
 
     if (context) {
-      // Uppdatera befintlig
       const [updated] = await db
         .update(userContext)
         .set({
@@ -47,7 +44,6 @@ export const updateUserContext = createServerFn({ method: 'POST' })
         .returning()
       return updated
     } else {
-      // Skapa ny
       const [newContext] = await db
         .insert(userContext)
         .values({ content: data.content, historyCount: data.historyCount })

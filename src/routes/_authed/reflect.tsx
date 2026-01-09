@@ -19,23 +19,19 @@ const ReflectPage = () => {
     connection: fetchServerSentEvents('/api/chat'),
   })
 
-  // Redirect om redan gjort
   if (todayEntry) {
     router.navigate({ to: '/' })
     return null
   }
 
-  // Scrolla till botten när nya meddelanden kommer eller uppdateras (streaming)
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // Fokusera textarea när sidan laddas och efter bot svarar
   useEffect(() => {
     textareaRef.current?.focus()
   }, [])
 
-  // Fokusera igen när bot är klar med att svara
   useEffect(() => {
     if (!isLoading) {
       textareaRef.current?.focus()
@@ -101,13 +97,11 @@ const ReflectPage = () => {
         onSave={handleSave}
       />
     <div className="h-screen flex flex-col bg-slate-900">
-      {/* Header med gradient */}
       <PageHeader
         title="Dagens reflektion"
         subtitle="Ta en stund att reflektera"
       />
 
-      {/* Messages area */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-2xl mx-auto px-6 sm:px-8 py-6 space-y-5">
           {messages.length === 0 && !isLoading && (
@@ -151,7 +145,6 @@ const ReflectPage = () => {
         </div>
       </div>
 
-      {/* Input area */}
       <div className="shrink-0 px-4 sm:px-6 py-4">
         <div className="max-w-2xl mx-auto bg-slate-800/70 border border-slate-700/50 backdrop-blur-sm rounded-2xl px-4 sm:px-5 py-4">
           {messages.length >= 2 && !isLoading && (

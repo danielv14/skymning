@@ -1,15 +1,15 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { db } from '../db'
+import { getDb } from '../db'
 import { entries } from '../db/schema'
 import { eq, desc, and, gte, lt } from 'drizzle-orm'
 import { startOfISOWeek, endOfISOWeek, format } from 'date-fns'
 import { weekInputSchema } from '../../constants'
 import { getTodayDateString, subtractDays } from '../../utils/date'
 
-// Hämta dagens inlägg (om det finns)
 export const getTodayEntry = createServerFn({ method: 'GET' }).handler(
   async () => {
+    const db = getDb()
     const today = getTodayDateString()
     const entry = await db.query.entries.findFirst({
       where: eq(entries.date, today),
@@ -18,19 +18,18 @@ export const getTodayEntry = createServerFn({ method: 'GET' }).handler(
   }
 )
 
-// Kolla om det finns några inlägg alls (för välkomstvy)
 export const hasAnyEntries = createServerFn({ method: 'GET' }).handler(
   async () => {
+    const db = getDb()
     const entry = await db.query.entries.findFirst()
     return entry !== undefined
   }
 )
 
-// Hämta inlägg för en specifik vecka
 export const getEntriesForWeek = createServerFn({ method: 'GET' })
   .inputValidator((data: unknown) => weekInputSchema.parse(data))
   .handler(async ({ data }) => {
-    // Räkna ut start- och slutdatum för veckan
+    const db = getDb()
     const { startDate, endDate } = getWeekDateRange(data.year, data.week)
 
     const weekEntries = await db.query.entries.findMany({
@@ -41,7 +40,6 @@ export const getEntriesForWeek = createServerFn({ method: 'GET' })
     return weekEntries
   })
 
-// Skapa nytt inlägg
 const createEntrySchema = z.object({
   mood: z.number().min(1).max(5),
   summary: z.string().min(1),
@@ -50,6 +48,7 @@ const createEntrySchema = z.object({
 export const createEntry = createServerFn({ method: 'POST' })
   .inputValidator((data: unknown) => createEntrySchema.parse(data))
   .handler(async ({ data }) => {
+    const db = getDb()
     const today = getTodayDateString()
 
     const [entry] = await db
@@ -64,7 +63,6 @@ export const createEntry = createServerFn({ method: 'POST' })
     return entry
   })
 
-// Hämta mood-trend (senaste X inlägg)
 const trendInputSchema = z.object({
   limit: z.number().min(1).max(100).optional().default(50),
 })
@@ -72,6 +70,7 @@ const trendInputSchema = z.object({
 export const getMoodTrend = createServerFn({ method: 'GET' })
   .inputValidator((data: unknown) => trendInputSchema.parse(data))
   .handler(async ({ data }) => {
+    const db = getDb()
     const trendEntries = await db.query.entries.findMany({
       columns: {
         date: true,
@@ -81,24 +80,21 @@ export const getMoodTrend = createServerFn({ method: 'GET' })
       limit: data.limit,
     })
 
-    // Returnera i kronologisk ordning (äldst först)
     return trendEntries.reverse()
   })
 
-// Hjälpfunktion för att räkna ut veckonummer → datumintervall (ISO 8601, måndag först)
 const getWeekDateRange = (year: number, week: number) => {
-  // Skapa ett datum i den önskade veckan (torsdag i vecka X är alltid i vecka X)
+  // Create a date in the desired week (Thursday of week X is always in week X)
   const jan4 = new Date(year, 0, 4)
   const thursdayOfWeek1 = startOfISOWeek(jan4)
   
-  // Räkna ut måndagen i önskad vecka
   const mondayOfWeek = new Date(thursdayOfWeek1)
   mondayOfWeek.setDate(thursdayOfWeek1.getDate() + (week - 1) * 7)
   
   const startDate = startOfISOWeek(mondayOfWeek)
   const endDate = endOfISOWeek(mondayOfWeek)
   
-  // Lägg till en dag på endDate för lt-jämförelse
+  // Add one day to endDate for lt comparison
   const endDatePlusOne = new Date(endDate)
   endDatePlusOne.setDate(endDate.getDate() + 1)
 
@@ -108,7 +104,6 @@ const getWeekDateRange = (year: number, week: number) => {
   }
 }
 
-// Exportera hjälpfunktionen för användning i andra filer
 export { getWeekDateRange }
 
 const recentMoodSchema = z.object({
@@ -118,6 +113,7 @@ const recentMoodSchema = z.object({
 export const getRecentMoodAverage = createServerFn({ method: 'GET' })
   .inputValidator((data: unknown) => recentMoodSchema.parse(data))
   .handler(async ({ data }) => {
+    const db = getDb()
     const today = getTodayDateString()
     const startDate = subtractDays(today, data.days)
 
@@ -138,9 +134,8 @@ export const getRecentMoodAverage = createServerFn({ method: 'GET' })
     }
   })
 
-// Räkna streak (antal dagar i rad med inlägg)
 export const getStreak = createServerFn({ method: 'GET' }).handler(async () => {
-  // Hämta alla entries sorterade på datum (nyast först)
+  const db = getDb()
   const allEntries = await db.query.entries.findMany({
     columns: { date: true },
     orderBy: [desc(entries.date)],
@@ -153,15 +148,13 @@ export const getStreak = createServerFn({ method: 'GET' }).handler(async () => {
 
   const latestEntryDate = allEntries[0]?.date
 
-  // Streak är bruten om senaste entry varken är från idag eller igår
+  // Streak is broken if latest entry is neither from today nor yesterday
   if (latestEntryDate !== todayStr && latestEntryDate !== yesterdayStr) {
     return 0
   }
 
-  // Skapa en Set för snabb lookup av vilka datum som har entries
   const entryDates = new Set(allEntries.map((e) => e.date))
 
-  // Räkna streak bakåt från senaste entry
   let streak = 0
   let checkDateStr = latestEntryDate
 

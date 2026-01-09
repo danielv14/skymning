@@ -14,11 +14,11 @@ type MoodTrendProps = {
 type ViewMode = 'heatmap' | 'scatter'
 
 export const MOOD_COLORS: Record<number, string> = {
-  1: '#6366f1', // indigo - kass
-  2: '#818cf8', // indigo lighter
-  3: '#a5b4fc', // indigo lightest
-  4: '#c4b5fd', // violet light
-  5: '#e879f9', // fuchsia - jättebra
+  1: '#6366f1',
+  2: '#818cf8',
+  3: '#a5b4fc',
+  4: '#c4b5fd',
+  5: '#e879f9',
 }
 
 export const MoodTrend = ({ data }: MoodTrendProps) => {
@@ -34,7 +34,6 @@ export const MoodTrend = ({ data }: MoodTrendProps) => {
 
   return (
     <div>
-      {/* Tabs */}
       <div className="flex gap-2 mb-4">
         <button
           onClick={() => setViewMode('heatmap')}

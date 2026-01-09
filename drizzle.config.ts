@@ -4,7 +4,4 @@ export default defineConfig({
   schema: './src/server/db/schema.ts',
   out: './drizzle',
   dialect: 'sqlite',
-  dbCredentials: {
-    url: 'skymning.db',
-  },
 })

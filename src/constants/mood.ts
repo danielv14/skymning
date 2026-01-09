@@ -1,5 +1,3 @@
-// Delade mood-konstanter för hela applikationen
-
 export const MOOD_LABELS: Record<number, string> = {
   1: 'Kass',
   2: 'Dålig',
@@ -15,7 +13,6 @@ export const getMoodLabel = (mood: number): string => {
 export const getWeekMoodDescription = (averageMood: number | null): string => {
   if (averageMood === null) return ''
   
-  // Avrunda till en decimal för visning
   const rounded = Math.round(averageMood * 10) / 10
   
   if (rounded >= 4.5) return 'En riktigt bra vecka'
