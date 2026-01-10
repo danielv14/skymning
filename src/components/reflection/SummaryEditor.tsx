@@ -33,7 +33,6 @@ export const SummaryEditor = ({
         rows={3}
         placeholder="Din sammanfattning..."
         autoResize
-        className="overflow-hidden"
       />
       <div className="flex justify-end">
         <Button

@@ -32,14 +32,14 @@ export const Textarea = ({
     if (autoResize && textareaRef.current) {
       const textarea = textareaRef.current
       textarea.style.height = 'auto'
-      textarea.style.height = `${Math.min(textarea.scrollHeight, maxHeight)}px`
+      const newHeight = Math.min(textarea.scrollHeight, maxHeight)
+      textarea.style.height = `${newHeight}px`
+      textarea.style.overflowY = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden'
     }
   }, [value, autoResize, maxHeight, textareaRef])
 
   const baseStyles =
     'w-full px-4 py-3 rounded-xl border border-slate-600 bg-slate-700/50 text-slate-100 placeholder-slate-500 focus:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors resize-none'
-
-  const overflowStyle = autoResize ? 'overflow-hidden' : ''
 
   return (
     <textarea
@@ -50,7 +50,7 @@ export const Textarea = ({
       rows={rows}
       disabled={disabled}
       onKeyDown={onKeyDown}
-      className={`${baseStyles} ${overflowStyle} ${className}`}
+      className={`${baseStyles} ${className}`}
     />
   )
 }
