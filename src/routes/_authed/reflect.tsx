@@ -66,20 +66,17 @@ const ReflectPage = () => {
     router.navigate({ to: '/' })
   }
 
-  const chatMessages = messages.map((m) => ({
-    role: m.role as 'user' | 'assistant',
-    content: m.parts
-      .filter((p) => p.type === 'text')
-      .map((p) => p.content)
-      .join(''),
-  }))
-
   const getMessageText = (parts: typeof messages[0]['parts']) => {
     return parts
       .filter((p) => p.type === 'text')
       .map((p) => p.content)
       .join('')
   }
+
+  const chatMessages = messages.map((m) => ({
+    role: m.role as 'user' | 'assistant',
+    content: getMessageText(m.parts),
+  }))
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {

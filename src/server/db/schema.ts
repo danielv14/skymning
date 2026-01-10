@@ -38,3 +38,4 @@ export type NewEntry = typeof entries.$inferInsert
 export type WeeklySummary = typeof weeklySummaries.$inferSelect
 export type NewWeeklySummary = typeof weeklySummaries.$inferInsert
 export type UserContext = typeof userContext.$inferSelect
+export type NewUserContext = typeof userContext.$inferInsert

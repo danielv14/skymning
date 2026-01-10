@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import { Modal, ModalClose } from '../ui/Modal'
 import { MoodSelector } from './MoodSelector'
 import { SummaryEditor } from './SummaryEditor'
 import { Button } from '../ui/Button'
 import { useAsyncGeneration } from '../../hooks/useAsyncGeneration'
+import { useModalGeneration } from '../../hooks/useModalGeneration'
 import { generateDaySummary } from '../../server/ai'
 
 type ChatMessage = {
@@ -27,7 +28,6 @@ export const CompletionModal = ({
 }: CompletionModalProps) => {
   const [selectedMood, setSelectedMood] = useState<number | null>(null)
   const [isSaving, setIsSaving] = useState(false)
-  const prevOpenRef = useRef(false)
 
   const {
     result: summary,
@@ -46,15 +46,12 @@ export const CompletionModal = ({
     autoGenerate: false,
   })
 
-  useEffect(() => {
-    const wasOpen = prevOpenRef.current
-    prevOpenRef.current = open
-
-    if (open && !wasOpen && messages.length > 0) {
-      reset()
-      regenerate()
-    }
-  }, [open, messages.length, reset, regenerate])
+  useModalGeneration({
+    open,
+    shouldGenerate: messages.length > 0,
+    reset,
+    regenerate,
+  })
 
   const handleSave = async () => {
     if (!selectedMood || !summary?.trim()) return
