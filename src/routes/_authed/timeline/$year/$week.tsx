@@ -15,9 +15,25 @@ import { StarField } from '../../../../components/StarField'
 import { RegenerateConfirmModal } from '../../../../components/reflection/RegenerateConfirmModal'
 import { ChevronLeft, ChevronRight, Home, RotateCw } from 'lucide-react'
 import { useState } from 'react'
-import { format, parseISO } from 'date-fns'
+import { format, parseISO, getISOWeek, getISOWeekYear, addWeeks, subWeeks } from 'date-fns'
 import { sv } from 'date-fns/locale'
 import { getWeekMoodDescription } from '../../../../constants/mood'
+
+const getDateFromISOWeek = (year: number, week: number) => {
+  const jan4 = new Date(year, 0, 4)
+  const dayOfWeek = jan4.getDay() || 7
+  const firstThursday = new Date(jan4)
+  firstThursday.setDate(jan4.getDate() - dayOfWeek + 4)
+  const targetDate = new Date(firstThursday)
+  targetDate.setDate(firstThursday.getDate() + (week - 1) * 7)
+  return targetDate
+}
+
+const getAdjacentWeek = (year: number, week: number, direction: 'prev' | 'next') => {
+  const date = getDateFromISOWeek(year, week)
+  const adjacentDate = direction === 'prev' ? subWeeks(date, 1) : addWeeks(date, 1)
+  return { year: getISOWeekYear(adjacentDate), week: getISOWeek(adjacentDate) }
+}
 
 const TimelineWeekPage = () => {
   const { year, week, entries, weeklySummary, averageMood } = Route.useLoaderData()
@@ -29,10 +45,13 @@ const TimelineWeekPage = () => {
   const currentWeek = getCurrentWeek()
   const isCurrentWeek = year === currentWeek.year && week === currentWeek.week
 
-  const handleGenerateSummary = async () => {
+  const handleSummaryGeneration = async (isRegenerate: boolean) => {
     if (entries.length === 0) return
 
-    setIsGenerating(true)
+    const setLoading = isRegenerate ? setIsRegenerating : setIsGenerating
+    if (isRegenerate) setConfirmModalOpen(false)
+
+    setLoading(true)
     try {
       const summaryText = await generateWeeklySummary({
         data: {
@@ -44,7 +63,8 @@ const TimelineWeekPage = () => {
         },
       })
 
-      await createWeeklySummary({
+      const saveFn = isRegenerate ? updateWeeklySummary : createWeeklySummary
+      await saveFn({
         data: {
           year,
           week,
@@ -57,45 +77,15 @@ const TimelineWeekPage = () => {
       console.error('Failed to generate summary:', error)
       toast.error('Kunde inte generera veckosummering')
     } finally {
-      setIsGenerating(false)
+      setLoading(false)
     }
   }
 
-  const handleRegenerateSummary = async () => {
-    if (entries.length === 0) return
+  const handleGenerateSummary = () => handleSummaryGeneration(false)
+  const handleRegenerateSummary = () => handleSummaryGeneration(true)
 
-    setConfirmModalOpen(false)
-    setIsRegenerating(true)
-    try {
-      const summaryText = await generateWeeklySummary({
-        data: {
-          entries: entries.map((e) => ({
-            date: e.date,
-            mood: e.mood,
-            summary: e.summary,
-          })),
-        },
-      })
-
-      await updateWeeklySummary({
-        data: {
-          year,
-          week,
-          summary: typeof summaryText === 'string' ? summaryText : String(summaryText),
-        },
-      })
-
-      router.invalidate()
-    } catch (error) {
-      console.error('Failed to regenerate summary:', error)
-      toast.error('Kunde inte generera veckosummering')
-    } finally {
-      setIsRegenerating(false)
-    }
-  }
-
-  const prevWeek = week === 1 ? { year: year - 1, week: 52 } : { year, week: week - 1 }
-  const nextWeek = week === 52 ? { year: year + 1, week: 1 } : { year, week: week + 1 }
+  const prevWeek = getAdjacentWeek(year, week, 'prev')
+  const nextWeek = getAdjacentWeek(year, week, 'next')
 
   const weekLabel = `Vecka ${week}, ${year}`
   const moodDescription = getWeekMoodDescription(averageMood)

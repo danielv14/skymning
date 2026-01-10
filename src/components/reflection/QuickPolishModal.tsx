@@ -1,8 +1,8 @@
-import { useEffect, useRef } from 'react'
 import { Modal, ModalClose } from '../ui/Modal'
 import { SummaryEditor } from './SummaryEditor'
 import { Button } from '../ui/Button'
 import { useAsyncGeneration } from '../../hooks/useAsyncGeneration'
+import { useModalGeneration } from '../../hooks/useModalGeneration'
 import { polishQuickEntry } from '../../server/ai'
 
 type QuickPolishModalProps = {
@@ -18,8 +18,6 @@ export const QuickPolishModal = ({
   originalText,
   onUse,
 }: QuickPolishModalProps) => {
-  const prevOpenRef = useRef(false)
-
   const {
     result: polishedText,
     isGenerating,
@@ -37,15 +35,12 @@ export const QuickPolishModal = ({
     autoGenerate: false,
   })
 
-  useEffect(() => {
-    const wasOpen = prevOpenRef.current
-    prevOpenRef.current = open
-
-    if (open && !wasOpen && originalText.length >= 10) {
-      reset()
-      regenerate()
-    }
-  }, [open, originalText, reset, regenerate])
+  useModalGeneration({
+    open,
+    shouldGenerate: originalText.length >= 10,
+    reset,
+    regenerate,
+  })
 
   const handleUse = () => {
     if (polishedText) {
