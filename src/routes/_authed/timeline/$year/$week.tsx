@@ -196,14 +196,16 @@ const TimelineWeekPage = () => {
             <div className="space-y-4 stagger-children">
               {entries.map((entry) => (
                 <Card key={entry.id}>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-1 min-w-0">
                       <p className="text-sm text-slate-500 mb-1 capitalize">
                         {format(parseISO(entry.date), 'EEEE d MMMM', { locale: sv })}
                       </p>
                       <p className="text-slate-300">{entry.summary}</p>
                     </div>
-                    <MoodEmoji mood={entry.mood} size="md" layout="horizontal" />
+                    <div className="flex-shrink-0">
+                      <MoodEmoji mood={entry.mood} size="md" layout="horizontal" />
+                    </div>
                   </div>
                 </Card>
               ))}
