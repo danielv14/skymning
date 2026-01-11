@@ -39,3 +39,16 @@ export type WeeklySummary = typeof weeklySummaries.$inferSelect
 export type NewWeeklySummary = typeof weeklySummaries.$inferInsert
 export type UserContext = typeof userContext.$inferSelect
 export type NewUserContext = typeof userContext.$inferInsert
+
+// Sparar pågående chatt för dagen - rensas automatiskt om det är en ny dag
+export const chatSessions = sqliteTable('chat_sessions', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  date: text('date').notNull().unique(), // ISO-datum YYYY-MM-DD
+  messages: text('messages').notNull(), // JSON-array av meddelanden
+  updatedAt: text('updated_at')
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
+})
+
+export type ChatSession = typeof chatSessions.$inferSelect
+export type NewChatSession = typeof chatSessions.$inferInsert
