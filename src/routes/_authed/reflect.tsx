@@ -1,15 +1,15 @@
 import type { UIMessage } from "@tanstack/ai-react";
 import { fetchServerSentEvents, useChat } from "@tanstack/ai-react";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { RefreshCw, SendHorizontal } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { RefreshCw } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
+import { ChatInputBar } from "../../components/reflection/ChatInputBar";
+import { ChatMessage } from "../../components/reflection/ChatMessage";
 import { CompletionModal } from "../../components/reflection/CompletionModal";
 import { AlertDialog } from "../../components/ui/AlertDialog";
 import { Button } from "../../components/ui/Button";
 import { PageHeader } from "../../components/ui/PageHeader";
-import { Textarea } from "../../components/ui/Textarea";
-import { TypingIndicator } from "../../components/ui/TypingIndicator";
 import {
   clearTodayChat,
   getTodayChat,
@@ -25,7 +25,6 @@ const ReflectPage = () => {
   const [restartDialogOpen, setRestartDialogOpen] = useState(false);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const savedMessageIds = useRef<Set<string>>(
     new Set(existingChat.map((message) => `db-${message.id}`))
   );
@@ -52,16 +51,6 @@ const ReflectPage = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  useEffect(() => {
-    textareaRef.current?.focus();
-  }, []);
-
-  useEffect(() => {
-    if (!isLoading) {
-      textareaRef.current?.focus();
-    }
-  }, [isLoading]);
 
   useEffect(() => {
     const saveNewMessages = async () => {
@@ -106,9 +95,6 @@ const ReflectPage = () => {
     if (input.trim() && !isLoading) {
       sendMessage(input);
       setInput("");
-      if (textareaRef.current) {
-        textareaRef.current.style.height = "auto";
-      }
     }
   };
 
@@ -147,13 +133,6 @@ const ReflectPage = () => {
     role: message.role as "user" | "assistant",
     content: getMessageText(message.parts),
   }));
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
 
   return (
     <>
@@ -206,81 +185,32 @@ const ReflectPage = () => {
               </div>
             )}
 
-            {messages.map((message) => {
-              const text = getMessageText(message.parts);
-              const isStreaming =
-                isLoading &&
-                message.role === "assistant" &&
-                message === messages[messages.length - 1];
-              const time = formatTime(message.createdAt);
-
-              return (
-                <div
-                  key={message.id}
-                  className={`flex flex-col ${message.role === "user" ? "items-end" : "items-start"}`}
-                >
-                  <div
-                    className={`max-w-[85%] sm:max-w-[70%] rounded-2xl px-4 py-3 ${
-                      message.role === "user"
-                        ? "bg-gradient-to-r from-indigo-600 to-indigo-500 text-white rounded-br-md shadow-lg shadow-indigo-500/20"
-                        : "bg-slate-800 border border-slate-700 text-slate-200 rounded-bl-md"
-                    }`}
-                  >
-                    <p className="whitespace-pre-wrap leading-relaxed">
-                      {text || (isStreaming ? <TypingIndicator /> : "")}
-                      {isStreaming && text && (
-                        <span className="inline-block w-2 h-4 ml-1 bg-indigo-400 animate-pulse rounded-sm align-middle" />
-                      )}
-                    </p>
-                  </div>
-                  {time && (
-                    <span className="text-xs text-slate-500 mt-1 px-1">
-                      {time}
-                    </span>
-                  )}
-                </div>
-              );
-            })}
+            {messages.map((message) => (
+              <ChatMessage
+                key={message.id}
+                role={message.role as "user" | "assistant"}
+                text={getMessageText(message.parts)}
+                isStreaming={
+                  isLoading &&
+                  message.role === "assistant" &&
+                  message === messages[messages.length - 1]
+                }
+                time={formatTime(message.createdAt)}
+              />
+            ))}
 
             <div ref={messagesEndRef} />
           </div>
         </div>
 
-        <div className="shrink-0 px-4 sm:px-6 py-4">
-          <div className="max-w-2xl mx-auto bg-slate-800/70 border border-slate-700/50 backdrop-blur-sm rounded-2xl px-4 sm:px-5 py-4">
-            <div className="relative">
-              <Textarea
-                ref={textareaRef}
-                value={input}
-                onChange={setInput}
-                onKeyDown={handleKeyDown}
-                placeholder="Dela dina tankar..."
-                rows={2}
-                disabled={isLoading}
-                autoResize
-                maxHeight={150}
-                className="rounded-2xl !pr-12"
-              />
-              <button
-                onClick={handleSendMessage}
-                disabled={!input.trim() || isLoading}
-                className="absolute right-4 bottom-4 w-8 h-8 flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 rounded-full text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
-              >
-                <SendHorizontal className="w-3.5 h-3.5" />
-              </button>
-            </div>
-            {messages.length >= 2 && !isLoading && (
-              <div className="flex justify-end mt-2">
-                <button
-                  onClick={handleOpenModal}
-                  className="text-sm text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
-                >
-                  Jag är klar – spara dagen
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+        <ChatInputBar
+          input={input}
+          onInputChange={setInput}
+          onSend={handleSendMessage}
+          onComplete={handleOpenModal}
+          isLoading={isLoading}
+          canComplete={messages.length >= 2}
+        />
       </div>
     </>
   );
