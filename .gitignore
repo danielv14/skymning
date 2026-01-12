@@ -15,4 +15,3 @@ todos.json
 # Database
 *.db
 *.db-journal
-drizzle/
