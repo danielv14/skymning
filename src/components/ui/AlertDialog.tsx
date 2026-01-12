@@ -35,7 +35,7 @@ export const AlertDialog = ({
 
   const confirmButtonStyles =
     variant === 'danger'
-      ? 'bg-red-600 hover:bg-red-500 active:bg-red-700 text-white'
+      ? 'bg-red-500/10 hover:bg-red-500/20 active:bg-red-500/30 text-red-400 border border-red-500/30'
       : 'bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white'
 
   return (
