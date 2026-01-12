@@ -8,6 +8,7 @@ import {
   hasAnyEntries,
 } from '../../server/functions/entries'
 import { getLastWeekSummary } from '../../server/functions/weeklySummaries'
+import { hasOngoingChat } from '../../server/functions/chat'
 import { MoodTrend } from '../../components/mood/MoodTrend'
 import { MoodEmoji } from '../../components/mood/MoodEmoji'
 import { StreakFlame } from '../../components/mood/MoodIcons'
@@ -18,7 +19,7 @@ import { StarField } from '../../components/StarField'
 import { getPeriodMoodDescription } from '../../constants/mood'
 
 const HomePage = () => {
-  const { hasEntries, todayEntry, moodTrend, streak, recentMood, lastWeekSummary } =
+  const { hasEntries, todayEntry, moodTrend, streak, recentMood, lastWeekSummary, hasOngoingChatFlag } =
     Route.useLoaderData()
 
   if (!hasEntries) {
@@ -76,7 +77,9 @@ const HomePage = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link to="/reflect" className="flex-1">
-                  <Button className="w-full">Prata med AI</Button>
+                  <Button className="w-full">
+                    {hasOngoingChatFlag ? 'Fortsätt chatta' : 'Prata med AI'}
+                  </Button>
                 </Link>
                 <Link to="/quick" className="flex-1">
                   <Button variant="secondary" className="w-full">Skriv själv</Button>
@@ -169,7 +172,7 @@ export const Route = createFileRoute('/_authed/')({
     meta: [{ title: 'Skymning' }],
   }),
   loader: async () => {
-    const [hasEntries, todayEntry, moodTrend, streak, recentMood, lastWeekSummary] =
+    const [hasEntries, todayEntry, moodTrend, streak, recentMood, lastWeekSummary, hasOngoingChatFlag] =
       await Promise.all([
         hasAnyEntries(),
         getTodayEntry(),
@@ -177,6 +180,7 @@ export const Route = createFileRoute('/_authed/')({
         getStreak(),
         getRecentMoodAverage({ data: { days: 7 } }),
         getLastWeekSummary(),
+        hasOngoingChat(),
       ])
 
     return {
@@ -186,6 +190,7 @@ export const Route = createFileRoute('/_authed/')({
       streak,
       recentMood,
       lastWeekSummary,
+      hasOngoingChatFlag,
     }
   },
   component: HomePage,

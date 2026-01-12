@@ -39,3 +39,17 @@ export type WeeklySummary = typeof weeklySummaries.$inferSelect
 export type NewWeeklySummary = typeof weeklySummaries.$inferInsert
 export type UserContext = typeof userContext.$inferSelect
 export type NewUserContext = typeof userContext.$inferInsert
+
+export const chatMessages = sqliteTable('chat_messages', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  date: text('date').notNull(), // YYYY-MM-DD
+  role: text('role').notNull(), // 'user' | 'assistant'
+  content: text('content').notNull(),
+  orderIndex: integer('order_index').notNull(),
+  createdAt: text('created_at')
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
+})
+
+export type ChatMessage = typeof chatMessages.$inferSelect
+export type NewChatMessage = typeof chatMessages.$inferInsert

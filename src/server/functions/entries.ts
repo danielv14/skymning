@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { getDb } from '../db'
-import { entries } from '../db/schema'
+import { entries, chatMessages } from '../db/schema'
 import { eq, desc, and, gte, lt } from 'drizzle-orm'
 import { startOfISOWeek, endOfISOWeek, format } from 'date-fns'
 import { weekInputSchema } from '../../constants'
@@ -59,6 +59,9 @@ export const createEntry = createServerFn({ method: 'POST' })
         summary: data.summary,
       })
       .returning()
+
+    // Clear today's chat after saving the reflection
+    await db.delete(chatMessages).where(eq(chatMessages.date, today))
 
     return entry
   })
