@@ -3,9 +3,11 @@ import { z } from 'zod'
 import { getDb } from '../db'
 import { userContext } from '../db/schema'
 import { eq } from 'drizzle-orm'
+import { requireAuth } from '../auth/session'
 
 export const getUserContext = createServerFn({ method: 'GET' }).handler(
   async () => {
+    await requireAuth()
     const db = getDb()
     let context = await db.query.userContext.findFirst()
 
@@ -29,8 +31,9 @@ const updateContextSchema = z.object({
 export const updateUserContext = createServerFn({ method: 'POST' })
   .inputValidator((data: unknown) => updateContextSchema.parse(data))
   .handler(async ({ data }) => {
+    await requireAuth()
     const db = getDb()
-    let context = await db.query.userContext.findFirst()
+    const context = await db.query.userContext.findFirst()
 
     if (context) {
       const [updated] = await db

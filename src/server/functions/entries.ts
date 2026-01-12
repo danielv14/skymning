@@ -6,9 +6,11 @@ import { eq, desc, and, gte, lt } from 'drizzle-orm'
 import { startOfISOWeek, endOfISOWeek, format } from 'date-fns'
 import { weekInputSchema } from '../../constants'
 import { getTodayDateString, subtractDays } from '../../utils/date'
+import { requireAuth } from '../auth/session'
 
 export const getTodayEntry = createServerFn({ method: 'GET' }).handler(
   async () => {
+    await requireAuth()
     const db = getDb()
     const today = getTodayDateString()
     const entry = await db.query.entries.findFirst({
@@ -20,6 +22,7 @@ export const getTodayEntry = createServerFn({ method: 'GET' }).handler(
 
 export const hasAnyEntries = createServerFn({ method: 'GET' }).handler(
   async () => {
+    await requireAuth()
     const db = getDb()
     const entry = await db.query.entries.findFirst()
     return entry !== undefined
@@ -29,6 +32,7 @@ export const hasAnyEntries = createServerFn({ method: 'GET' }).handler(
 export const getEntriesForWeek = createServerFn({ method: 'GET' })
   .inputValidator((data: unknown) => weekInputSchema.parse(data))
   .handler(async ({ data }) => {
+    await requireAuth()
     const db = getDb()
     const { startDate, endDate } = getWeekDateRange(data.year, data.week)
 
@@ -48,6 +52,7 @@ const createEntrySchema = z.object({
 export const createEntry = createServerFn({ method: 'POST' })
   .inputValidator((data: unknown) => createEntrySchema.parse(data))
   .handler(async ({ data }) => {
+    await requireAuth()
     const db = getDb()
     const today = getTodayDateString()
 
@@ -73,6 +78,7 @@ const trendInputSchema = z.object({
 export const getMoodTrend = createServerFn({ method: 'GET' })
   .inputValidator((data: unknown) => trendInputSchema.parse(data))
   .handler(async ({ data }) => {
+    await requireAuth()
     const db = getDb()
     const trendEntries = await db.query.entries.findMany({
       columns: {
@@ -116,6 +122,7 @@ const recentMoodSchema = z.object({
 export const getRecentMoodAverage = createServerFn({ method: 'GET' })
   .inputValidator((data: unknown) => recentMoodSchema.parse(data))
   .handler(async ({ data }) => {
+    await requireAuth()
     const db = getDb()
     const today = getTodayDateString()
     const startDate = subtractDays(today, data.days)
@@ -138,6 +145,7 @@ export const getRecentMoodAverage = createServerFn({ method: 'GET' })
   })
 
 export const getStreak = createServerFn({ method: 'GET' }).handler(async () => {
+  await requireAuth()
   const db = getDb()
   const allEntries = await db.query.entries.findMany({
     columns: { date: true },
