@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useState, useEffect } from 'react'
 
 type Star = {
   id: number
@@ -28,7 +28,12 @@ const generateStars = (count: number): Star[] => {
 }
 
 export const StarField = ({ starCount = 40, className = '' }: StarFieldProps) => {
-  const stars = useMemo(() => generateStars(starCount), [starCount])
+  const [stars, setStars] = useState<Star[]>([])
+
+  // Generate stars only on client to avoid hydration mismatch
+  useEffect(() => {
+    setStars(generateStars(starCount))
+  }, [starCount])
 
   return (
     <div

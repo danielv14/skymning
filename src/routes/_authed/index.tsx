@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Calendar, User } from 'lucide-react'
+import { Calendar, User, MessageCircle } from 'lucide-react'
 import {
   getTodayEntry,
   getMoodTrend,
@@ -8,6 +8,7 @@ import {
   hasAnyEntries,
 } from '../../server/functions/entries'
 import { getLastWeekSummary } from '../../server/functions/weeklySummaries'
+import { getChatPreview } from '../../server/functions/chat'
 import { MoodTrend } from '../../components/mood/MoodTrend'
 import { MoodEmoji } from '../../components/mood/MoodEmoji'
 import { StreakFlame } from '../../components/mood/MoodIcons'
@@ -16,13 +17,19 @@ import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { StarField } from '../../components/StarField'
 import { getPeriodMoodDescription } from '../../constants/mood'
+import { formatTime } from '../../utils/date'
 
 const HomePage = () => {
-  const { hasEntries, todayEntry, moodTrend, streak, recentMood, lastWeekSummary } =
+  const { hasEntries, todayEntry, moodTrend, streak, recentMood, lastWeekSummary, chatPreview } =
     Route.useLoaderData()
 
   if (!hasEntries) {
     return <Welcome />
+  }
+
+  const truncateMessage = (text: string, maxLength: number) => {
+    if (text.length <= maxLength) return text
+    return text.slice(0, maxLength).trim() + '...'
   }
 
   return (
@@ -56,6 +63,35 @@ const HomePage = () => {
       </header>
 
       <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 -mt-4">
+        {chatPreview && !todayEntry && (
+          <Card className="bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border-indigo-500/30">
+            <div className="flex items-start gap-3 sm:gap-4">
+              <div className="shrink-0 p-2 rounded-full bg-indigo-500/20">
+                <MessageCircle className="w-5 h-5 text-indigo-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-2">
+                  <h3 className="font-semibold text-white">Pågående reflektion</h3>
+                  <span className="text-xs text-slate-400">
+                    {chatPreview.messageCount} {chatPreview.messageCount === 1 ? 'meddelande' : 'meddelanden'}
+                    {chatPreview.lastMessage && ` · ${formatTime(chatPreview.lastMessage.createdAt)}`}
+                  </span>
+                </div>
+                {chatPreview.lastMessage && (
+                  <p className="text-sm text-slate-300 mb-3 line-clamp-2">
+                    {truncateMessage(chatPreview.lastMessage.content, 120)}
+                  </p>
+                )}
+                <Link to="/reflect">
+                  <Button size="sm" className="w-full sm:w-auto">
+                    Fortsätt chatta
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </Card>
+        )}
+
         <Card gradient>
           {todayEntry ? (
             <div className="space-y-3">
@@ -76,7 +112,9 @@ const HomePage = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Link to="/reflect" className="flex-1">
-                  <Button className="w-full">Prata med AI</Button>
+                  <Button className="w-full">
+                    {chatPreview ? 'Fortsätt chatta' : 'Prata med AI'}
+                  </Button>
                 </Link>
                 <Link to="/quick" className="flex-1">
                   <Button variant="secondary" className="w-full">Skriv själv</Button>
@@ -169,7 +207,7 @@ export const Route = createFileRoute('/_authed/')({
     meta: [{ title: 'Skymning' }],
   }),
   loader: async () => {
-    const [hasEntries, todayEntry, moodTrend, streak, recentMood, lastWeekSummary] =
+    const [hasEntries, todayEntry, moodTrend, streak, recentMood, lastWeekSummary, chatPreview] =
       await Promise.all([
         hasAnyEntries(),
         getTodayEntry(),
@@ -177,6 +215,7 @@ export const Route = createFileRoute('/_authed/')({
         getStreak(),
         getRecentMoodAverage({ data: { days: 7 } }),
         getLastWeekSummary(),
+        getChatPreview(),
       ])
 
     return {
@@ -186,6 +225,7 @@ export const Route = createFileRoute('/_authed/')({
       streak,
       recentMood,
       lastWeekSummary,
+      chatPreview,
     }
   },
   component: HomePage,

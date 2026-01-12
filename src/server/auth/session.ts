@@ -16,3 +16,10 @@ export const useAppSession = () => {
     },
   })
 }
+
+export const requireAuth = async () => {
+  const session = await useAppSession()
+  if (session.data.authenticated !== true) {
+    throw new Error('Unauthorized')
+  }
+}

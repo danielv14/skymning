@@ -34,14 +34,14 @@ bun test <path>            # Run single test file
 bun test --watch           # Watch mode
 
 # Database (local D1)
-bun db:migrate:local       # Apply migrations to local D1
+bun db:push                # Sync schema to local D1 (no migration tracking)
 bun db:reset               # Clear all tables (local)
 bun db:seed                # Seed 4 weeks of test data (local)
 bun db:reseed              # Reset + seed combined (local)
 bun db:clear-today         # Clear today's entry (local)
 
 # Database (remote/production D1)
-bun db:migrate:remote      # Apply migrations to production D1
+bun db:migrate             # Apply pending migrations to production D1
 
 # Database Development
 bun db:migrate:generate    # Generate new migration from schema changes
@@ -73,13 +73,13 @@ The app is deployed to Cloudflare Workers with D1 database.
 ### Migration Workflow
 When changing the database schema:
 1. Update `src/server/db/schema.ts`
-2. Run `bun db:migrate:generate` to create new migration
-3. Run `bun db:migrate:local` to apply locally
-4. Test locally with `bun dev`
-5. Run `bun db:migrate:remote` to apply to production
-6. Deploy with `bun run deploy`
+2. Run `bun db:push` to sync changes to local D1
+3. Test locally with `bun dev`
+4. Run `bun db:migrate:generate` to create migration file
+5. Commit the migration files in `drizzle/` (they are version controlled)
+6. Push/merge to master - CI will automatically run migrations before deploy
 
-**Note:** Migration scripts in package.json reference specific migration files. Update these when new migrations are generated.
+**Note:** Local development uses `drizzle-kit push` which syncs schema directly without migration tracking - ideal for rapid iteration. Production uses `drizzle-kit migrate` which tracks applied migrations in a `__drizzle_migrations` table.
 
 ### GitHub Actions Deployment
 
@@ -98,11 +98,12 @@ Automated deployments via GitHub Actions:
 |--------|---------|
 | `CLOUDFLARE_API_TOKEN` | Wrangler authentication |
 | `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID |
+| `CLOUDFLARE_D1_TOKEN` | D1 API token (for migrations) |
 | `AUTH_SECRET` | App login password (for previews) |
 | `SESSION_SECRET` | Session encryption (for previews) |
 | `OPENAI_API_KEY` | AI features (for previews) |
 
-**Note:** Preview Workers share the production D1 database.
+**Note:** Preview Workers share the production D1 database. The D1 token needs `D1 Edit` permissions. Database ID is hardcoded in `drizzle.config.ts` since it's already public in `wrangler.toml`.
 
 ## Code Style Guidelines
 
@@ -195,12 +196,15 @@ Automated deployments via GitHub Actions:
 - Specify method: `{ method: 'GET' }` or `{ method: 'POST' }`
 - Always validate input with `.inputValidator()`
 - Return `null` (not `undefined`) for empty results
+- **Always call `requireAuth()` for functions that access user data** - route-level auth only protects the UI, not direct API calls
 - Get database via `getDb()` from `@/server/db`:
   ```typescript
   import { getDb } from '../db'
+  import { requireAuth } from '../auth/session'
 
   export const myFunction = createServerFn({ method: 'GET' })
     .handler(async () => {
+      await requireAuth()
       const db = getDb()
       // ... use db
     })
@@ -228,9 +232,10 @@ Automated deployments via GitHub Actions:
 - Sessions are stored in encrypted httpOnly cookies (30-day expiry)
 - Protected routes are nested under `_authed/` layout route
 - Login validates against `AUTH_SECRET` environment variable
+- **Server functions must call `requireAuth()` for defense in depth** - the `_authed` layout only protects UI routes, server functions can be called directly via HTTP
 
 Key files:
-- `src/server/auth/session.ts` - Session configuration with `useAppSession` hook
+- `src/server/auth/session.ts` - Session configuration with `useAppSession` and `requireAuth` helpers
 - `src/server/functions/auth.ts` - `loginFn`, `logoutFn`, `isAuthenticatedFn`
 - `src/routes/_authed.tsx` - Layout route that checks auth via `beforeLoad`
 - `src/routes/login.tsx` - Public login page
