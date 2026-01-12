@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { getDb } from '../db'
 import { chatMessages } from '../db/schema'
-import { eq, lt, asc } from 'drizzle-orm'
+import { eq, lt, asc, desc, count } from 'drizzle-orm'
 import { getTodayDateString } from '../../utils/date'
 import { requireAuth } from '../auth/session'
 
@@ -23,17 +23,38 @@ export const getTodayChat = createServerFn({ method: 'GET' }).handler(
   }
 )
 
-export const hasOngoingChat = createServerFn({ method: 'GET' }).handler(
+export const getChatPreview = createServerFn({ method: 'GET' }).handler(
   async () => {
     await requireAuth()
     const db = getDb()
     const today = getTodayDateString()
 
-    const message = await db.query.chatMessages.findFirst({
+    const [countResult] = await db
+      .select({ count: count() })
+      .from(chatMessages)
+      .where(eq(chatMessages.date, today))
+
+    const messageCount = countResult?.count ?? 0
+
+    if (messageCount === 0) {
+      return null
+    }
+
+    const lastMessage = await db.query.chatMessages.findFirst({
       where: eq(chatMessages.date, today),
+      orderBy: [desc(chatMessages.orderIndex)],
     })
 
-    return message !== undefined
+    return {
+      messageCount,
+      lastMessage: lastMessage
+        ? {
+            role: lastMessage.role,
+            content: lastMessage.content,
+            createdAt: lastMessage.createdAt,
+          }
+        : null,
+    }
   }
 )
 

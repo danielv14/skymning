@@ -5,6 +5,7 @@ import type { UIMessage } from '@tanstack/ai-react'
 import { RefreshCw, Send } from 'lucide-react'
 import { getTodayEntry, createEntry } from '../../server/functions/entries'
 import { getTodayChat, saveChatMessage, clearTodayChat } from '../../server/functions/chat'
+import { formatTime } from '../../utils/date'
 import { Button } from '../../components/ui/Button'
 import { Textarea } from '../../components/ui/Textarea'
 import { PageHeader } from '../../components/ui/PageHeader'
@@ -129,11 +130,6 @@ const ReflectPage = () => {
       .filter((part) => part.type === 'text')
       .map((part) => part.content)
       .join('')
-  }
-
-  const formatTime = (date: Date | undefined) => {
-    if (!date) return null
-    return date.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })
   }
 
   const chatMessages = messages.map((message) => ({
