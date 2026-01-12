@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Modal, ModalClose } from '../ui/Modal'
+import { Modal, ModalCloseButton } from '../ui/Modal'
 import { MoodSelector } from './MoodSelector'
 import { SummaryEditor } from './SummaryEditor'
 import { Button } from '../ui/Button'
@@ -105,11 +105,9 @@ export const CompletionModal = ({
       </div>
 
       <div className="flex gap-3">
-        <ModalClose className="flex-1">
-          <Button variant="secondary" className="w-full">
-            Avbryt
-          </Button>
-        </ModalClose>
+        <ModalCloseButton variant="secondary" className="flex-1">
+          Avbryt
+        </ModalCloseButton>
         <Button
           onClick={handleSave}
           disabled={!selectedMood || !summary?.trim() || isSaving || isGenerating}

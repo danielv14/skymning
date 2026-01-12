@@ -8,15 +8,14 @@ import {
   getCurrentWeek,
 } from '../../../../server/functions/weeklySummaries'
 import { generateWeeklySummary } from '../../../../server/ai'
-import { MoodEmoji } from '../../../../components/mood/MoodEmoji'
-import { Button } from '../../../../components/ui/Button'
 import { Card } from '../../../../components/ui/Card'
 import { StarField } from '../../../../components/StarField'
 import { RegenerateConfirmModal } from '../../../../components/reflection/RegenerateConfirmModal'
-import { ChevronLeft, ChevronRight, Home, RotateCw } from 'lucide-react'
+import { WeeklyEntryCard } from '../../../../components/timeline/WeeklyEntryCard'
+import { WeeklySummarySection } from '../../../../components/timeline/WeeklySummarySection'
+import { ChevronLeft, ChevronRight, Home } from 'lucide-react'
 import { useState } from 'react'
-import { format, parseISO, getISOWeek, getISOWeekYear, addWeeks, subWeeks } from 'date-fns'
-import { sv } from 'date-fns/locale'
+import { getISOWeek, getISOWeekYear, addWeeks, subWeeks } from 'date-fns'
 import { getWeekMoodDescription } from '../../../../constants/mood'
 
 const getDateFromISOWeek = (year: number, week: number) => {
@@ -153,57 +152,22 @@ const TimelineWeekPage = () => {
       </header>
 
       <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 -mt-4">
-        {weeklySummary ? (
-          <Card gradient>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 mb-3">
-              <h2 className="text-lg font-semibold text-white">Veckans summering</h2>
-              <div className="flex items-center gap-3">
-                {moodDescription && (
-                  <span className="text-sm text-slate-400">{moodDescription}</span>
-                )}
-                <button
-                  onClick={() => setConfirmModalOpen(true)}
-                  disabled={isRegenerating}
-                  className="text-slate-400 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  aria-label="Regenerera summering"
-                >
-                  <RotateCw className={`w-4 h-4 ${isRegenerating ? 'animate-spin' : ''}`} />
-                </button>
-              </div>
-            </div>
-            <p className="text-slate-300">{weeklySummary.summary}</p>
-          </Card>
-        ) : entries.length > 0 ? (
-          <Card gradient>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-semibold text-white">Veckans summering</h2>
-              {moodDescription && (
-                <span className="text-sm text-slate-400">{moodDescription}</span>
-              )}
-            </div>
-            <p className="text-slate-400 mb-4">
-              Ingen summering finns ännu för denna vecka.
-            </p>
-            <Button onClick={handleGenerateSummary} disabled={isGenerating}>
-              {isGenerating ? 'Genererar...' : 'Generera summering'}
-            </Button>
-          </Card>
-        ) : null}
+        <WeeklySummarySection
+          summary={weeklySummary?.summary ?? null}
+          hasEntries={entries.length > 0}
+          moodDescription={moodDescription}
+          onGenerate={handleGenerateSummary}
+          onOpenRegenerateModal={() => setConfirmModalOpen(true)}
+          isGenerating={isGenerating}
+          isRegenerating={isRegenerating}
+        />
 
         {entries.length > 0 ? (
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-slate-200 px-1">Veckans dagar</h2>
             <div className="space-y-4 stagger-children">
               {entries.map((entry) => (
-                <Card key={entry.id}>
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm text-slate-500 capitalize">
-                      {format(parseISO(entry.date), 'EEEE d MMMM', { locale: sv })}
-                    </p>
-                    <MoodEmoji mood={entry.mood} size="md" layout="horizontal" />
-                  </div>
-                  <p className="text-slate-300">{entry.summary}</p>
-                </Card>
+                <WeeklyEntryCard key={entry.id} entry={entry} />
               ))}
             </div>
           </div>

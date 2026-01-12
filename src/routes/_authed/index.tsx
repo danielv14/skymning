@@ -10,13 +10,13 @@ import {
 import { getLastWeekSummary } from '../../server/functions/weeklySummaries'
 import { getChatPreview } from '../../server/functions/chat'
 import { MoodTrend } from '../../components/mood/MoodTrend'
-import { MoodEmoji } from '../../components/mood/MoodEmoji'
-import { StreakFlame } from '../../components/mood/MoodIcons'
 import { Welcome } from '../../components/Welcome'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { StarField } from '../../components/StarField'
-import { getPeriodMoodDescription } from '../../constants/mood'
+import { StreakCard } from '../../components/dashboard/StreakCard'
+import { RecentMoodCard } from '../../components/dashboard/RecentMoodCard'
+import { TodayEntryCard } from '../../components/dashboard/TodayEntryCard'
 import { formatTime } from '../../utils/date'
 
 const HomePage = () => {
@@ -92,84 +92,11 @@ const HomePage = () => {
           </Card>
         )}
 
-        <Card gradient>
-          {todayEntry ? (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-white">Dagens reflektion</h2>
-                <MoodEmoji mood={todayEntry.mood} size="lg" layout="horizontal" />
-              </div>
-              <p className="text-slate-300">{todayEntry.summary}</p>
-              <p className="text-sm text-slate-500">
-                Du har redan reflekterat idag
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-white">Hur var din dag?</h2>
-              <p className="text-slate-300">
-                Ta en stund att reflektera över dagens händelser och känslor.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Link to="/reflect" className="flex-1">
-                  <Button className="w-full">
-                    {chatPreview ? 'Fortsätt chatta' : 'Prata med AI'}
-                  </Button>
-                </Link>
-                <Link to="/quick" className="flex-1">
-                  <Button variant="secondary" className="w-full">Skriv själv</Button>
-                </Link>
-              </div>
-            </div>
-          )}
-        </Card>
+        <TodayEntryCard entry={todayEntry} hasChatPreview={!!chatPreview} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Card
-            className={
-              streak > 0
-                ? 'bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/20'
-                : 'bg-gradient-to-r from-slate-500/10 to-slate-600/10 border-slate-500/20'
-            }
-          >
-            <div className="flex items-center gap-4">
-              <StreakFlame
-                size={40}
-                className={streak > 0 ? 'text-amber-400' : 'text-slate-500'}
-              />
-              <div>
-                {streak > 0 ? (
-                  <>
-                    <p className="text-2xl font-bold text-white">
-                      {streak} {streak === 1 ? 'dag' : 'dagar'}
-                    </p>
-                    <p className="text-slate-400 text-sm">
-                      {streak === 1 ? 'Du har börjat en streak!' : 'i rad med reflektion'}
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-lg font-semibold text-white">Ingen aktiv streak</p>
-                    <p className="text-slate-400 text-sm">Skriv idag för att starta en ny!</p>
-                  </>
-                )}
-              </div>
-            </div>
-          </Card>
-
-          {recentMood && (
-            <Card className="bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border-indigo-500/20">
-              <div className="flex items-center gap-4">
-                <MoodEmoji mood={Math.round(recentMood.average)} size="lg" showLabel={false} />
-                <div>
-                  <p className="text-lg font-semibold text-white">
-                    {getPeriodMoodDescription(recentMood.average)}
-                  </p>
-                  <p className="text-slate-400 text-sm">Senaste 7 dagarna</p>
-                </div>
-              </div>
-            </Card>
-          )}
+          <StreakCard streak={streak} />
+          {recentMood && <RecentMoodCard average={recentMood.average} />}
         </div>
 
         {lastWeekSummary && (
