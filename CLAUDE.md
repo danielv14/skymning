@@ -313,8 +313,10 @@ const averageMood = entries.reduce(...) / entries.length
 ```
 src/
   components/       # Reusable UI components
+    dashboard/      # Dashboard cards (RecentMoodCard, StreakCard, TodayEntryCard)
     mood/           # Mood-related components (MoodEmoji, MoodTrend, etc.)
-    reflection/     # Reflection components (MoodSelector, SummaryEditor, etc.)
+    reflection/     # Reflection components (MoodSelector, SummaryEditor, ChatMessage, etc.)
+    timeline/       # Timeline components (WeeklyEntryCard, WeeklySummarySection)
     ui/             # Generic UI (Button, Card, Modal, etc.)
   constants/        # Constants and Zod schemas
   hooks/            # Custom React hooks (useAsyncGeneration)
