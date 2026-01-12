@@ -1,7 +1,7 @@
 import type { UIMessage } from "@tanstack/ai-react";
 import { fetchServerSentEvents, useChat } from "@tanstack/ai-react";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { RefreshCw, Send } from "lucide-react";
+import { RefreshCw, SendHorizontal } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { CompletionModal } from "../../components/reflection/CompletionModal";
@@ -264,9 +264,9 @@ const ReflectPage = () => {
               <button
                 onClick={handleSendMessage}
                 disabled={!input.trim() || isLoading}
-                className="absolute right-4 bottom-4 text-indigo-400 hover:text-indigo-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                className="absolute right-4 bottom-4 w-8 h-8 flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 rounded-full text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
               >
-                <Send className="w-5 h-5" />
+                <SendHorizontal className="w-3.5 h-3.5" />
               </button>
             </div>
             {messages.length >= 2 && !isLoading && (
