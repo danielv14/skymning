@@ -195,12 +195,15 @@ Automated deployments via GitHub Actions:
 - Specify method: `{ method: 'GET' }` or `{ method: 'POST' }`
 - Always validate input with `.inputValidator()`
 - Return `null` (not `undefined`) for empty results
+- **Always call `requireAuth()` for functions that access user data** - route-level auth only protects the UI, not direct API calls
 - Get database via `getDb()` from `@/server/db`:
   ```typescript
   import { getDb } from '../db'
+  import { requireAuth } from '../auth/session'
 
   export const myFunction = createServerFn({ method: 'GET' })
     .handler(async () => {
+      await requireAuth()
       const db = getDb()
       // ... use db
     })
@@ -228,9 +231,10 @@ Automated deployments via GitHub Actions:
 - Sessions are stored in encrypted httpOnly cookies (30-day expiry)
 - Protected routes are nested under `_authed/` layout route
 - Login validates against `AUTH_SECRET` environment variable
+- **Server functions must call `requireAuth()` for defense in depth** - the `_authed` layout only protects UI routes, server functions can be called directly via HTTP
 
 Key files:
-- `src/server/auth/session.ts` - Session configuration with `useAppSession` hook
+- `src/server/auth/session.ts` - Session configuration with `useAppSession` and `requireAuth` helpers
 - `src/server/functions/auth.ts` - `loginFn`, `logoutFn`, `isAuthenticatedFn`
 - `src/routes/_authed.tsx` - Layout route that checks auth via `beforeLoad`
 - `src/routes/login.tsx` - Public login page

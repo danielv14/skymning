@@ -4,16 +4,16 @@ import { getDb } from '../db'
 import { chatMessages } from '../db/schema'
 import { eq, lt, asc } from 'drizzle-orm'
 import { getTodayDateString } from '../../utils/date'
+import { requireAuth } from '../auth/session'
 
 export const getTodayChat = createServerFn({ method: 'GET' }).handler(
   async () => {
+    await requireAuth()
     const db = getDb()
     const today = getTodayDateString()
 
-    // Clean up old messages from previous days
     await db.delete(chatMessages).where(lt(chatMessages.date, today))
 
-    // Return today's messages
     const messages = await db.query.chatMessages.findMany({
       where: eq(chatMessages.date, today),
       orderBy: [asc(chatMessages.orderIndex)],
@@ -25,6 +25,7 @@ export const getTodayChat = createServerFn({ method: 'GET' }).handler(
 
 export const hasOngoingChat = createServerFn({ method: 'GET' }).handler(
   async () => {
+    await requireAuth()
     const db = getDb()
     const today = getTodayDateString()
 
@@ -45,6 +46,7 @@ const saveChatMessageSchema = z.object({
 export const saveChatMessage = createServerFn({ method: 'POST' })
   .inputValidator((data: unknown) => saveChatMessageSchema.parse(data))
   .handler(async ({ data }) => {
+    await requireAuth()
     const db = getDb()
     const today = getTodayDateString()
 
@@ -63,6 +65,7 @@ export const saveChatMessage = createServerFn({ method: 'POST' })
 
 export const clearTodayChat = createServerFn({ method: 'POST' }).handler(
   async () => {
+    await requireAuth()
     const db = getDb()
     const today = getTodayDateString()
 

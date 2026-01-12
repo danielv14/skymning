@@ -21,14 +21,14 @@ const ReflectPage = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const savedMessageIds = useRef<Set<string>>(
-    new Set(existingChat.map((m) => `db-${m.id}`))
+    new Set(existingChat.map((message) => `db-${message.id}`))
   )
 
-  const initialMessages: UIMessage[] = existingChat.map((m) => ({
-    id: `db-${m.id}`,
-    role: m.role as 'user' | 'assistant',
-    parts: [{ type: 'text' as const, content: m.content }],
-    createdAt: new Date(m.createdAt),
+  const initialMessages: UIMessage[] = existingChat.map((message) => ({
+    id: `db-${message.id}`,
+    role: message.role as 'user' | 'assistant',
+    parts: [{ type: 'text' as const, content: message.content }],
+    createdAt: new Date(message.createdAt),
   }))
 
   const { messages, sendMessage, isLoading, setMessages } = useChat({
@@ -36,10 +36,12 @@ const ReflectPage = () => {
     initialMessages: initialMessages.length > 0 ? initialMessages : undefined,
   })
 
-  if (todayEntry) {
-    router.navigate({ to: '/' })
-    return null
-  }
+  // Redirect if today's entry already exists
+  useEffect(() => {
+    if (todayEntry) {
+      router.navigate({ to: '/' })
+    }
+  }, [todayEntry, router])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -55,7 +57,6 @@ const ReflectPage = () => {
     }
   }, [isLoading])
 
-  // Save new messages to database
   useEffect(() => {
     const saveNewMessages = async () => {
       for (let i = 0; i < messages.length; i++) {
@@ -125,8 +126,8 @@ const ReflectPage = () => {
 
   const getMessageText = (parts: typeof messages[0]['parts']) => {
     return parts
-      .filter((p) => p.type === 'text')
-      .map((p) => p.content)
+      .filter((part) => part.type === 'text')
+      .map((part) => part.content)
       .join('')
   }
 
@@ -135,9 +136,9 @@ const ReflectPage = () => {
     return date.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' })
   }
 
-  const chatMessages = messages.map((m) => ({
-    role: m.role as 'user' | 'assistant',
-    content: getMessageText(m.parts),
+  const chatMessages = messages.map((message) => ({
+    role: message.role as 'user' | 'assistant',
+    content: getMessageText(message.parts),
   }))
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
