@@ -3,6 +3,7 @@ import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useChat, fetchServerSentEvents } from '@tanstack/ai-react'
 import type { UIMessage } from '@tanstack/ai-react'
 import { RefreshCw, Send } from 'lucide-react'
+import { toast } from 'sonner'
 import { getTodayEntry, createEntry } from '../../server/functions/entries'
 import { getTodayChat, saveChatMessage, clearTodayChat } from '../../server/functions/chat'
 import { formatTime } from '../../utils/date'
@@ -78,13 +79,19 @@ const ReflectPage = () => {
         // Mark as saved BEFORE the async operation to prevent race conditions
         savedMessageIds.current.add(message.id)
 
-        await saveChatMessage({
-          data: {
-            role: message.role as 'user' | 'assistant',
-            content,
-            orderIndex: i,
-          },
-        })
+        try {
+          await saveChatMessage({
+            data: {
+              role: message.role as 'user' | 'assistant',
+              content,
+              orderIndex: i,
+            },
+          })
+        } catch (error) {
+          console.error('Failed to save chat message:', error)
+          savedMessageIds.current.delete(message.id)
+          toast.error('Kunde inte spara meddelandet')
+        }
       }
     }
 

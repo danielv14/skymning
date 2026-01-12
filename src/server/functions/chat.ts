@@ -60,7 +60,7 @@ export const getChatPreview = createServerFn({ method: 'GET' }).handler(
 
 const saveChatMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
-  content: z.string().min(1),
+  content: z.string().min(1).max(10000),
   orderIndex: z.number().min(0),
 })
 
