@@ -1,4 +1,4 @@
-type ButtonProps = {
+export type ButtonProps = {
   children: React.ReactNode
   variant?: 'primary' | 'secondary'
   size?: 'sm' | 'md' | 'lg'

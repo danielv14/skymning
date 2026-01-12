@@ -1,4 +1,5 @@
 import { Dialog } from '@base-ui-components/react/dialog'
+import { Button, type ButtonProps } from './Button'
 
 type ModalProps = {
   open: boolean
@@ -35,4 +36,11 @@ export const Modal = ({
   )
 }
 
-export const ModalClose = Dialog.Close
+type ModalCloseButtonProps = Omit<ButtonProps, 'onClick'>
+
+export const ModalCloseButton = ({
+  children,
+  ...props
+}: ModalCloseButtonProps) => {
+  return <Dialog.Close render={<Button {...props}>{children}</Button>} />
+}
