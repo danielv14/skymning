@@ -25,6 +25,7 @@ const ReflectPage = () => {
   const [restartDialogOpen, setRestartDialogOpen] = useState(false);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const hasScrolledOnMount = useRef(false);
   const savedMessageIds = useRef<Set<string>>(
     new Set(existingChat.map((message) => `db-${message.id}`))
   );
@@ -48,8 +49,20 @@ const ReflectPage = () => {
     }
   }, [todayEntry, router]);
 
+  // Scroll to bottom on initial load (instant) and when new messages arrive (smooth)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messages.length === 0) return;
+
+    if (!hasScrolledOnMount.current) {
+      // First scroll on mount - use instant to avoid jarring animation
+      requestAnimationFrame(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
+      });
+      hasScrolledOnMount.current = true;
+    } else {
+      // Subsequent scrolls - use smooth for new messages
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages]);
 
   useEffect(() => {
