@@ -87,7 +87,7 @@ const TimelineWeekPage = () => {
   const nextWeek = getAdjacentWeek(year, week, 'next')
 
   const weekLabel = `Vecka ${week}, ${year}`
-  const moodDescription = getWeekMoodDescription(averageMood)
+  const moodDescription = isCurrentWeek ? null : getWeekMoodDescription(averageMood)
 
   return (
     <>
