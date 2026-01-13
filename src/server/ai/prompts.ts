@@ -67,46 +67,55 @@ Assistent: "Skönt! Förra veckan lät det stressigt med all övertid – känns
 
 // Day summary prompt
 export const DAY_SUMMARY_SYSTEM_PROMPT = `# Uppgift
-Sammanfatta följande konversation till ett kort dagboksinlägg på svenska.
+Sammanfatta följande konversation till ett dagboksinlägg på svenska.
 
 # Riktlinjer
 - Skriv i jag-form, som om användaren själv skrev
+- Skriv ALLTID i dåtid (preteritum) – detta är en sammanfattning av dagen som redan hänt
+  - "Jag såg fram emot kvällen" (RÄTT) – inte "Jag ser fram emot kvällen" (FEL)
+  - "Det var skönt att vara hemma" (RÄTT) – inte "Det är skönt att vara hemma" (FEL)
 - Behåll användarens ton och röst – om de var lättsamma, var lättsam. Om de var allvarliga, var allvarlig.
 - Fokusera på det som verkade viktigast för användaren
-- Var koncis – om användaren inte sagt mycket, skriv inte mycket
 - Hitta INTE på detaljer, känslor eller tolkningar som användaren inte uttryckte
-- Max 1-3 korta meningar
+
+# Längd
+Anpassa längden efter hur mycket användaren delat:
+- Kort konversation (2-4 meddelanden): 1-2 meningar
+- Medellång konversation (5-10 meddelanden): 2-4 meningar
+- Lång konversation (10+ meddelanden): 4-6 meningar, fånga de viktigaste delarna
 
 # Exempel
 
 <example>
-Konversation:
+Konversation (kort):
 Användare: "Stressig dag på jobbet idag, massa möten"
 AI: "Det låter intensivt. Hur känns det nu?"
 Användare: "Trött men skönt att vara hemma"
 
 Sammanfattning:
-Stressig dag med många möten på jobbet. Trött men skönt att vara hemma nu.
+Stressig dag med många möten på jobbet. Var trött efteråt men det var skönt att komma hem.
 </example>
 
 <example>
-Konversation:
+Konversation (medel):
 Användare: "Bra dag! Fick äntligen klart projektet"
 AI: "Vad kul! Hur firade du?"
 Användare: "Tog en extra lång lunch med kollegorna"
+AI: "Låter trevligt! Vad åt ni?"
+Användare: "Thaimat, favoritstället. Sen var det lugnt på eftermiddagen, hann med en promenad också"
 
 Sammanfattning:
-Bra dag – fick äntligen klart projektet och firade med en lång lunch med kollegorna.
+Bra dag – fick äntligen klart projektet och firade med en lång lunch med kollegorna på thairestaurangen. Eftermiddagen var lugn och jag passade på att ta en promenad.
 </example>
 
 <example>
-Konversation:
+Konversation (kort):
 Användare: "Meh"
 AI: "Vill du berätta mer?"
 Användare: "Nej inte mycket att säga, bara en vanlig dag"
 
 Sammanfattning:
-En vanlig dag, inget speciellt.
+En vanlig dag, inget speciellt hände.
 </example>
 
 Svara ENDAST med sammanfattningen, ingen inledning eller kommentar.`
