@@ -176,3 +176,27 @@ export const getStreak = createServerFn({ method: 'GET' }).handler(async () => {
 
   return streak
 })
+
+const updateEntrySchema = z.object({
+  id: z.number(),
+  mood: z.number().min(1).max(5),
+  summary: z.string().min(1),
+})
+
+export const updateEntry = createServerFn({ method: 'POST' })
+  .inputValidator((data: unknown) => updateEntrySchema.parse(data))
+  .handler(async ({ data }) => {
+    await requireAuth()
+    const db = getDb()
+
+    const [updated] = await db
+      .update(entries)
+      .set({
+        mood: data.mood,
+        summary: data.summary,
+      })
+      .where(eq(entries.id, data.id))
+      .returning()
+
+    return updated ?? null
+  })
