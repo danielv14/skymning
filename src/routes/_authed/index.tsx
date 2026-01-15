@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Calendar, User, MessageCircle } from 'lucide-react'
 import {
@@ -18,10 +19,12 @@ import { StreakCard } from '../../components/dashboard/StreakCard'
 import { RecentMoodCard } from '../../components/dashboard/RecentMoodCard'
 import { TodayEntryCard } from '../../components/dashboard/TodayEntryCard'
 import { formatTime } from '../../utils/date'
+import type { Entry } from '../../server/db/schema'
 
 const HomePage = () => {
-  const { hasEntries, todayEntry, moodTrend, streak, recentMood, lastWeekSummary, chatPreview } =
-    Route.useLoaderData()
+  const loaderData = Route.useLoaderData()
+  const [todayEntry, setTodayEntry] = useState<Entry | null>(loaderData.todayEntry)
+  const { hasEntries, moodTrend, streak, recentMood, lastWeekSummary, chatPreview } = loaderData
 
   if (!hasEntries) {
     return <Welcome />
@@ -92,7 +95,7 @@ const HomePage = () => {
           </Card>
         )}
 
-        <TodayEntryCard entry={todayEntry} hasChatPreview={!!chatPreview} />
+        <TodayEntryCard entry={todayEntry} hasChatPreview={!!chatPreview} onUpdated={setTodayEntry} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <StreakCard streak={streak} />
