@@ -12,6 +12,9 @@ export const getTodayChat = createServerFn({ method: 'GET' }).handler(
     const db = getDb()
     const today = getTodayDateString()
 
+    // Clean up old messages from previous days
+    await db.delete(chatMessages).where(lt(chatMessages.date, today))
+
     const messages = await db.query.chatMessages.findMany({
       where: eq(chatMessages.date, today),
       orderBy: [asc(chatMessages.orderIndex)],
@@ -61,9 +64,6 @@ export const saveChatMessage = createServerFn({ method: 'POST' })
     await requireAuth()
     const db = getDb()
     const today = getTodayDateString()
-
-    // Clean up old messages from previous days
-    await db.delete(chatMessages).where(lt(chatMessages.date, today))
 
     const [message] = await db
       .insert(chatMessages)
