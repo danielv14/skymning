@@ -56,7 +56,6 @@ export const getChatPreview = createServerFn({ method: 'GET' }).handler(
 const saveChatMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
   content: z.string().min(1).max(10000),
-  orderIndex: z.number().min(0),
 })
 
 export const saveChatMessage = createServerFn({ method: 'POST' })
@@ -66,13 +65,19 @@ export const saveChatMessage = createServerFn({ method: 'POST' })
     const db = getDb()
     const today = getTodayDateString()
 
+    const existingMessages = await db.query.chatMessages.findMany({
+      where: eq(chatMessages.date, today),
+      columns: { id: true },
+    })
+    const orderIndex = existingMessages.length
+
     const [message] = await db
       .insert(chatMessages)
       .values({
         date: today,
         role: data.role,
         content: data.content,
-        orderIndex: data.orderIndex,
+        orderIndex,
       })
       .returning()
 

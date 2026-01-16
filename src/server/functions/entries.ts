@@ -56,6 +56,14 @@ export const createEntry = createServerFn({ method: 'POST' })
     const db = getDb()
     const today = getTodayDateString()
 
+    const existingEntry = await db.query.entries.findFirst({
+      where: eq(entries.date, today),
+    })
+
+    if (existingEntry) {
+      return { error: 'Du har redan skapat en reflektion för idag' }
+    }
+
     const [entry] = await db
       .insert(entries)
       .values({
