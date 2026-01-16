@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { getDb } from '../db'
 import { chatMessages } from '../db/schema'
-import { eq, lt, asc, desc, count } from 'drizzle-orm'
+import { eq, lt, asc, desc } from 'drizzle-orm'
 import { getTodayDateString } from '../../utils/date'
 import { requireAuth } from '../auth/session'
 
@@ -11,8 +11,6 @@ export const getTodayChat = createServerFn({ method: 'GET' }).handler(
     await requireAuth()
     const db = getDb()
     const today = getTodayDateString()
-
-    await db.delete(chatMessages).where(lt(chatMessages.date, today))
 
     const messages = await db.query.chatMessages.findMany({
       where: eq(chatMessages.date, today),
@@ -29,31 +27,24 @@ export const getChatPreview = createServerFn({ method: 'GET' }).handler(
     const db = getDb()
     const today = getTodayDateString()
 
-    const [countResult] = await db
-      .select({ count: count() })
-      .from(chatMessages)
-      .where(eq(chatMessages.date, today))
-
-    const messageCount = countResult?.count ?? 0
-
-    if (messageCount === 0) {
-      return null
-    }
-
-    const lastMessage = await db.query.chatMessages.findFirst({
+    const messages = await db.query.chatMessages.findMany({
       where: eq(chatMessages.date, today),
       orderBy: [desc(chatMessages.orderIndex)],
     })
 
+    if (messages.length === 0) {
+      return null
+    }
+
+    const lastMessage = messages[0]
+
     return {
-      messageCount,
-      lastMessage: lastMessage
-        ? {
-            role: lastMessage.role,
-            content: lastMessage.content,
-            createdAt: lastMessage.createdAt,
-          }
-        : null,
+      messageCount: messages.length,
+      lastMessage: {
+        role: lastMessage.role,
+        content: lastMessage.content,
+        createdAt: lastMessage.createdAt,
+      },
     }
   }
 )
@@ -70,6 +61,9 @@ export const saveChatMessage = createServerFn({ method: 'POST' })
     await requireAuth()
     const db = getDb()
     const today = getTodayDateString()
+
+    // Clean up old messages from previous days
+    await db.delete(chatMessages).where(lt(chatMessages.date, today))
 
     const [message] = await db
       .insert(chatMessages)
@@ -91,5 +85,7 @@ export const clearTodayChat = createServerFn({ method: 'POST' }).handler(
     const today = getTodayDateString()
 
     await db.delete(chatMessages).where(eq(chatMessages.date, today))
+
+    return { success: true }
   }
 )

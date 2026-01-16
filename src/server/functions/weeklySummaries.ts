@@ -73,14 +73,8 @@ export const getLastWeekSummary = createServerFn({ method: 'GET' }).handler(
   }
 )
 
-const updateWeeklySummarySchema = z.object({
-  year: z.number(),
-  week: z.number().min(1).max(53),
-  summary: z.string().min(1),
-})
-
 export const updateWeeklySummary = createServerFn({ method: 'POST' })
-  .inputValidator((data: unknown) => updateWeeklySummarySchema.parse(data))
+  .inputValidator((data: unknown) => createWeeklySummarySchema.parse(data))
   .handler(async ({ data }) => {
     await requireAuth()
     const db = getDb()
@@ -88,7 +82,6 @@ export const updateWeeklySummary = createServerFn({ method: 'POST' })
       .update(weeklySummaries)
       .set({
         summary: data.summary,
-        createdAt: new Date().toISOString(),
       })
       .where(
         and(

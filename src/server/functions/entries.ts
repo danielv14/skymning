@@ -113,7 +113,6 @@ const getWeekDateRange = (year: number, week: number) => {
   }
 }
 
-export { getWeekDateRange }
 
 const recentMoodSchema = z.object({
   days: z.number().min(1).max(30).optional().default(7),
