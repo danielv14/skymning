@@ -9,7 +9,7 @@ Skymning is a Swedish personal reflection/journaling app built with:
 - **Database**: Cloudflare D1 (SQLite-compatible) with Drizzle ORM
 - **Hosting**: Cloudflare Workers
 - **Styling**: Tailwind CSS v4
-- **AI**: TanStack AI with OpenAI (gpt-4o-mini)
+- **AI**: TanStack AI with OpenAI (gpt-4o)
 - **Auth**: TanStack Start sessions with encrypted httpOnly cookies
 - **Language**: TypeScript (strict mode)
 
@@ -300,8 +300,9 @@ export const getTodayEntry = ...
 // Calculate average mood
 const averageMood = entries.reduce(...) / entries.length
 
-// Good - explains non-obvious ISO week behavior
-// Create a date in the desired week (Thursday of week X is always in week X)
+// Good - explains why cleanup happens here and not elsewhere
+// Auto-clear incomplete chats from previous days (not today's)
+// This ensures users start fresh if they didn't finish yesterday's reflection
 
 // Good - explains important constraint
 // In-memory rate limiting for login attempts
@@ -329,7 +330,7 @@ src/
     auth/           # Authentication (session.ts)
     db/             # Database schema and connection
     functions/      # Server functions (entries, userContext, weeklySummaries, auth)
-  utils/            # Utility functions (date, error)
+  utils/            # Utility functions (date, isoWeek, error)
 scripts/            # Utility scripts (test-utils.ts)
 drizzle/            # Database migrations
 ```
