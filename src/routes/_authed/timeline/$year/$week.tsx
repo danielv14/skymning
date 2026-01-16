@@ -15,18 +15,8 @@ import { WeeklyEntryCard } from '../../../../components/timeline/WeeklyEntryCard
 import { WeeklySummarySection } from '../../../../components/timeline/WeeklySummarySection'
 import { ChevronLeft, ChevronRight, Home } from 'lucide-react'
 import { useState } from 'react'
-import { getISOWeek, getISOWeekYear, setISOWeek, setISOWeekYear, addWeeks, subWeeks } from 'date-fns'
 import { getWeekMoodDescription } from '../../../../constants/mood'
-
-const getDateFromISOWeek = (year: number, week: number) => {
-  return setISOWeek(setISOWeekYear(new Date(), year), week)
-}
-
-const getAdjacentWeek = (year: number, week: number, direction: 'prev' | 'next') => {
-  const date = getDateFromISOWeek(year, week)
-  const adjacentDate = direction === 'prev' ? subWeeks(date, 1) : addWeeks(date, 1)
-  return { year: getISOWeekYear(adjacentDate), week: getISOWeek(adjacentDate) }
-}
+import { getAdjacentWeek } from '../../../../utils/isoWeek'
 
 const TimelineWeekPage = () => {
   const { year, week, entries, weeklySummary, averageMood } = Route.useLoaderData()
