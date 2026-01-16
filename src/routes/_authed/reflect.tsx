@@ -90,7 +90,6 @@ const ReflectPage = () => {
             data: {
               role: message.role as "user" | "assistant",
               content,
-              orderIndex: i,
             },
           });
         } catch (error) {
@@ -118,12 +117,19 @@ const ReflectPage = () => {
   };
 
   const handleSave = async (mood: number, summary: string) => {
-    await createEntry({
+    const result = await createEntry({
       data: {
         mood,
         summary,
       },
     });
+
+    if (result && "error" in result) {
+      toast.error(result.error);
+      setModalOpen(false);
+      return;
+    }
+
     setModalOpen(false);
     router.navigate({ to: "/" });
   };

@@ -14,19 +14,13 @@ type WeeklyEntryCardProps = {
 
 export const WeeklyEntryCard = ({ entry, onUpdated }: WeeklyEntryCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [currentEntry, setCurrentEntry] = useState(entry)
-
-  const handleUpdated = (updated: Entry) => {
-    setCurrentEntry(updated)
-    onUpdated?.(updated)
-  }
 
   return (
     <>
       <Card>
         <div className="flex items-center justify-between mb-2">
           <p className="text-sm text-slate-500 capitalize">
-            {format(parseISO(currentEntry.date), 'EEEE d MMMM', { locale: sv })}
+            {format(parseISO(entry.date), 'EEEE d MMMM', { locale: sv })}
           </p>
           <div className="flex items-center gap-2">
             <button
@@ -36,17 +30,17 @@ export const WeeklyEntryCard = ({ entry, onUpdated }: WeeklyEntryCardProps) => {
             >
               <Pencil className="w-4 h-4" />
             </button>
-            <MoodEmoji mood={currentEntry.mood} size="md" layout="horizontal" />
+            <MoodEmoji mood={entry.mood} size="md" layout="horizontal" />
           </div>
         </div>
-        <p className="text-slate-300">{currentEntry.summary}</p>
+        <p className="text-slate-300">{entry.summary}</p>
       </Card>
 
       <EditReflectionModal
         open={isEditModalOpen}
         onOpenChange={setIsEditModalOpen}
-        entry={currentEntry}
-        onUpdated={handleUpdated}
+        entry={entry}
+        onUpdated={(updated) => onUpdated?.(updated)}
       />
     </>
   )

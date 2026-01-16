@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { getDb } from '../db'
 import { entries, chatMessages } from '../db/schema'
 import { eq, desc, and, gte, lt } from 'drizzle-orm'
-import { startOfISOWeek, endOfISOWeek, format } from 'date-fns'
+import { setISOWeek, setISOWeekYear, startOfISOWeek, addWeeks, format } from 'date-fns'
 import { weekInputSchema } from '../../constants'
 import { getTodayDateString, subtractDays } from '../../utils/date'
 import { requireAuth } from '../auth/session'
@@ -56,6 +56,14 @@ export const createEntry = createServerFn({ method: 'POST' })
     const db = getDb()
     const today = getTodayDateString()
 
+    const existingEntry = await db.query.entries.findFirst({
+      where: eq(entries.date, today),
+    })
+
+    if (existingEntry) {
+      return { error: 'Du har redan skapat en reflektion för idag' }
+    }
+
     const [entry] = await db
       .insert(entries)
       .values({
@@ -93,27 +101,16 @@ export const getMoodTrend = createServerFn({ method: 'GET' })
   })
 
 const getWeekDateRange = (year: number, week: number) => {
-  // Create a date in the desired week (Thursday of week X is always in week X)
-  const jan4 = new Date(year, 0, 4)
-  const thursdayOfWeek1 = startOfISOWeek(jan4)
-  
-  const mondayOfWeek = new Date(thursdayOfWeek1)
-  mondayOfWeek.setDate(thursdayOfWeek1.getDate() + (week - 1) * 7)
-  
-  const startDate = startOfISOWeek(mondayOfWeek)
-  const endDate = endOfISOWeek(mondayOfWeek)
-  
-  // Add one day to endDate for lt comparison
-  const endDatePlusOne = new Date(endDate)
-  endDatePlusOne.setDate(endDate.getDate() + 1)
+  const dateInWeek = setISOWeek(setISOWeekYear(new Date(), year), week)
+  const weekStart = startOfISOWeek(dateInWeek)
+  const weekEnd = addWeeks(weekStart, 1)
 
   return {
-    startDate: format(startDate, 'yyyy-MM-dd'),
-    endDate: format(endDatePlusOne, 'yyyy-MM-dd'),
+    startDate: format(weekStart, 'yyyy-MM-dd'),
+    endDate: format(weekEnd, 'yyyy-MM-dd'),
   }
 }
 
-export { getWeekDateRange }
 
 const recentMoodSchema = z.object({
   days: z.number().min(1).max(30).optional().default(7),

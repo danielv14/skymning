@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { getDb } from '../db'
 import { chatMessages } from '../db/schema'
-import { eq, lt, asc, desc, count } from 'drizzle-orm'
+import { eq, lt, asc, desc } from 'drizzle-orm'
 import { getTodayDateString } from '../../utils/date'
 import { requireAuth } from '../auth/session'
 
@@ -12,6 +12,8 @@ export const getTodayChat = createServerFn({ method: 'GET' }).handler(
     const db = getDb()
     const today = getTodayDateString()
 
+    // Auto-clear incomplete chats from previous days (not today's)
+    // This ensures users start fresh if they didn't finish yesterday's reflection
     await db.delete(chatMessages).where(lt(chatMessages.date, today))
 
     const messages = await db.query.chatMessages.findMany({
@@ -29,31 +31,24 @@ export const getChatPreview = createServerFn({ method: 'GET' }).handler(
     const db = getDb()
     const today = getTodayDateString()
 
-    const [countResult] = await db
-      .select({ count: count() })
-      .from(chatMessages)
-      .where(eq(chatMessages.date, today))
-
-    const messageCount = countResult?.count ?? 0
-
-    if (messageCount === 0) {
-      return null
-    }
-
-    const lastMessage = await db.query.chatMessages.findFirst({
+    const messages = await db.query.chatMessages.findMany({
       where: eq(chatMessages.date, today),
       orderBy: [desc(chatMessages.orderIndex)],
     })
 
+    if (messages.length === 0) {
+      return null
+    }
+
+    const lastMessage = messages[0]
+
     return {
-      messageCount,
-      lastMessage: lastMessage
-        ? {
-            role: lastMessage.role,
-            content: lastMessage.content,
-            createdAt: lastMessage.createdAt,
-          }
-        : null,
+      messageCount: messages.length,
+      lastMessage: {
+        role: lastMessage.role,
+        content: lastMessage.content,
+        createdAt: lastMessage.createdAt,
+      },
     }
   }
 )
@@ -61,7 +56,6 @@ export const getChatPreview = createServerFn({ method: 'GET' }).handler(
 const saveChatMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
   content: z.string().min(1).max(10000),
-  orderIndex: z.number().min(0),
 })
 
 export const saveChatMessage = createServerFn({ method: 'POST' })
@@ -71,13 +65,19 @@ export const saveChatMessage = createServerFn({ method: 'POST' })
     const db = getDb()
     const today = getTodayDateString()
 
+    const existingMessages = await db.query.chatMessages.findMany({
+      where: eq(chatMessages.date, today),
+      columns: { id: true },
+    })
+    const orderIndex = existingMessages.length
+
     const [message] = await db
       .insert(chatMessages)
       .values({
         date: today,
         role: data.role,
         content: data.content,
-        orderIndex: data.orderIndex,
+        orderIndex,
       })
       .returning()
 
@@ -91,5 +91,7 @@ export const clearTodayChat = createServerFn({ method: 'POST' }).handler(
     const today = getTodayDateString()
 
     await db.delete(chatMessages).where(eq(chatMessages.date, today))
+
+    return { success: true }
   }
 )
