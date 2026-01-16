@@ -13,6 +13,7 @@
     "db:seed": "bun scripts/test-utils.ts seed",
     "db:reseed": "bun scripts/test-utils.ts reseed",
     "db:clear-today": "bun scripts/test-utils.ts clear-today",
+    "db:sync-prod": "bun scripts/test-utils.ts sync-prod",
     "db:migrate:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push --config=drizzle.config.local.ts",
     "db:migrate": "drizzle-kit migrate",

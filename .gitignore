@@ -15,3 +15,4 @@ todos.json
 # Database
 *.db
 *.db-journal
+.prod-backup.sql
