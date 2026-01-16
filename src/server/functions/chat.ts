@@ -12,7 +12,8 @@ export const getTodayChat = createServerFn({ method: 'GET' }).handler(
     const db = getDb()
     const today = getTodayDateString()
 
-    // Clean up old messages from previous days
+    // Auto-clear incomplete chats from previous days (not today's)
+    // This ensures users start fresh if they didn't finish yesterday's reflection
     await db.delete(chatMessages).where(lt(chatMessages.date, today))
 
     const messages = await db.query.chatMessages.findMany({
