@@ -5,12 +5,12 @@ import { weeklySummaries } from '../db/schema'
 import { and, eq } from 'drizzle-orm'
 import { getISOWeek, getISOWeekYear, subWeeks } from 'date-fns'
 import { weekInputSchema } from '../../constants'
-import { requireAuth } from '../auth/session'
+import { authMiddleware } from '../middleware/auth'
 
 export const getWeeklySummary = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])
   .inputValidator((data: unknown) => weekInputSchema.parse(data))
   .handler(async ({ data }) => {
-    await requireAuth()
     const db = getDb()
     const summary = await db.query.weeklySummaries.findFirst({
       where: and(
@@ -28,9 +28,9 @@ const createWeeklySummarySchema = z.object({
 })
 
 export const createWeeklySummary = createServerFn({ method: 'POST' })
+  .middleware([authMiddleware])
   .inputValidator((data: unknown) => createWeeklySummarySchema.parse(data))
   .handler(async ({ data }) => {
-    await requireAuth()
     const db = getDb()
     const [summary] = await db
       .insert(weeklySummaries)
@@ -52,9 +52,9 @@ export const getCurrentWeek = (): { year: number; week: number } => {
   }
 }
 
-export const getLastWeekSummary = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    await requireAuth()
+export const getLastWeekSummary = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])
+  .handler(async () => {
     const db = getDb()
     const oneWeekAgo = subWeeks(new Date(), 1)
     const lastWeek = {
@@ -70,13 +70,12 @@ export const getLastWeekSummary = createServerFn({ method: 'GET' }).handler(
     })
 
     return summary ? { ...summary, ...lastWeek } : null
-  }
-)
+  })
 
 export const updateWeeklySummary = createServerFn({ method: 'POST' })
+  .middleware([authMiddleware])
   .inputValidator((data: unknown) => createWeeklySummarySchema.parse(data))
   .handler(async ({ data }) => {
-    await requireAuth()
     const db = getDb()
     const [updated] = await db
       .update(weeklySummaries)

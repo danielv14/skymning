@@ -6,6 +6,7 @@ import { openai } from '../../server/ai/client'
 import { getDb } from '../../server/db'
 import { entries } from '../../server/db/schema'
 import { getMoodLabel } from '../../constants'
+import { requestAuthMiddleware } from '../../server/middleware/auth'
 
 type ChatMessage = {
   role: 'user' | 'assistant'
@@ -14,6 +15,7 @@ type ChatMessage = {
 
 export const Route = createFileRoute('/api/chat')({
   server: {
+    middleware: [requestAuthMiddleware],
     handlers: {
       POST: async ({ request }) => {
         const { messages } = (await request.json()) as { messages: ChatMessage[] }

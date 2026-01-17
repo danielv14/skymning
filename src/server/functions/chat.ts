@@ -4,11 +4,11 @@ import { getDb } from '../db'
 import { chatMessages } from '../db/schema'
 import { eq, lt, asc, desc } from 'drizzle-orm'
 import { getTodayDateString } from '../../utils/date'
-import { requireAuth } from '../auth/session'
+import { authMiddleware } from '../middleware/auth'
 
-export const getTodayChat = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    await requireAuth()
+export const getTodayChat = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])
+  .handler(async () => {
     const db = getDb()
     const today = getTodayDateString()
 
@@ -22,12 +22,11 @@ export const getTodayChat = createServerFn({ method: 'GET' }).handler(
     })
 
     return messages
-  }
-)
+  })
 
-export const getChatPreview = createServerFn({ method: 'GET' }).handler(
-  async () => {
-    await requireAuth()
+export const getChatPreview = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])
+  .handler(async () => {
     const db = getDb()
     const today = getTodayDateString()
 
@@ -50,8 +49,7 @@ export const getChatPreview = createServerFn({ method: 'GET' }).handler(
         createdAt: lastMessage.createdAt,
       },
     }
-  }
-)
+  })
 
 const saveChatMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
@@ -59,9 +57,9 @@ const saveChatMessageSchema = z.object({
 })
 
 export const saveChatMessage = createServerFn({ method: 'POST' })
+  .middleware([authMiddleware])
   .inputValidator((data: unknown) => saveChatMessageSchema.parse(data))
   .handler(async ({ data }) => {
-    await requireAuth()
     const db = getDb()
     const today = getTodayDateString()
 
@@ -84,14 +82,13 @@ export const saveChatMessage = createServerFn({ method: 'POST' })
     return message
   })
 
-export const clearTodayChat = createServerFn({ method: 'POST' }).handler(
-  async () => {
-    await requireAuth()
+export const clearTodayChat = createServerFn({ method: 'POST' })
+  .middleware([authMiddleware])
+  .handler(async () => {
     const db = getDb()
     const today = getTodayDateString()
 
     await db.delete(chatMessages).where(eq(chatMessages.date, today))
 
     return { success: true }
-  }
-)
+  })
