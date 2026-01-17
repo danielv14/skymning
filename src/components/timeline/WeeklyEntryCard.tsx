@@ -13,10 +13,11 @@ type WeeklyEntryCardProps = {
   onUpdated?: (entry: Entry) => void
 }
 
-const getMoodRingStyle = (mood: number): React.CSSProperties => {
+const getMoodStyle = (mood: number): React.CSSProperties => {
   const cssVar = getMoodCssVar(mood)
   return {
     boxShadow: `inset 0 0 0 1px color-mix(in srgb, var(${cssVar}) 25%, transparent)`,
+    background: `linear-gradient(135deg, color-mix(in srgb, var(${cssVar}) 8%, transparent) 0%, transparent 50%)`,
   }
 }
 
@@ -25,7 +26,7 @@ export const WeeklyEntryCard = ({ entry, onUpdated }: WeeklyEntryCardProps) => {
 
   return (
     <>
-      <Card className="relative" style={getMoodRingStyle(entry.mood)}>
+      <Card className="relative" style={getMoodStyle(entry.mood)}>
         <div className="flex items-center justify-between mb-2">
           <p className="text-sm text-slate-500 capitalize">
             {format(parseISO(entry.date), 'EEEE d MMMM', { locale: sv })}
