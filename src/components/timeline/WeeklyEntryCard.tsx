@@ -16,7 +16,7 @@ type WeeklyEntryCardProps = {
 const getMoodGradientStyle = (mood: number): React.CSSProperties => {
   const color = MOOD_COLORS[mood] || MOOD_COLORS[3]
   return {
-    background: `linear-gradient(135deg, ${color}08 0%, transparent 50%)`,
+    background: `linear-gradient(135deg, ${color}20 0%, ${color}08 40%, transparent 70%)`,
   }
 }
 
