@@ -349,3 +349,19 @@ body {
   box-shadow: 0 0 20px color-mix(in srgb, var(--color-accent) 30%, transparent),
               0 0 40px color-mix(in srgb, var(--color-accent) 10%, transparent);
 }
+
+/* Mood-tinted cards */
+.card-mood-awful { --card-mood-color: var(--color-mood-awful); }
+.card-mood-bad { --card-mood-color: var(--color-mood-bad); }
+.card-mood-okay { --card-mood-color: var(--color-mood-okay); }
+.card-mood-good { --card-mood-color: var(--color-mood-good); }
+.card-mood-great { --card-mood-color: var(--color-mood-great); }
+
+.card-mood-awful,
+.card-mood-bad,
+.card-mood-okay,
+.card-mood-good,
+.card-mood-great {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--card-mood-color) 25%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--card-mood-color) 8%, transparent) 0%, transparent 50%);
+}

@@ -3,7 +3,7 @@ import { format, parseISO } from 'date-fns'
 import { sv } from 'date-fns/locale'
 import { Pencil } from 'lucide-react'
 import type { Entry } from '../../server/db/schema'
-import { getMoodCssVar } from '../../constants'
+import { MOODS } from '../../constants'
 import { Card } from '../ui/Card'
 import { MoodEmoji } from '../mood/MoodEmoji'
 import { EditReflectionModal } from '../reflection/EditReflectionModal'
@@ -13,12 +13,9 @@ type WeeklyEntryCardProps = {
   onUpdated?: (entry: Entry) => void
 }
 
-const getMoodStyle = (mood: number): React.CSSProperties => {
-  const cssVar = getMoodCssVar(mood)
-  return {
-    boxShadow: `inset 0 0 0 1px color-mix(in srgb, var(${cssVar}) 25%, transparent)`,
-    background: `linear-gradient(135deg, color-mix(in srgb, var(${cssVar}) 8%, transparent) 0%, transparent 50%)`,
-  }
+const getMoodClassName = (mood: number): string => {
+  const moodName = MOODS.find(m => m.value === mood)?.name || 'okay'
+  return `card-mood-${moodName}`
 }
 
 export const WeeklyEntryCard = ({ entry, onUpdated }: WeeklyEntryCardProps) => {
@@ -26,7 +23,7 @@ export const WeeklyEntryCard = ({ entry, onUpdated }: WeeklyEntryCardProps) => {
 
   return (
     <>
-      <Card className="relative" style={getMoodStyle(entry.mood)}>
+      <Card className={getMoodClassName(entry.mood)}>
         <div className="flex items-center justify-between mb-2">
           <p className="text-sm text-slate-500 capitalize">
             {format(parseISO(entry.date), 'EEEE d MMMM', { locale: sv })}
