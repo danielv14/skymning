@@ -14,11 +14,11 @@ type MoodTrendProps = {
 type ViewMode = 'heatmap' | 'scatter'
 
 export const MOOD_COLORS: Record<number, string> = {
-  1: '#64748b',  // Slate - lugn, neutral
-  2: '#06b6d4',  // Cyan - kylig men hoppfull
-  3: '#14b8a6',  // Teal - balanserad
-  4: '#10b981',  // Emerald - positiv energi
-  5: '#f472b6',  // Pink - glädje och värme
+  1: '#64748b',  // Slate - tung, dålig
+  2: '#3b82f6',  // Blue - kall, nere
+  3: '#eab308',  // Yellow - okej, neutral
+  4: '#22c55e',  // Green - bra
+  5: '#f472b6',  // Pink - jättebra, glad
 }
 
 export const MoodTrend = ({ data }: MoodTrendProps) => {
