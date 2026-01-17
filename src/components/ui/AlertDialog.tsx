@@ -36,7 +36,7 @@ export const AlertDialog = ({
   const confirmButtonStyles =
     variant === 'danger'
       ? 'bg-red-500/10 hover:bg-red-500/20 active:bg-red-500/30 text-red-400 border border-red-500/30'
-      : 'bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white'
+      : 'bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white'
 
   return (
     <BaseAlertDialog.Root open={open} onOpenChange={onOpenChange}>

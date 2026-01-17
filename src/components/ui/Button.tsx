@@ -27,8 +27,8 @@ export const Button = ({
   }
 
   const variantStyles = {
-    primary: 'bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white',
-    secondary: 'bg-slate-700/50 hover:bg-slate-600/50 active:bg-slate-700/70 text-slate-200 border border-slate-600',
+    primary: 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:from-emerald-700 active:to-teal-700 text-white shadow-lg shadow-emerald-500/20',
+    secondary: 'bg-slate-700/50 hover:bg-slate-600/50 active:bg-slate-700/70 text-slate-200 border border-slate-600/50',
   }
 
   return (

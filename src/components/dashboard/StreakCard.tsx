@@ -12,14 +12,14 @@ export const StreakCard = ({ streak }: StreakCardProps) => {
     <Card
       className={
         hasStreak
-          ? 'bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/20'
+          ? 'bg-gradient-to-r from-rose-500/10 to-pink-500/10 border-rose-500/20'
           : 'bg-gradient-to-r from-slate-500/10 to-slate-600/10 border-slate-500/20'
       }
     >
       <div className="flex items-center gap-4">
         <StreakFlame
           size={40}
-          className={hasStreak ? 'text-amber-400' : 'text-slate-500'}
+          className={hasStreak ? 'text-rose-400' : 'text-slate-500'}
         />
         <div>
           {hasStreak ? (

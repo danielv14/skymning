@@ -15,7 +15,7 @@ export const MoodSelector = ({ value, onChange }: MoodSelectorProps) => {
           onClick={() => onChange(mood)}
           className={`p-3 rounded-2xl transition-all ${
             value === mood
-              ? 'bg-indigo-500/30 scale-110 ring-2 ring-indigo-400'
+              ? 'bg-emerald-500/20 scale-110 ring-2 ring-emerald-400'
               : 'hover:bg-slate-700/50'
           }`}
         >
