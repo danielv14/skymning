@@ -6,30 +6,32 @@ import { eq, desc, and, gte, lt } from 'drizzle-orm'
 import { setISOWeek, setISOWeekYear, startOfISOWeek, addWeeks, format } from 'date-fns'
 import { weekInputSchema } from '../../constants'
 import { getTodayDateString, subtractDays } from '../../utils/date'
+import { authMiddleware } from '../middleware/auth'
 
-export const getTodayEntry = createServerFn({ method: 'GET' }).handler(
-  async () => {
+export const getTodayEntry = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])
+  .handler(async () => {
     const db = getDb()
     const today = getTodayDateString()
     const entry = await db.query.entries.findFirst({
       where: eq(entries.date, today),
     })
     return entry ?? null
-  }
-)
+  })
 
-export const hasAnyEntries = createServerFn({ method: 'GET' }).handler(
-  async () => {
-        const db = getDb()
+export const hasAnyEntries = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])
+  .handler(async () => {
+    const db = getDb()
     const entry = await db.query.entries.findFirst()
     return entry !== undefined
-  }
-)
+  })
 
 export const getEntriesForWeek = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])
   .inputValidator((data: unknown) => weekInputSchema.parse(data))
   .handler(async ({ data }) => {
-        const db = getDb()
+    const db = getDb()
     const { startDate, endDate } = getWeekDateRange(data.year, data.week)
 
     const weekEntries = await db.query.entries.findMany({
@@ -46,9 +48,10 @@ const createEntrySchema = z.object({
 })
 
 export const createEntry = createServerFn({ method: 'POST' })
+  .middleware([authMiddleware])
   .inputValidator((data: unknown) => createEntrySchema.parse(data))
   .handler(async ({ data }) => {
-        const db = getDb()
+    const db = getDb()
     const today = getTodayDateString()
 
     const existingEntry = await db.query.entries.findFirst({
@@ -79,9 +82,10 @@ const trendInputSchema = z.object({
 })
 
 export const getMoodTrend = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])
   .inputValidator((data: unknown) => trendInputSchema.parse(data))
   .handler(async ({ data }) => {
-        const db = getDb()
+    const db = getDb()
     const trendEntries = await db.query.entries.findMany({
       columns: {
         date: true,
@@ -111,9 +115,10 @@ const recentMoodSchema = z.object({
 })
 
 export const getRecentMoodAverage = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])
   .inputValidator((data: unknown) => recentMoodSchema.parse(data))
   .handler(async ({ data }) => {
-        const db = getDb()
+    const db = getDb()
     const today = getTodayDateString()
     const startDate = subtractDays(today, data.days)
 
@@ -134,37 +139,39 @@ export const getRecentMoodAverage = createServerFn({ method: 'GET' })
     }
   })
 
-export const getStreak = createServerFn({ method: 'GET' }).handler(async () => {
+export const getStreak = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])
+  .handler(async () => {
     const db = getDb()
-  const allEntries = await db.query.entries.findMany({
-    columns: { date: true },
-    orderBy: [desc(entries.date)],
+    const allEntries = await db.query.entries.findMany({
+      columns: { date: true },
+      orderBy: [desc(entries.date)],
+    })
+
+    if (allEntries.length === 0) return 0
+
+    const todayStr = getTodayDateString()
+    const yesterdayStr = subtractDays(todayStr, 1)
+
+    const latestEntryDate = allEntries[0]?.date
+
+    // Streak is broken if latest entry is neither from today nor yesterday
+    if (latestEntryDate !== todayStr && latestEntryDate !== yesterdayStr) {
+      return 0
+    }
+
+    const entryDates = new Set(allEntries.map((e) => e.date))
+
+    let streak = 0
+    let checkDateStr = latestEntryDate
+
+    while (entryDates.has(checkDateStr)) {
+      streak++
+      checkDateStr = subtractDays(checkDateStr, 1)
+    }
+
+    return streak
   })
-
-  if (allEntries.length === 0) return 0
-
-  const todayStr = getTodayDateString()
-  const yesterdayStr = subtractDays(todayStr, 1)
-
-  const latestEntryDate = allEntries[0]?.date
-
-  // Streak is broken if latest entry is neither from today nor yesterday
-  if (latestEntryDate !== todayStr && latestEntryDate !== yesterdayStr) {
-    return 0
-  }
-
-  const entryDates = new Set(allEntries.map((e) => e.date))
-
-  let streak = 0
-  let checkDateStr = latestEntryDate
-
-  while (entryDates.has(checkDateStr)) {
-    streak++
-    checkDateStr = subtractDays(checkDateStr, 1)
-  }
-
-  return streak
-})
 
 const updateEntrySchema = z.object({
   id: z.number(),
@@ -173,9 +180,10 @@ const updateEntrySchema = z.object({
 })
 
 export const updateEntry = createServerFn({ method: 'POST' })
+  .middleware([authMiddleware])
   .inputValidator((data: unknown) => updateEntrySchema.parse(data))
   .handler(async ({ data }) => {
-        const db = getDb()
+    const db = getDb()
 
     const [updated] = await db
       .update(entries)

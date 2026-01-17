@@ -7,14 +7,12 @@ import {
   recordFailedAttempt,
   clearFailedAttempts,
 } from '../auth/rateLimit'
-import { publicMiddleware } from '../middleware/auth'
 
 const loginSchema = z.object({
   secret: z.string().min(1),
 })
 
 export const loginFn = createServerFn({ method: 'POST' })
-  .middleware([publicMiddleware])
   .inputValidator((data: unknown) => loginSchema.parse(data))
   .handler(async ({ data }) => {
     const clientIp = getRequestHeader('CF-Connecting-IP') ?? 'unknown'
@@ -45,18 +43,15 @@ export const loginFn = createServerFn({ method: 'POST' })
     return { success: true as const }
   })
 
-export const logoutFn = createServerFn({ method: 'POST' })
-  .middleware([publicMiddleware])
-  .handler(async () => {
+export const logoutFn = createServerFn({ method: 'POST' }).handler(async () => {
   const session = await useAppSession()
   await session.clear()
 
   return { success: true }
 })
 
-export const isAuthenticatedFn = createServerFn({ method: 'GET' })
-  .middleware([publicMiddleware])
-  .handler(async () => {
+export const isAuthenticatedFn = createServerFn({ method: 'GET' }).handler(
+  async () => {
     const session = await useAppSession()
     return session.data.authenticated === true
   }

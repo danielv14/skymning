@@ -3,9 +3,11 @@ import { z } from 'zod'
 import { getDb } from '../db'
 import { userContext } from '../db/schema'
 import { eq } from 'drizzle-orm'
+import { authMiddleware } from '../middleware/auth'
 
-export const getUserContext = createServerFn({ method: 'GET' }).handler(
-  async () => {
+export const getUserContext = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])
+  .handler(async () => {
     const db = getDb()
     let context = await db.query.userContext.findFirst()
 
@@ -18,8 +20,7 @@ export const getUserContext = createServerFn({ method: 'GET' }).handler(
     }
 
     return context
-  }
-)
+  })
 
 const updateContextSchema = z.object({
   content: z.string(),
@@ -27,9 +28,10 @@ const updateContextSchema = z.object({
 })
 
 export const updateUserContext = createServerFn({ method: 'POST' })
+  .middleware([authMiddleware])
   .inputValidator((data: unknown) => updateContextSchema.parse(data))
   .handler(async ({ data }) => {
-        const db = getDb()
+    const db = getDb()
     const context = await db.query.userContext.findFirst()
 
     if (context) {

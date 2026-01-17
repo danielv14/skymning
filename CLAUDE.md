@@ -197,27 +197,20 @@ Automated deployments via GitHub Actions:
 - Specify method: `{ method: 'GET' }` or `{ method: 'POST' }`
 - Always validate input with `.inputValidator()`
 - Return `null` (not `undefined`) for empty results
-- **Auth is handled globally via middleware** - no need to manually check auth in handlers
+- **Protected functions must use `authMiddleware`** - add it explicitly to each function that requires auth
 - Get database via `getDb()` from `@/server/db`:
   ```typescript
   import { getDb } from '../db'
+  import { authMiddleware } from '../middleware/auth'
 
   export const myFunction = createServerFn({ method: 'GET' })
+    .middleware([authMiddleware])
     .handler(async () => {
       const db = getDb()
-      // ... use db (auth is already checked by global middleware)
+      // ... use db
     })
   ```
-- **For public functions** (no auth required), use `publicMiddleware`:
-  ```typescript
-  import { publicMiddleware } from '../middleware/auth'
-
-  export const publicFn = createServerFn({ method: 'GET' })
-    .middleware([publicMiddleware])
-    .handler(async () => {
-      // This function is accessible without auth
-    })
-  ```
+- **Public functions** (login, logout, isAuthenticated) don't need middleware
 
 ### Routes (TanStack Router)
 
@@ -241,13 +234,12 @@ Automated deployments via GitHub Actions:
 - Sessions are stored in encrypted httpOnly cookies (30-day expiry)
 - Protected routes are nested under `_authed/` layout route
 - Login validates against `AUTH_SECRET` environment variable
-- **Auth is enforced via global middleware** - all server functions are protected by default
-- Public functions (login, logout, isAuthenticated) use `publicMiddleware` to skip auth
+- **Auth is enforced via explicit middleware** - add `authMiddleware` to protected server functions
+- Public functions (login, logout, isAuthenticated) don't use middleware
 
 Key files:
 - `src/server/auth/session.ts` - Session configuration with `useAppSession` helper
-- `src/server/middleware/auth.ts` - Auth middleware (`authMiddleware`, `publicMiddleware`, `requestAuthMiddleware`)
-- `src/start.ts` - Global middleware configuration
+- `src/server/middleware/auth.ts` - Auth middleware (`authMiddleware`, `requestAuthMiddleware`)
 - `src/server/functions/auth.ts` - `loginFn`, `logoutFn`, `isAuthenticatedFn`
 - `src/routes/_authed.tsx` - Layout route that checks auth via `beforeLoad`
 - `src/routes/login.tsx` - Public login page
