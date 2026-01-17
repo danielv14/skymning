@@ -5,7 +5,7 @@ export type MoodConfig = {
   color: string
 }
 
-// Huvudkonfiguration för alla humör - synkad med CSS-variabler i styles.css
+// Keep in sync with CSS variables in styles.css (--color-mood-{name})
 export const MOODS: MoodConfig[] = [
   { value: 1, name: 'awful', label: 'Kass', color: '#64748b' },
   { value: 2, name: 'bad', label: 'Dålig', color: '#8b5cf6' },
@@ -14,11 +14,9 @@ export const MOODS: MoodConfig[] = [
   { value: 5, name: 'great', label: 'Jättebra', color: '#f472b6' },
 ]
 
-// Intern hjälpfunktion
 const getMoodByValue = (value: number): MoodConfig | undefined =>
   MOODS.find(m => m.value === value)
 
-// Publika hjälpfunktioner
 export const getMoodLabel = (mood: number): string =>
   getMoodByValue(mood)?.label || 'Okänd'
 
@@ -27,7 +25,7 @@ export const getMoodCssVar = (mood: number): string => {
   return `--color-mood-${name}`
 }
 
-// För recharts (kräver hex-värden)
+// Recharts requires hex values, can't use CSS variables
 export const MOOD_COLORS: Record<number, string> = Object.fromEntries(
   MOODS.map(m => [m.value, m.color])
 )
