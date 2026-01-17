@@ -13,16 +13,17 @@ type WeeklyEntryCardProps = {
   onUpdated?: (entry: Entry) => void
 }
 
-const getMoodName = (mood: number): string =>
-  MOODS.find(m => m.value === mood)?.name || 'okay'
+const getMoodCardClass = (mood: number): string => {
+  const name = MOODS.find(m => m.value === mood)?.name || 'okay'
+  return `card-mood-${name}`
+}
 
 export const WeeklyEntryCard = ({ entry, onUpdated }: WeeklyEntryCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const moodName = getMoodName(entry.mood)
 
   return (
     <>
-      <Card className={`ring-1 ring-inset ring-[var(--color-mood-${moodName})]/25`}>
+      <Card className={getMoodCardClass(entry.mood)}>
         <div className="flex items-center justify-between mb-2">
           <p className="text-sm text-slate-500 capitalize">
             {format(parseISO(entry.date), 'EEEE d MMMM', { locale: sv })}
