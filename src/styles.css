@@ -42,14 +42,14 @@ body {
 .bg-night {
   background: linear-gradient(
     165deg,
-    #020408 0%,           /* Djup svart natt */
-    #0a0f1a 15%,          /* Mörkaste natten */
-    #0d1520 30%,          /* Djup mörkblå */
-    #0f1a2a 45%,          /* Nattblå */
-    #0c1f2d 60%,          /* Turkos-tint */
-    #0d2233 75%,          /* Djup cyan-tint */
-    #112030 90%,          /* Horisont-skymning */
-    #1a2a3d 100%          /* Varm horisont */
+    var(--color-bg-deep) 0%,
+    var(--color-bg-dark) 15%,
+    #0d1520 30%,
+    #0f1a2a 45%,
+    #0c1f2d 60%,
+    #0d2233 75%,
+    #112030 90%,
+    #1a2a3d 100%
   );
   position: relative;
 }
@@ -63,9 +63,9 @@ body {
   right: 0;
   bottom: 0;
   background:
-    radial-gradient(ellipse 120% 60% at 20% 10%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse 100% 50% at 70% 20%, rgba(6, 182, 212, 0.06) 0%, transparent 45%),
-    radial-gradient(ellipse 80% 40% at 50% 5%, rgba(139, 92, 246, 0.05) 0%, transparent 40%);
+    radial-gradient(ellipse 120% 60% at 20% 10%, var(--color-aurora-green) 0%, transparent 50%),
+    radial-gradient(ellipse 100% 50% at 70% 20%, var(--color-aurora-cyan) 0%, transparent 45%),
+    radial-gradient(ellipse 80% 40% at 50% 5%, var(--color-aurora-violet) 0%, transparent 40%);
   pointer-events: none;
   animation: aurora-drift 20s ease-in-out infinite;
 }
@@ -89,9 +89,9 @@ body {
 .bg-night-subtle {
   background: linear-gradient(
     135deg,
-    rgba(10, 20, 35, 0.7) 0%,
-    rgba(15, 30, 45, 0.5) 50%,
-    rgba(20, 40, 50, 0.4) 100%
+    color-mix(in srgb, var(--color-bg-dark) 70%, transparent) 0%,
+    color-mix(in srgb, var(--color-bg-dark) 50%, transparent) 50%,
+    color-mix(in srgb, var(--color-bg-dark) 40%, transparent) 100%
   );
 }
 
@@ -99,10 +99,10 @@ body {
 .bg-horizon {
   background: linear-gradient(
     to right,
-    #0a1525 0%,           /* Djup natt */
-    #0d1f30 35%,          /* Turkos-hint */
-    #0f2538 65%,          /* Cyan-tint */
-    #0a1a28 100%          /* Tillbaka till mörkt */
+    var(--color-bg-dark) 0%,
+    #0d1f30 35%,
+    #0f2538 65%,
+    var(--color-bg-dark) 100%
   );
   position: relative;
 }
@@ -116,8 +116,8 @@ body {
   right: 0;
   bottom: 0;
   background:
-    radial-gradient(ellipse 60% 100% at 30% 100%, rgba(16, 185, 129, 0.1) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 80% at 70% 100%, rgba(6, 182, 212, 0.08) 0%, transparent 50%);
+    radial-gradient(ellipse 60% 100% at 30% 100%, var(--color-aurora-green) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 80% at 70% 100%, var(--color-aurora-cyan) 0%, transparent 50%);
   pointer-events: none;
 }
 
@@ -323,14 +323,17 @@ body {
 .stagger-children > *:nth-child(7) { animation-delay: 350ms; }
 
 /* Glow effects för interaktiva element */
-.glow-emerald {
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3), 0 0 40px rgba(16, 185, 129, 0.1);
+.glow-primary {
+  box-shadow: 0 0 20px color-mix(in srgb, var(--color-primary) 30%, transparent),
+              0 0 40px color-mix(in srgb, var(--color-primary) 10%, transparent);
 }
 
-.glow-cyan {
-  box-shadow: 0 0 20px rgba(6, 182, 212, 0.3), 0 0 40px rgba(6, 182, 212, 0.1);
+.glow-secondary {
+  box-shadow: 0 0 20px color-mix(in srgb, var(--color-secondary) 30%, transparent),
+              0 0 40px color-mix(in srgb, var(--color-secondary) 10%, transparent);
 }
 
-.glow-rose {
-  box-shadow: 0 0 20px rgba(244, 63, 94, 0.3), 0 0 40px rgba(244, 63, 94, 0.1);
+.glow-accent {
+  box-shadow: 0 0 20px color-mix(in srgb, var(--color-accent) 30%, transparent),
+              0 0 40px color-mix(in srgb, var(--color-accent) 10%, transparent);
 }
