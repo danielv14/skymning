@@ -1,2 +1,8 @@
-export { MOOD_LABELS, getMoodLabel } from './mood'
+export {
+  MOODS,
+  MOOD_COLORS,
+  getMoodLabel,
+  getMoodCssVar,
+  type MoodConfig,
+} from './mood'
 export { weekInputSchema, type WeekInput } from './schemas'

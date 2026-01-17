@@ -61,7 +61,7 @@ const AboutMePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="min-h-screen bg-slate-950">
       <PageHeader
         title="Om mig"
         subtitle="Personlig kontext för AI:n"
@@ -99,7 +99,7 @@ const AboutMePage = () => {
                 <select
                   value={historyCount}
                   onChange={(e) => setHistoryCount(Number(e.target.value))}
-                  className="w-full px-4 py-3 pr-10 rounded-xl border border-slate-600 bg-slate-700/50 text-slate-100 focus:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-colors appearance-none cursor-pointer"
+                  className="w-full px-4 py-3 pr-10 rounded-xl border border-slate-600 bg-slate-700/50 text-slate-100 focus:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors appearance-none cursor-pointer"
                 >
                   {HISTORY_OPTIONS.map((option) => (
                     <option key={option.value} value={option.value}>

@@ -3,6 +3,7 @@ import { format, parseISO } from 'date-fns'
 import { sv } from 'date-fns/locale'
 import { Pencil } from 'lucide-react'
 import type { Entry } from '../../server/db/schema'
+import { MOODS } from '../../constants'
 import { Card } from '../ui/Card'
 import { MoodEmoji } from '../mood/MoodEmoji'
 import { EditReflectionModal } from '../reflection/EditReflectionModal'
@@ -12,12 +13,17 @@ type WeeklyEntryCardProps = {
   onUpdated?: (entry: Entry) => void
 }
 
+const getMoodCardClass = (mood: number): string => {
+  const name = MOODS.find(m => m.value === mood)?.name || 'okay'
+  return `card-mood-${name}`
+}
+
 export const WeeklyEntryCard = ({ entry, onUpdated }: WeeklyEntryCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   return (
     <>
-      <Card>
+      <Card className={getMoodCardClass(entry.mood)}>
         <div className="flex items-center justify-between mb-2">
           <p className="text-sm text-slate-500 capitalize">
             {format(parseISO(entry.date), 'EEEE d MMMM', { locale: sv })}

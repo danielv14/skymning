@@ -1,14 +1,34 @@
-export const MOOD_LABELS: Record<number, string> = {
-  1: 'Kass',
-  2: 'Dålig',
-  3: 'Okej',
-  4: 'Bra',
-  5: 'Jättebra',
+export type MoodConfig = {
+  value: number
+  name: string
+  label: string
+  color: string
 }
 
-export const getMoodLabel = (mood: number): string => {
-  return MOOD_LABELS[mood] || 'Okänd'
+// Keep in sync with CSS variables in styles.css (--color-mood-{name})
+export const MOODS: MoodConfig[] = [
+  { value: 1, name: 'awful', label: 'Kass', color: '#64748b' },
+  { value: 2, name: 'bad', label: 'Dålig', color: '#8b5cf6' },
+  { value: 3, name: 'okay', label: 'Okej', color: '#06b6d4' },
+  { value: 4, name: 'good', label: 'Bra', color: '#22c55e' },
+  { value: 5, name: 'great', label: 'Jättebra', color: '#f472b6' },
+]
+
+const getMoodByValue = (value: number): MoodConfig | undefined =>
+  MOODS.find(m => m.value === value)
+
+export const getMoodLabel = (mood: number): string =>
+  getMoodByValue(mood)?.label || 'Okänd'
+
+export const getMoodCssVar = (mood: number): string => {
+  const name = getMoodByValue(mood)?.name || 'okay'
+  return `--color-mood-${name}`
 }
+
+// Recharts requires hex values, can't use CSS variables
+export const MOOD_COLORS: Record<number, string> = Object.fromEntries(
+  MOODS.map(m => [m.value, m.color])
+)
 
 export const getWeekMoodDescription = (averageMood: number | null): string => {
   if (averageMood === null) return ''

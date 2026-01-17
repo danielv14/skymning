@@ -67,10 +67,10 @@ const HomePage = () => {
 
       <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 -mt-4">
         {chatPreview && !todayEntry && (
-          <Card className="bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border-indigo-500/30">
+          <Card className="bg-gradient-to-r from-cyan-500/10 to-teal-500/10 border-cyan-500/30">
             <div className="flex items-start gap-3 sm:gap-4">
-              <div className="shrink-0 p-2 rounded-full bg-indigo-500/20">
-                <MessageCircle className="w-5 h-5 text-indigo-400" />
+              <div className="shrink-0 p-2 rounded-full bg-cyan-500/20">
+                <MessageCircle className="w-5 h-5 text-cyan-400" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-2">
@@ -112,7 +112,7 @@ const HomePage = () => {
                   year: String(lastWeekSummary.year),
                   week: String(lastWeekSummary.week),
                 }}
-                className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+                className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors"
               >
                 Se hela veckan →
               </Link>

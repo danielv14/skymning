@@ -13,14 +13,6 @@ type MoodTrendProps = {
 
 type ViewMode = 'heatmap' | 'scatter'
 
-export const MOOD_COLORS: Record<number, string> = {
-  1: '#6366f1',
-  2: '#818cf8',
-  3: '#a5b4fc',
-  4: '#c4b5fd',
-  5: '#e879f9',
-}
-
 export const MoodTrend = ({ data }: MoodTrendProps) => {
   const [viewMode, setViewMode] = useState<ViewMode>('heatmap')
 
@@ -39,7 +31,7 @@ export const MoodTrend = ({ data }: MoodTrendProps) => {
           onClick={() => setViewMode('heatmap')}
           className={`px-3 py-1.5 text-sm rounded-lg transition-colors cursor-pointer ${
             viewMode === 'heatmap'
-              ? 'bg-indigo-600 text-white'
+              ? 'bg-emerald-600 text-white'
               : 'bg-slate-700/50 text-slate-400 hover:text-slate-200'
           }`}
         >
@@ -49,7 +41,7 @@ export const MoodTrend = ({ data }: MoodTrendProps) => {
           onClick={() => setViewMode('scatter')}
           className={`px-3 py-1.5 text-sm rounded-lg transition-colors cursor-pointer ${
             viewMode === 'scatter'
-              ? 'bg-indigo-600 text-white'
+              ? 'bg-emerald-600 text-white'
               : 'bg-slate-700/50 text-slate-400 hover:text-slate-200'
           }`}
         >

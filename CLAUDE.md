@@ -243,9 +243,44 @@ Key files:
 ### Styling (Tailwind CSS v4)
 
 - Use Tailwind utility classes
-- Custom CSS in `src/styles.css` with `@apply` when needed
-- Color scheme: slate backgrounds, indigo/violet accents
+- Custom CSS in `src/styles.css` with theme variables and aurora effects
+- Color scheme: slate-950 backgrounds, emerald/teal primary accents
 - Responsive: mobile-first with `sm:` breakpoints
+- CSS custom properties defined in `:root` for theme colors:
+  ```css
+  --color-primary: #10b981;        /* Emerald */
+  --color-mood-awful: #64748b;     /* Slate */
+  --color-mood-bad: #8b5cf6;       /* Violet */
+  --color-mood-okay: #06b6d4;      /* Cyan */
+  --color-mood-good: #22c55e;      /* Green */
+  --color-mood-great: #f472b6;     /* Pink */
+  ```
+
+### Mood Configuration
+
+Mood colors and labels are centralized in `src/constants/mood.ts`:
+
+```typescript
+// Single source of truth for all mood data
+export const MOODS: MoodConfig[] = [
+  { value: 1, name: 'awful', label: 'Kass', color: '#64748b' },
+  { value: 2, name: 'bad', label: 'Dålig', color: '#8b5cf6' },
+  // ...
+]
+
+// Helper functions
+getMoodLabel(mood)   // Returns Swedish label
+getMoodCssVar(mood)  // Returns CSS variable name (--color-mood-{name})
+
+// For recharts (requires hex values)
+MOOD_COLORS          // Record<number, string>
+```
+
+Use CSS variables for dynamic mood colors in components:
+```typescript
+const cssVar = `--color-mood-${name}`
+style={{ backgroundColor: `var(${cssVar})` }}
+```
 
 ### Database (Drizzle + D1)
 
@@ -319,7 +354,7 @@ src/
     reflection/     # Reflection components (MoodSelector, SummaryEditor, ChatMessage, etc.)
     timeline/       # Timeline components (WeeklyEntryCard, WeeklySummarySection)
     ui/             # Generic UI (Button, Card, Modal, etc.)
-  constants/        # Constants and Zod schemas
+  constants/        # Constants (mood config, Zod schemas)
   hooks/            # Custom React hooks (useAsyncGeneration)
   routes/           # TanStack Router pages
     _authed/        # Protected routes (requires login)

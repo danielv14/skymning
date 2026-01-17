@@ -8,7 +8,7 @@ type RecentMoodCardProps = {
 
 export const RecentMoodCard = ({ average }: RecentMoodCardProps) => {
   return (
-    <Card className="bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border-indigo-500/20">
+    <Card className="bg-gradient-to-r from-cyan-500/10 to-emerald-500/10 border-cyan-500/20">
       <div className="flex items-center gap-4">
         <MoodEmoji mood={Math.round(average)} size="lg" showLabel={false} />
         <div>
