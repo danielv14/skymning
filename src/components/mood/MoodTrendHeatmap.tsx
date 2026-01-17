@@ -1,7 +1,7 @@
 import { format, parseISO, startOfISOWeek, getISOWeek } from 'date-fns'
 import { sv } from 'date-fns/locale'
-import { getMoodLabel } from '../../constants'
-import { MOOD_COLORS, type TrendData } from './MoodTrend'
+import { MOODS, MOOD_COLORS, getMoodLabel } from '../../constants'
+import type { TrendData } from './MoodTrend'
 
 type MoodTrendHeatmapProps = {
   data: TrendData[]
@@ -87,15 +87,15 @@ export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
       </div>
 
       <div className="flex items-center justify-center gap-2 pt-2">
-        <span className="text-xs text-slate-500">Kass</span>
-        {[1, 2, 3, 4, 5].map((mood) => (
+        <span className="text-xs text-slate-500">{MOODS[0].label}</span>
+        {MOODS.map(({ value, color }) => (
           <div
-            key={mood}
+            key={value}
             className="w-4 h-4 rounded-sm"
-            style={{ backgroundColor: MOOD_COLORS[mood] }}
+            style={{ backgroundColor: color }}
           />
         ))}
-        <span className="text-xs text-slate-500">Jättebra</span>
+        <span className="text-xs text-slate-500">{MOODS[MOODS.length - 1].label}</span>
       </div>
     </div>
   )

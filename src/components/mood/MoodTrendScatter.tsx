@@ -10,8 +10,8 @@ import {
 import { format, parseISO } from 'date-fns'
 import { sv } from 'date-fns/locale'
 import { getMoodIcon } from './MoodIcons'
-import { getMoodLabel } from '../../constants'
-import { MOOD_COLORS, type TrendData } from './MoodTrend'
+import { MOOD_COLORS, getMoodLabel } from '../../constants'
+import type { TrendData } from './MoodTrend'
 
 type MoodTrendScatterProps = {
   data: TrendData[]

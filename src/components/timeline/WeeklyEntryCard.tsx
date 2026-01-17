@@ -3,10 +3,10 @@ import { format, parseISO } from 'date-fns'
 import { sv } from 'date-fns/locale'
 import { Pencil } from 'lucide-react'
 import type { Entry } from '../../server/db/schema'
+import { getMoodCssVar } from '../../constants'
 import { Card } from '../ui/Card'
 import { MoodEmoji } from '../mood/MoodEmoji'
 import { EditReflectionModal } from '../reflection/EditReflectionModal'
-import { MOOD_COLORS } from '../mood/MoodTrend'
 
 type WeeklyEntryCardProps = {
   entry: Entry
@@ -14,9 +14,9 @@ type WeeklyEntryCardProps = {
 }
 
 const getMoodGradientStyle = (mood: number): React.CSSProperties => {
-  const color = MOOD_COLORS[mood] || MOOD_COLORS[3]
+  const cssVar = getMoodCssVar(mood)
   return {
-    background: `linear-gradient(135deg, ${color}20 0%, ${color}08 40%, transparent 70%)`,
+    background: `linear-gradient(135deg, color-mix(in srgb, var(${cssVar}) 12%, transparent) 0%, color-mix(in srgb, var(${cssVar}) 3%, transparent) 40%, transparent 70%)`,
   }
 }
 

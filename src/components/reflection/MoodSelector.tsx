@@ -1,3 +1,4 @@
+import { MOODS } from '../../constants'
 import { MoodEmoji } from '../mood/MoodEmoji'
 
 type MoodSelectorProps = {
@@ -8,24 +9,24 @@ type MoodSelectorProps = {
 export const MoodSelector = ({ value, onChange }: MoodSelectorProps) => {
   return (
     <div className="flex justify-around py-2">
-      {[1, 2, 3, 4, 5].map((mood) => (
+      {MOODS.map(({ value: moodValue, cssVar }) => (
         <button
-          key={mood}
+          key={moodValue}
           type="button"
-          onClick={() => onChange(mood)}
+          onClick={() => onChange(moodValue)}
           className={`p-3 rounded-2xl transition-all ${
-            value === mood ? 'scale-110' : 'hover:bg-slate-700/50'
+            value === moodValue ? 'scale-110' : 'hover:bg-slate-700/50'
           }`}
           style={
-            value === mood
+            value === moodValue
               ? {
-                  backgroundColor: `color-mix(in srgb, var(--color-mood-${mood}) 12%, transparent)`,
-                  boxShadow: `0 0 0 2px var(--color-mood-${mood})`,
+                  backgroundColor: `color-mix(in srgb, var(${cssVar}) 12%, transparent)`,
+                  boxShadow: `0 0 0 2px var(${cssVar})`,
                 }
               : undefined
           }
         >
-          <MoodEmoji mood={mood} size="lg" showLabel />
+          <MoodEmoji mood={moodValue} size="lg" showLabel />
         </button>
       ))}
     </div>

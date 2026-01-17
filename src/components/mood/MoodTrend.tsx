@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { MoodTrendHeatmap } from './MoodTrendHeatmap'
 import { MoodTrendScatter } from './MoodTrendScatter'
-import { MOOD_COLORS } from '../../constants'
 
 export type TrendData = {
   date: string
@@ -13,9 +12,6 @@ type MoodTrendProps = {
 }
 
 type ViewMode = 'heatmap' | 'scatter'
-
-// Re-exportera för bakåtkompatibilitet
-export { MOOD_COLORS }
 
 export const MoodTrend = ({ data }: MoodTrendProps) => {
   const [viewMode, setViewMode] = useState<ViewMode>('heatmap')

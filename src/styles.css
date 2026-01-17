@@ -12,11 +12,11 @@
   --color-accent: #f472b6;         /* Pink */
 
   /* Mood-färger (Aurora Spectrum) */
-  --color-mood-1: #64748b;         /* Slate - dämpad, tung */
-  --color-mood-2: #8b5cf6;         /* Violet - kall, eftertänksam */
-  --color-mood-3: #06b6d4;         /* Cyan - neutral, balans */
-  --color-mood-4: #22c55e;         /* Green - positiv */
-  --color-mood-5: #f472b6;         /* Pink - glad, energisk */
+  --color-mood-awful: #64748b;     /* Slate - dämpad, tung */
+  --color-mood-bad: #8b5cf6;       /* Violet - kall, eftertänksam */
+  --color-mood-okay: #06b6d4;      /* Cyan - neutral, balans */
+  --color-mood-good: #22c55e;      /* Green - positiv */
+  --color-mood-great: #f472b6;     /* Pink - glad, energisk */
 
   /* Bakgrundsfärger */
   --color-bg-deep: #020408;

@@ -1,23 +1,38 @@
-export const MOOD_LABELS: Record<number, string> = {
-  1: 'Kass',
-  2: 'Dålig',
-  3: 'Okej',
-  4: 'Bra',
-  5: 'Jättebra',
+export type MoodConfig = {
+  value: number
+  name: string
+  label: string
+  cssVar: string
+  color: string
 }
 
-// Synkad med CSS-variabler i styles.css (--color-mood-X)
-export const MOOD_COLORS: Record<number, string> = {
-  1: '#64748b',  // Slate - dämpad, tung
-  2: '#8b5cf6',  // Violet - kall, eftertänksam
-  3: '#06b6d4',  // Cyan - neutral, balans
-  4: '#22c55e',  // Green - positiv
-  5: '#f472b6',  // Pink - glad, energisk
-}
+// Huvudkonfiguration för alla humör - synkad med CSS-variabler i styles.css
+export const MOODS: MoodConfig[] = [
+  { value: 1, name: 'awful', label: 'Kass', cssVar: '--color-mood-awful', color: '#64748b' },
+  { value: 2, name: 'bad', label: 'Dålig', cssVar: '--color-mood-bad', color: '#8b5cf6' },
+  { value: 3, name: 'okay', label: 'Okej', cssVar: '--color-mood-okay', color: '#06b6d4' },
+  { value: 4, name: 'good', label: 'Bra', cssVar: '--color-mood-good', color: '#22c55e' },
+  { value: 5, name: 'great', label: 'Jättebra', cssVar: '--color-mood-great', color: '#f472b6' },
+]
 
-export const getMoodLabel = (mood: number): string => {
-  return MOOD_LABELS[mood] || 'Okänd'
-}
+// Hjälpfunktioner för att hämta mood-data
+export const getMoodByValue = (value: number): MoodConfig | undefined =>
+  MOODS.find(m => m.value === value)
+
+export const getMoodLabel = (mood: number): string =>
+  getMoodByValue(mood)?.label || 'Okänd'
+
+export const getMoodCssVar = (mood: number): string =>
+  getMoodByValue(mood)?.cssVar || '--color-mood-okay'
+
+// Legacy exports för bakåtkompatibilitet (används av recharts)
+export const MOOD_LABELS: Record<number, string> = Object.fromEntries(
+  MOODS.map(m => [m.value, m.label])
+)
+
+export const MOOD_COLORS: Record<number, string> = Object.fromEntries(
+  MOODS.map(m => [m.value, m.color])
+)
 
 export const getWeekMoodDescription = (averageMood: number | null): string => {
   if (averageMood === null) return ''
