@@ -1,18 +1,20 @@
 /**
  * Test utilities for Skymning
- * 
+ *
  * Usage:
  *   bun scripts/test-utils.ts reset       - Clear all tables
  *   bun scripts/test-utils.ts seed        - Seed 4 weeks of reflections
  *   bun scripts/test-utils.ts reseed      - Reset + seed combined
  *   bun scripts/test-utils.ts clear-today - Clear today's entry
- * 
+ *   bun scripts/test-utils.ts sync-prod   - Sync production D1 to local
+ *
  * NOTE: These commands run against local D1 database via wrangler.
  * For remote (production), add --remote flag in package.json scripts.
  */
 
 import { format, getISOWeek, getISOWeekYear, subDays } from 'date-fns'
-import { $ } from 'bun'
+import { $, file } from 'bun'
+import { existsSync, unlinkSync } from 'node:fs'
 
 const SUMMARIES_BY_MOOD: Record<number, string[]> = {
   1: [
@@ -136,6 +138,46 @@ const seed = async () => {
   console.log('Seeding complete!')
 }
 
+const syncProd = async () => {
+  const tempFile = '.prod-backup.sql'
+
+  console.log('Exporting production database...')
+  try {
+    await $`bunx wrangler d1 export skymning-db --remote --output=${tempFile}`.quiet()
+  } catch (error) {
+    console.error('Failed to export production database.')
+    console.error('Make sure you are authenticated with Cloudflare (run: wrangler login)')
+    process.exit(1)
+  }
+
+  if (!existsSync(tempFile)) {
+    console.error('Export file not created')
+    process.exit(1)
+  }
+
+  const sqlContent = await file(tempFile).text()
+  const rowCounts = {
+    entries: (sqlContent.match(/INSERT INTO entries/g) || []).length,
+    weeklySummaries: (sqlContent.match(/INSERT INTO weekly_summaries/g) || []).length,
+    userContext: (sqlContent.match(/INSERT INTO user_context/g) || []).length,
+    chatMessages: (sqlContent.match(/INSERT INTO chat_messages/g) || []).length,
+  }
+
+  console.log('Clearing local database...')
+  await reset()
+
+  console.log('Importing to local database...')
+  await $`bunx wrangler d1 execute skymning-db --local --file=${tempFile}`.quiet()
+
+  unlinkSync(tempFile)
+
+  console.log('Sync complete!')
+  console.log(`   ${rowCounts.entries} entries`)
+  console.log(`   ${rowCounts.weeklySummaries} weekly summaries`)
+  console.log(`   ${rowCounts.userContext} user context rows`)
+  console.log(`   ${rowCounts.chatMessages} chat messages`)
+}
+
 // Main
 const command = process.argv[2]
 
@@ -153,6 +195,9 @@ switch (command) {
   case 'clear-today':
     await clearToday()
     break
+  case 'sync-prod':
+    await syncProd()
+    break
   default:
     console.log(`
 Skymning Test Utilities
@@ -162,5 +207,6 @@ Usage:
   bun scripts/test-utils.ts seed        - Seed 4 weeks of reflections
   bun scripts/test-utils.ts reseed      - Reset + seed combined
   bun scripts/test-utils.ts clear-today - Clear today's entry (to test summaries)
+  bun scripts/test-utils.ts sync-prod   - Sync production D1 to local
 `)
 }

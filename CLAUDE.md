@@ -39,6 +39,7 @@ bun db:reset               # Clear all tables (local)
 bun db:seed                # Seed 4 weeks of test data (local)
 bun db:reseed              # Reset + seed combined (local)
 bun db:clear-today         # Clear today's entry (local)
+bun db:sync-prod           # Sync production D1 to local (requires wrangler login)
 
 # Database (remote/production D1)
 bun db:migrate             # Apply pending migrations to production D1
