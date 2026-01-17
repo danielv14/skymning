@@ -13,10 +13,10 @@ type WeeklyEntryCardProps = {
   onUpdated?: (entry: Entry) => void
 }
 
-const getMoodGradientStyle = (mood: number): React.CSSProperties => {
+const getMoodRingStyle = (mood: number): React.CSSProperties => {
   const cssVar = getMoodCssVar(mood)
   return {
-    background: `linear-gradient(135deg, color-mix(in srgb, var(${cssVar}) 12%, transparent) 0%, color-mix(in srgb, var(${cssVar}) 3%, transparent) 40%, transparent 70%)`,
+    boxShadow: `inset 0 0 0 1px color-mix(in srgb, var(${cssVar}) 25%, transparent)`,
   }
 }
 
@@ -25,29 +25,23 @@ export const WeeklyEntryCard = ({ entry, onUpdated }: WeeklyEntryCardProps) => {
 
   return (
     <>
-      <Card className="relative overflow-hidden">
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={getMoodGradientStyle(entry.mood)}
-        />
-        <div className="relative">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-slate-500 capitalize">
-              {format(parseISO(entry.date), 'EEEE d MMMM', { locale: sv })}
-            </p>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setIsEditModalOpen(true)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition-colors"
-                title="Redigera"
-              >
-                <Pencil className="w-4 h-4" />
-              </button>
-              <MoodEmoji mood={entry.mood} size="md" layout="horizontal" />
-            </div>
+      <Card className="relative" style={getMoodRingStyle(entry.mood)}>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-sm text-slate-500 capitalize">
+            {format(parseISO(entry.date), 'EEEE d MMMM', { locale: sv })}
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition-colors"
+              title="Redigera"
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+            <MoodEmoji mood={entry.mood} size="md" layout="horizontal" />
           </div>
-          <p className="text-slate-300">{entry.summary}</p>
         </div>
+        <p className="text-slate-300">{entry.summary}</p>
       </Card>
 
       <EditReflectionModal
