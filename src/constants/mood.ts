@@ -6,6 +6,15 @@ export const MOOD_LABELS: Record<number, string> = {
   5: 'Jättebra',
 }
 
+// Synkad med CSS-variabler i styles.css (--color-mood-X)
+export const MOOD_COLORS: Record<number, string> = {
+  1: '#64748b',  // Slate - dämpad, tung
+  2: '#8b5cf6',  // Violet - kall, eftertänksam
+  3: '#06b6d4',  // Cyan - neutral, balans
+  4: '#22c55e',  // Green - positiv
+  5: '#f472b6',  // Pink - glad, energisk
+}
+
 export const getMoodLabel = (mood: number): string => {
   return MOOD_LABELS[mood] || 'Okänd'
 }

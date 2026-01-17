@@ -1,5 +1,34 @@
 @import "tailwindcss";
 
+/* ===== TEMA-VARIABLER ===== */
+:root {
+  /* Primära accentfärger */
+  --color-primary: #10b981;        /* Emerald - huvudaccent */
+  --color-primary-light: #34d399;
+  --color-primary-dark: #059669;
+
+  /* Sekundära accentfärger */
+  --color-secondary: #06b6d4;      /* Cyan */
+  --color-accent: #f472b6;         /* Pink */
+
+  /* Mood-färger (Aurora Spectrum) */
+  --color-mood-1: #64748b;         /* Slate - dämpad, tung */
+  --color-mood-2: #8b5cf6;         /* Violet - kall, eftertänksam */
+  --color-mood-3: #06b6d4;         /* Cyan - neutral, balans */
+  --color-mood-4: #22c55e;         /* Green - positiv */
+  --color-mood-5: #f472b6;         /* Pink - glad, energisk */
+
+  /* Bakgrundsfärger */
+  --color-bg-deep: #020408;
+  --color-bg-dark: #0a0f1a;
+  --color-bg-card: rgba(30, 41, 59, 0.6);
+
+  /* Aurora-glöd */
+  --color-aurora-green: rgba(16, 185, 129, 0.08);
+  --color-aurora-cyan: rgba(6, 182, 212, 0.06);
+  --color-aurora-violet: rgba(139, 92, 246, 0.05);
+}
+
 body {
   @apply m-0 bg-slate-950 text-stone-100;
   font-family: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
