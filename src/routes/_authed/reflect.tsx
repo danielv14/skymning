@@ -42,6 +42,22 @@ const ReflectPage = () => {
     initialMessages: initialMessages.length > 0 ? initialMessages : undefined,
   });
 
+  // Sync loader data to useChat when they're out of sync (navigation bug workaround)
+  useEffect(() => {
+    if (existingChat.length > 0 && messages.length === 0) {
+      const newMessages: UIMessage[] = existingChat.map((message) => ({
+        id: `db-${message.id}`,
+        role: message.role as "user" | "assistant",
+        parts: [{ type: "text" as const, content: message.content }],
+        createdAt: new Date(message.createdAt),
+      }));
+      setMessages(newMessages);
+      savedMessageIds.current = new Set(
+        existingChat.map((message) => `db-${message.id}`)
+      );
+    }
+  }, [existingChat, setMessages]);
+
   // Scroll to bottom on initial load (instant) and when new messages arrive (smooth)
   useEffect(() => {
     if (messages.length === 0) return;
