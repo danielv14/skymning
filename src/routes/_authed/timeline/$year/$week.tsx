@@ -94,7 +94,7 @@ const TimelineWeekPage = () => {
             <div className="text-center">
               <h1 className="text-xl font-semibold text-white">{weekLabel}</h1>
             </div>
-            <div className="w-9" /> {/* Spacer */}
+            <div className="w-9" />
           </div>
 
           <div className="flex justify-between items-center">

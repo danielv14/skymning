@@ -58,7 +58,6 @@ const ReflectPage = () => {
     }
   }, [existingChat, setMessages]);
 
-  // Scroll to bottom within the chat container (not the whole page)
   const scrollToBottom = (smooth = false) => {
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -73,21 +72,17 @@ const ReflectPage = () => {
     }
   };
 
-  // Scroll to bottom on initial load (instant) and when new messages arrive (smooth)
   useEffect(() => {
     if (messages.length === 0) return;
 
     if (!hasScrolledOnMount.current) {
-      // First scroll on mount - instant, no animation
       requestAnimationFrame(() => scrollToBottom(false));
       hasScrolledOnMount.current = true;
     } else {
-      // Subsequent scrolls - smooth for new messages
       scrollToBottom(true);
     }
   }, [messages]);
 
-  // Save assistant messages after streaming completes
   useEffect(() => {
     if (isLoading || messages.length === 0) return;
 
