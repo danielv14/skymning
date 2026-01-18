@@ -151,7 +151,7 @@ const TimelineWeekPage = () => {
             <h2 className="text-lg font-semibold text-slate-200 px-1">Veckans dagar</h2>
             <div className="space-y-4 stagger-children">
               {entries.map((entry) => (
-                <WeeklyEntryCard key={entry.id} entry={entry} />
+                <WeeklyEntryCard key={entry.id} entry={entry} useRelativeDates={isCurrentWeek} />
               ))}
             </div>
           </div>

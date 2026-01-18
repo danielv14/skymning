@@ -1,7 +1,32 @@
-import { format, subDays } from 'date-fns'
+import { format, subDays, parseISO, isToday, isYesterday, getDay } from 'date-fns'
 
 export const getTodayDateString = (): string => {
   return format(new Date(), 'yyyy-MM-dd')
+}
+
+const RELATIVE_DAY_NAMES: Record<number, string> = {
+  0: 'i söndags',
+  1: 'i måndags',
+  2: 'i tisdags',
+  3: 'i onsdags',
+  4: 'i torsdags',
+  5: 'i fredags',
+  6: 'i lördags',
+}
+
+export const formatRelativeDay = (dateString: string): string => {
+  const date = parseISO(dateString)
+
+  if (isToday(date)) {
+    return 'idag'
+  }
+
+  if (isYesterday(date)) {
+    return 'igår'
+  }
+
+  const dayOfWeek = getDay(date)
+  return RELATIVE_DAY_NAMES[dayOfWeek]
 }
 
 export const subtractDays = (dateStr: string, days: number): string => {
