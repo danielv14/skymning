@@ -42,6 +42,24 @@ const ReflectPage = () => {
     initialMessages: initialMessages.length > 0 ? initialMessages : undefined,
   });
 
+  // Sync loader data to useChat when they're out of sync (navigation bug fix)
+  // This handles cases where useChat doesn't pick up initialMessages due to
+  // view transitions or component reuse during navigation
+  useEffect(() => {
+    if (existingChat.length > 0 && messages.length === 0) {
+      const newMessages: UIMessage[] = existingChat.map((message) => ({
+        id: `db-${message.id}`,
+        role: message.role as "user" | "assistant",
+        parts: [{ type: "text" as const, content: message.content }],
+        createdAt: new Date(message.createdAt),
+      }));
+      setMessages(newMessages);
+      savedMessageIds.current = new Set(
+        existingChat.map((message) => `db-${message.id}`)
+      );
+    }
+  }, [existingChat, setMessages]);
+
   // Redirect if today's entry already exists
   useEffect(() => {
     if (todayEntry) {
