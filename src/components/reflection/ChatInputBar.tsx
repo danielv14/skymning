@@ -66,9 +66,9 @@ export const ChatInputBar = ({
           <button
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
-            className="absolute right-4 bottom-4 w-8 h-8 flex items-center justify-center bg-emerald-600 hover:bg-emerald-500 rounded-full text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+            className="absolute right-4 bottom-4 w-9 h-9 flex items-center justify-center bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 rounded-full text-white transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:scale-110 active:scale-95 hover:shadow-lg hover:shadow-emerald-500/30"
           >
-            <SendHorizontal className="w-3.5 h-3.5" />
+            <SendHorizontal className="w-4 h-4" />
           </button>
         </div>
         {canComplete && !isLoading && onComplete && (

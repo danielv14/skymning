@@ -67,7 +67,7 @@ const AboutMePage = () => {
         subtitle="Personlig kontext för AI:n"
       />
 
-      <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6">
+      <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 stagger-children">
         <Card>
           <div className="space-y-4">
             <div>

@@ -290,30 +290,42 @@ body {
   navigation: auto;
 }
 
-/* Subtil crossfade för sidnavigation */
+/* Standard crossfade för root */
 ::view-transition-old(root) {
-  animation: page-fade-out 250ms ease-out;
+  animation: page-fade-out 280ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 ::view-transition-new(root) {
-  animation: page-fade-in 250ms ease-out;
+  animation: page-fade-in 280ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes page-fade-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
 }
 
 @keyframes page-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+    transform: scale(1.02);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* Staggered card animation */
 @keyframes fade-in-up {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -321,18 +333,81 @@ body {
   }
 }
 
+@keyframes fade-in-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .stagger-children > * {
-  animation: fade-in-up 0.3s ease-out forwards;
+  animation: fade-in-up 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   opacity: 0;
 }
 
 .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
-.stagger-children > *:nth-child(2) { animation-delay: 100ms; }
-.stagger-children > *:nth-child(3) { animation-delay: 100ms; }
-.stagger-children > *:nth-child(4) { animation-delay: 200ms; }
-.stagger-children > *:nth-child(5) { animation-delay: 250ms; }
-.stagger-children > *:nth-child(6) { animation-delay: 300ms; }
-.stagger-children > *:nth-child(7) { animation-delay: 350ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 80ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 160ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 240ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 320ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 400ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 480ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 560ms; }
+.stagger-children > *:nth-child(9) { animation-delay: 640ms; }
+.stagger-children > *:nth-child(10) { animation-delay: 720ms; }
+
+/* Scale variant för stagger */
+.stagger-scale > * {
+  animation: fade-in-scale 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 0;
+}
+
+.stagger-scale > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-scale > *:nth-child(2) { animation-delay: 60ms; }
+.stagger-scale > *:nth-child(3) { animation-delay: 120ms; }
+.stagger-scale > *:nth-child(4) { animation-delay: 180ms; }
+.stagger-scale > *:nth-child(5) { animation-delay: 240ms; }
+
+/* Animate on scroll */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Snabbare variant för listor */
+.animate-on-scroll-fast {
+  opacity: 0;
+  transform: translateY(15px);
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animate-on-scroll-fast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
 
 /* Glow effects för interaktiva element */
 .glow-primary {
@@ -365,3 +440,291 @@ body {
 .card-mood-okay { --card-mood-color: var(--color-mood-okay); }
 .card-mood-good { --card-mood-color: var(--color-mood-good); }
 .card-mood-great { --card-mood-color: var(--color-mood-great); }
+
+/* ===== MODERNA HOVER-EFFEKTER ===== */
+
+/* Card hover med lift och glow */
+.card-interactive {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s ease;
+  will-change: transform;
+}
+
+.card-interactive:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.4),
+              0 0 30px -10px var(--color-aurora-green);
+  border-color: rgba(100, 116, 139, 0.5);
+}
+
+.card-interactive:active {
+  transform: translateY(-2px);
+  transition-duration: 0.1s;
+}
+
+/* Subtilare hover för mindre kort */
+.card-interactive-subtle {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-interactive-subtle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.3);
+}
+
+/* Button press effect */
+.btn-press {
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-press:hover {
+  transform: translateY(-2px);
+}
+
+.btn-press:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+/* Icon hover rotation */
+.icon-hover-rotate {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.icon-hover-rotate:hover {
+  transform: rotate(15deg) scale(1.1);
+}
+
+/* Link hover underline animation */
+.link-animated {
+  position: relative;
+}
+
+.link-animated::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 1px;
+}
+
+.link-animated:hover::after {
+  width: 100%;
+}
+
+/* Pulse glow animation */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px color-mix(in srgb, var(--color-primary) 20%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 30px color-mix(in srgb, var(--color-primary) 35%, transparent);
+  }
+}
+
+.glow-pulse {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* Shimmer loading effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Float animation for decorative elements */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Gradient border animation */
+@keyframes gradient-border {
+  0%, 100% {
+    border-color: var(--color-primary);
+  }
+  33% {
+    border-color: var(--color-secondary);
+  }
+  66% {
+    border-color: var(--color-accent);
+  }
+}
+
+.border-gradient-animated {
+  animation: gradient-border 8s ease-in-out infinite;
+}
+
+/* ===== FÖRBÄTTRAD SPACING ===== */
+
+/* Mer generösa containers */
+.container-spacious {
+  padding: 2rem;
+}
+
+@media (min-width: 640px) {
+  .container-spacious {
+    padding: 2.5rem;
+  }
+}
+
+/* Section spacing */
+.section-gap {
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 640px) {
+  .section-gap {
+    margin-bottom: 2.5rem;
+  }
+}
+
+/* ===== GLASSMORPHISM EFFEKTER ===== */
+
+.glass {
+  background: rgba(30, 41, 59, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.glass-strong {
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+/* ===== FOKUS-STATES ===== */
+
+.focus-ring {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ===== TEXTANIMATIONER ===== */
+
+@keyframes text-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.text-reveal {
+  animation: text-reveal 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Number counting animation helper */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== CHAT ANIMATIONER ===== */
+
+@keyframes message-appear {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.chat-message {
+  animation: message-appear 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Empty state float animation */
+@keyframes gentle-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.empty-state-icon {
+  animation: gentle-bounce 3s ease-in-out infinite;
+}
+
+/* ===== NAVIGATION HOVER EFFECTS ===== */
+
+.nav-link {
+  position: relative;
+  transition: color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+.nav-link:hover {
+  transform: translateY(-1px);
+}
+
+.nav-link:active {
+  transform: translateY(0);
+}
+
+/* ===== SECTION REVEAL ===== */
+
+@keyframes section-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section-reveal {
+  animation: section-reveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Staggered sections */
+.section-reveal:nth-child(1) { animation-delay: 0ms; }
+.section-reveal:nth-child(2) { animation-delay: 100ms; }
+.section-reveal:nth-child(3) { animation-delay: 200ms; }
+.section-reveal:nth-child(4) { animation-delay: 300ms; }
+.section-reveal:nth-child(5) { animation-delay: 400ms; }

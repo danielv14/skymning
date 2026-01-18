@@ -24,7 +24,7 @@ const ReflectPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [restartDialogOpen, setRestartDialogOpen] = useState(false);
   const [input, setInput] = useState("");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const hasScrolledOnMount = useRef(false);
   const savedMessageIds = useRef<Set<string>>(
     new Set(existingChat.map((message) => `db-${message.id}`))
@@ -58,23 +58,31 @@ const ReflectPage = () => {
     }
   }, [existingChat, setMessages]);
 
-  // Scroll to bottom on initial load (instant) and when new messages arrive (smooth)
+  const scrollToBottom = (smooth = false) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    if (smooth) {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: "smooth",
+      });
+    } else {
+      container.scrollTop = container.scrollHeight;
+    }
+  };
+
   useEffect(() => {
     if (messages.length === 0) return;
 
     if (!hasScrolledOnMount.current) {
-      // First scroll on mount - use instant to avoid jarring animation
-      requestAnimationFrame(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
-      });
+      requestAnimationFrame(() => scrollToBottom(false));
       hasScrolledOnMount.current = true;
     } else {
-      // Subsequent scrolls - use smooth for new messages
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      scrollToBottom(true);
     }
   }, [messages]);
 
-  // Save assistant messages after streaming completes
   useEffect(() => {
     if (isLoading || messages.length === 0) return;
 
@@ -193,12 +201,12 @@ const ReflectPage = () => {
           }
         />
 
-        <div className="flex-1 overflow-y-auto">
+        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
           <div className="max-w-2xl mx-auto px-6 sm:px-8 py-6 space-y-5">
             {messages.length === 0 && !isLoading && (
-              <div className="text-center py-16">
-                <div className="text-5xl mb-4">🌙</div>
-                <p className="text-stone-200 text-lg mb-2">
+              <div className="text-center py-20">
+                <div className="text-6xl mb-6 empty-state-icon">🌙</div>
+                <p className="text-stone-200 text-xl mb-3">
                   Hej! Hur har din dag varit?
                 </p>
                 <p className="text-stone-500">
@@ -220,8 +228,6 @@ const ReflectPage = () => {
                 time={formatTime(message.createdAt)}
               />
             ))}
-
-            <div ref={messagesEndRef} />
           </div>
         </div>
 
