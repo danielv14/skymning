@@ -1,9 +1,17 @@
 import { createServerFn } from '@tanstack/react-start'
 import { chat } from '@tanstack/ai'
 import { z } from 'zod'
+import { format, parseISO } from 'date-fns'
+import { sv } from 'date-fns/locale'
 import { DAY_SUMMARY_SYSTEM_PROMPT, WEEK_SUMMARY_SYSTEM_PROMPT, QUICK_POLISH_SYSTEM_PROMPT } from './prompts'
 import { openai } from './client'
 import { getMoodLabel } from '../../constants'
+
+const formatWeekday = (dateString: string): string => {
+  const date = parseISO(dateString)
+  const weekday = format(date, 'EEEE', { locale: sv })
+  return weekday.charAt(0).toUpperCase() + weekday.slice(1)
+}
 
 const messageSchema = z.object({
   role: z.enum(['user', 'assistant']),
@@ -52,7 +60,7 @@ export const generateWeeklySummary = createServerFn({ method: 'POST' })
     const entriesText = data.entries
       .map(
         (e) =>
-          `${e.date} (${getMoodLabel(e.mood)}):\n${e.summary}`
+          `${formatWeekday(e.date)} (${getMoodLabel(e.mood)}):\n${e.summary}`
       )
       .join('\n\n---\n\n')
 

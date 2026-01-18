@@ -132,6 +132,7 @@ Sammanfatta följande dagboksinlägg från en vecka till en reflekterande veckos
 - Skriv i andra person ("du") för personlig känsla
 - Hitta INTE på detaljer som inte finns i inläggen
 - Var konkret – referera till faktiska händelser snarare än generella känslor
+- När du nämner specifika händelser, inkludera veckodagen (t.ex. "under torsdagen" eller "på fredagen")
 
 # Exempel
 
@@ -144,7 +145,7 @@ Inlägg:
 - Fredag (Bra): Avslutade veckan starkt, after work med kollegorna.
 
 Sammanfattning:
-En vecka med både toppar och dalar. Du kämpade med en trög start och ett tufft möte mitt i veckan, men hittade tillbaka genom promenader och avrundade fint med kollegorna på fredag.
+En vecka med både toppar och dalar. Du kämpade med en trög start på måndagen och ett tufft möte med chefen under onsdagen, men hittade tillbaka och avrundade fint med kollegorna på fredagen.
 </example>
 
 <example>
@@ -164,7 +165,7 @@ Inlägg:
 - Fredag (Bra): Bra dag! Hade ett produktivt möte och hann med en promenad i solen.
 
 Sammanfattning:
-En fin vecka med stabilt bra humör. Sociala kontakter och små nöjen som god mat och promenader har gett energi.
+En fin vecka med stabilt bra humör. Samtalet med en gammal vän på tisdagen lyfte stämningen, och fredagens solpromenad rundade av veckan fint.
 </example>
 
 Svara ENDAST med sammanfattningen, ingen inledning eller kommentar.`
