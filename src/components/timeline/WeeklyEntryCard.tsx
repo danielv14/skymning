@@ -7,9 +7,11 @@ import { MOODS } from '../../constants'
 import { Card } from '../ui/Card'
 import { MoodEmoji } from '../mood/MoodEmoji'
 import { EditReflectionModal } from '../reflection/EditReflectionModal'
+import { formatRelativeDay } from '../../utils/date'
 
 type WeeklyEntryCardProps = {
   entry: Entry
+  useRelativeDates?: boolean
   onUpdated?: (entry: Entry) => void
 }
 
@@ -18,15 +20,19 @@ const getMoodCardClass = (mood: number): string => {
   return `card-mood-${name}`
 }
 
-export const WeeklyEntryCard = ({ entry, onUpdated }: WeeklyEntryCardProps) => {
+export const WeeklyEntryCard = ({ entry, useRelativeDates, onUpdated }: WeeklyEntryCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+
+  const formattedDate = useRelativeDates
+    ? formatRelativeDay(entry.date)
+    : format(parseISO(entry.date), 'EEEE d MMMM', { locale: sv })
 
   return (
     <>
       <Card className={`${getMoodCardClass(entry.mood)} card-interactive-subtle`}>
         <div className="flex items-center justify-between mb-3">
           <p className="text-sm text-slate-500 capitalize">
-            {format(parseISO(entry.date), 'EEEE d MMMM', { locale: sv })}
+            {formattedDate}
           </p>
           <div className="flex items-center gap-3">
             <button
