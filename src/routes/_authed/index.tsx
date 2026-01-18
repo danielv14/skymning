@@ -14,7 +14,7 @@ import { MoodTrend } from '../../components/mood/MoodTrend'
 import { Welcome } from '../../components/Welcome'
 import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
-import { StarField } from '../../components/StarField'
+import { AppHeader } from '../../components/ui/AppHeader'
 import { StreakCard } from '../../components/dashboard/StreakCard'
 import { RecentMoodCard } from '../../components/dashboard/RecentMoodCard'
 import { TodayEntryCard } from '../../components/dashboard/TodayEntryCard'
@@ -37,9 +37,8 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen">
-      <header className="bg-horizon relative overflow-hidden py-6 sm:py-8 px-6 sm:px-8">
-        <StarField starCount={20} />
-        <div className="max-w-2xl mx-auto flex items-center justify-between relative z-10">
+      <AppHeader>
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-white">Skymning</h1>
             <p className="text-slate-300 mt-1">Din dagliga reflektion</p>
@@ -63,7 +62,7 @@ const HomePage = () => {
             </Link>
           </nav>
         </div>
-      </header>
+      </AppHeader>
 
       <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 -mt-4 stagger-children">
         {chatPreview && !todayEntry && (
