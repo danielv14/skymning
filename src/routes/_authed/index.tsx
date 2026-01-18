@@ -37,7 +37,7 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen">
-      <header className="bg-horizon relative overflow-hidden py-6 sm:py-8 px-6 sm:px-8 view-transition-header">
+      <header className="bg-horizon relative overflow-hidden py-6 sm:py-8 px-6 sm:px-8">
         <StarField starCount={20} />
         <div className="max-w-2xl mx-auto flex items-center justify-between relative z-10">
           <div>
@@ -65,7 +65,7 @@ const HomePage = () => {
         </div>
       </header>
 
-      <main className="view-transition-main max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 -mt-4 stagger-children">
+      <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 -mt-4 stagger-children">
         {chatPreview && !todayEntry && (
           <Card className="bg-gradient-to-r from-cyan-500/10 to-teal-500/10 border-cyan-500/30">
             <div className="flex items-start gap-3 sm:gap-4">

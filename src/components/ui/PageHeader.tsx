@@ -18,7 +18,7 @@ export const PageHeader = ({
   rightContent,
 }: PageHeaderProps) => {
   return (
-    <header className="view-transition-header px-6 sm:px-8 py-6 sm:py-7 bg-horizon relative overflow-hidden border-b border-slate-700/50">
+    <header className="px-6 sm:px-8 py-6 sm:py-7 bg-horizon relative overflow-hidden border-b border-slate-700/50">
       <StarField starCount={15} />
       <div className="max-w-2xl mx-auto flex items-center gap-4 relative z-10">
         <Link to={backTo}>

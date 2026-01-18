@@ -82,7 +82,7 @@ const TimelineWeekPage = () => {
         isLoading={isRegenerating}
       />
       <div className="min-h-screen">
-        <header className="view-transition-header bg-horizon relative overflow-hidden py-6 sm:py-8 px-6 sm:px-8">
+        <header className="bg-horizon relative overflow-hidden py-6 sm:py-8 px-6 sm:px-8">
         <StarField starCount={20} />
         <div className="max-w-2xl mx-auto relative z-10">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
@@ -135,7 +135,7 @@ const TimelineWeekPage = () => {
         </div>
       </header>
 
-      <main className="view-transition-main max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 -mt-4">
+      <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 -mt-4">
         <WeeklySummarySection
           summary={weeklySummary?.summary ?? null}
           hasEntries={entries.length > 0}
