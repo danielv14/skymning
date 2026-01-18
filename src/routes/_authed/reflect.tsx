@@ -76,48 +76,42 @@ const ReflectPage = () => {
     }
   }, [messages]);
 
+  // Save assistant messages after streaming completes
   useEffect(() => {
-    const saveNewMessages = async () => {
-      for (let i = 0; i < messages.length; i++) {
-        const message = messages[i];
+    if (isLoading || messages.length === 0) return;
 
-        // Skip if already saved or if AI is still streaming this message
-        if (savedMessageIds.current.has(message.id)) continue;
-        if (
-          message.role === "assistant" &&
-          isLoading &&
-          i === messages.length - 1
-        )
-          continue;
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage.role !== "assistant") return;
+    if (savedMessageIds.current.has(lastMessage.id)) return;
 
-        const content = getMessageText(message.parts);
-        if (!content) continue;
+    const content = getMessageText(lastMessage.parts);
+    if (!content) return;
 
-        // Mark as saved BEFORE the async operation to prevent race conditions
-        savedMessageIds.current.add(message.id);
+    savedMessageIds.current.add(lastMessage.id);
 
-        try {
-          await saveChatMessage({
-            data: {
-              role: message.role as "user" | "assistant",
-              content,
-            },
-          });
-        } catch (error) {
-          console.error("Failed to save chat message:", error);
-          savedMessageIds.current.delete(message.id);
-          toast.error("Kunde inte spara meddelandet");
-        }
-      }
-    };
-
-    saveNewMessages();
+    saveChatMessage({
+      data: { role: "assistant", content },
+    }).catch((error) => {
+      console.error("Failed to save assistant message:", error);
+      savedMessageIds.current.delete(lastMessage.id);
+      toast.error("Kunde inte spara meddelandet");
+    });
   }, [messages, isLoading]);
 
-  const handleSendMessage = () => {
-    if (input.trim() && !isLoading) {
-      sendMessage(input);
-      setInput("");
+  const handleSendMessage = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const message = input.trim();
+    setInput("");
+    sendMessage(message);
+
+    try {
+      await saveChatMessage({
+        data: { role: "user", content: message },
+      });
+    } catch (error) {
+      console.error("Failed to save user message:", error);
+      toast.error("Kunde inte spara meddelandet");
     }
   };
 
