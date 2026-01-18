@@ -132,7 +132,7 @@ const TimelineWeekPage = () => {
           </div>
         </AppHeader>
 
-      <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 -mt-4">
+      <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 stagger-children">
         <WeeklySummarySection
           summary={weeklySummary?.summary ?? null}
           hasEntries={entries.length > 0}
