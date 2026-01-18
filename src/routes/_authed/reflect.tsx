@@ -1,6 +1,6 @@
 import type { UIMessage } from "@tanstack/ai-react";
 import { fetchServerSentEvents, useChat } from "@tanstack/ai-react";
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { RefreshCw } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
@@ -20,7 +20,7 @@ import { formatTime } from "../../utils/date";
 
 const ReflectPage = () => {
   const router = useRouter();
-  const { todayEntry, existingChat } = Route.useLoaderData();
+  const { existingChat } = Route.useLoaderData();
   const [modalOpen, setModalOpen] = useState(false);
   const [restartDialogOpen, setRestartDialogOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -59,13 +59,6 @@ const ReflectPage = () => {
       );
     }
   }, [existingChat, setMessages]);
-
-  // Redirect if today's entry already exists
-  useEffect(() => {
-    if (todayEntry) {
-      router.navigate({ to: "/" });
-    }
-  }, [todayEntry, router]);
 
   // Scroll to bottom on initial load (instant) and when new messages arrive (smooth)
   useEffect(() => {
@@ -262,7 +255,12 @@ export const Route = createFileRoute("/_authed/reflect")({
       getTodayEntry(),
       getTodayChat(),
     ]);
-    return { todayEntry, existingChat };
+
+    if (todayEntry) {
+      throw redirect({ to: "/" });
+    }
+
+    return { existingChat };
   },
   component: ReflectPage,
 });
