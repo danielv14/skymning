@@ -29,6 +29,7 @@ const ReflectPage = () => {
   const savedMessageIds = useRef<Set<string>>(
     new Set(existingChat.map((message) => `db-${message.id}`))
   );
+  const hasMounted = useRef(false);
 
   const initialMessages: UIMessage[] = existingChat.map((message) => ({
     id: `db-${message.id}`,
@@ -37,14 +38,21 @@ const ReflectPage = () => {
     createdAt: new Date(message.createdAt),
   }));
 
-  const { messages, sendMessage, isLoading, setMessages } = useChat({
+  const { messages: hookMessages, sendMessage, isLoading, setMessages } = useChat({
     connection: fetchServerSentEvents("/api/chat"),
     initialMessages: initialMessages.length > 0 ? initialMessages : undefined,
   });
 
-  // Sync loader data to useChat when they're out of sync (navigation bug workaround)
+  // Use loader data as fallback if hook hasn't initialized yet
+  const messages = hookMessages.length > 0 ? hookMessages : initialMessages;
+
+  // Sync loader data to useChat on navigation (skip initial mount to avoid double render)
   useEffect(() => {
-    if (existingChat.length > 0 && messages.length === 0) {
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return;
+    }
+    if (existingChat.length > 0 && hookMessages.length === 0) {
       const newMessages: UIMessage[] = existingChat.map((message) => ({
         id: `db-${message.id}`,
         role: message.role as "user" | "assistant",
@@ -56,7 +64,7 @@ const ReflectPage = () => {
         existingChat.map((message) => `db-${message.id}`)
       );
     }
-  }, [existingChat, setMessages]);
+  }, [existingChat, hookMessages.length, setMessages]);
 
   const scrollToBottom = (smooth = false) => {
     const container = scrollContainerRef.current;
