@@ -11,11 +11,11 @@ export const ChatMessage = ({ role, text, isStreaming = false, time }: ChatMessa
   const isUser = role === 'user'
 
   return (
-    <div className={`flex flex-col ${isUser ? 'items-end' : 'items-start'}`}>
+    <div className={`chat-message flex flex-col ${isUser ? 'items-end' : 'items-start'}`}>
       <div
-        className={`max-w-[85%] sm:max-w-[70%] rounded-2xl px-4 py-3 ${
+        className={`max-w-[85%] sm:max-w-[70%] rounded-2xl px-5 py-3.5 ${
           isUser
-            ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-br-md shadow-lg shadow-emerald-500/20'
+            ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-br-md shadow-lg shadow-emerald-500/25'
             : 'bg-slate-800/80 border border-slate-700/50 text-slate-200 rounded-bl-md backdrop-blur-sm'
         }`}
       >

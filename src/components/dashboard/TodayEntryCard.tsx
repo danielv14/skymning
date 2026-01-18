@@ -23,10 +23,10 @@ export const TodayEntryCard = ({ entry, hasChatPreview, onUpdated }: TodayEntryC
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-white">Dagens reflektion</h2>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => setIsEditModalOpen(true)}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition-colors"
+                  className="p-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 active:bg-slate-700/70 transition-all duration-200 hover:scale-105 active:scale-95"
                   title="Redigera"
                 >
                   <Pencil className="w-4 h-4" />

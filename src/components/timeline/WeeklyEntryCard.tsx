@@ -23,15 +23,15 @@ export const WeeklyEntryCard = ({ entry, onUpdated }: WeeklyEntryCardProps) => {
 
   return (
     <>
-      <Card className={getMoodCardClass(entry.mood)}>
-        <div className="flex items-center justify-between mb-2">
+      <Card className={`${getMoodCardClass(entry.mood)} card-interactive-subtle`}>
+        <div className="flex items-center justify-between mb-3">
           <p className="text-sm text-slate-500 capitalize">
             {format(parseISO(entry.date), 'EEEE d MMMM', { locale: sv })}
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setIsEditModalOpen(true)}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 transition-colors"
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-700/50 active:bg-slate-700/70 transition-all duration-200 hover:scale-105 active:scale-95"
               title="Redigera"
             >
               <Pencil className="w-4 h-4" />
@@ -39,7 +39,7 @@ export const WeeklyEntryCard = ({ entry, onUpdated }: WeeklyEntryCardProps) => {
             <MoodEmoji mood={entry.mood} size="md" layout="horizontal" />
           </div>
         </div>
-        <p className="text-slate-300">{entry.summary}</p>
+        <p className="text-slate-300 leading-relaxed">{entry.summary}</p>
       </Card>
 
       <EditReflectionModal

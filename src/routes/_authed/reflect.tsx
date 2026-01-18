@@ -196,9 +196,9 @@ const ReflectPage = () => {
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-2xl mx-auto px-6 sm:px-8 py-6 space-y-5">
             {messages.length === 0 && !isLoading && (
-              <div className="text-center py-16">
-                <div className="text-5xl mb-4">🌙</div>
-                <p className="text-stone-200 text-lg mb-2">
+              <div className="text-center py-20">
+                <div className="text-6xl mb-6 empty-state-icon">🌙</div>
+                <p className="text-stone-200 text-xl mb-3">
                   Hej! Hur har din dag varit?
                 </p>
                 <p className="text-stone-500">

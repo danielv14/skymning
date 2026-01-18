@@ -82,12 +82,12 @@ const TimelineWeekPage = () => {
         isLoading={isRegenerating}
       />
       <div className="min-h-screen">
-        <header className="bg-horizon relative overflow-hidden py-6 sm:py-8 px-6 sm:px-8">
+        <header className="view-transition-header bg-horizon relative overflow-hidden py-6 sm:py-8 px-6 sm:px-8">
         <StarField starCount={20} />
         <div className="max-w-2xl mx-auto relative z-10">
           <div className="flex items-center justify-between mb-3 sm:mb-4">
             <Link to="/">
-              <button className="p-2 -ml-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer">
+              <button className="p-2.5 -ml-2 rounded-full hover:bg-white/10 active:bg-white/15 transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95">
                 <Home className="w-5 h-5 text-slate-200" />
               </button>
             </Link>
@@ -103,9 +103,9 @@ const TimelineWeekPage = () => {
               params={{ year: String(prevWeek.year), week: String(prevWeek.week) }}
               viewTransition={false}
             >
-              <button className="flex items-center gap-1 text-slate-300 hover:text-white transition-colors cursor-pointer">
+              <button className="flex items-center gap-1.5 px-3 py-2 rounded-full text-slate-300 hover:text-white hover:bg-white/10 active:bg-white/15 transition-all duration-200 cursor-pointer">
                 <ChevronLeft className="w-4 h-4" />
-                Förra
+                <span className="text-sm font-medium">Förra</span>
               </button>
             </Link>
             <Link
@@ -115,7 +115,7 @@ const TimelineWeekPage = () => {
               disabled={isCurrentWeek}
             >
               <button
-                className="text-slate-300 hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-slate-300"
+                className="px-4 py-2 rounded-full text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 active:bg-white/15 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-slate-300 disabled:hover:bg-transparent"
                 disabled={isCurrentWeek}
               >
                 Denna vecka
@@ -126,8 +126,8 @@ const TimelineWeekPage = () => {
               params={{ year: String(nextWeek.year), week: String(nextWeek.week) }}
               viewTransition={false}
             >
-              <button className="flex items-center gap-1 text-slate-300 hover:text-white transition-colors cursor-pointer">
-                Nästa
+              <button className="flex items-center gap-1.5 px-3 py-2 rounded-full text-slate-300 hover:text-white hover:bg-white/10 active:bg-white/15 transition-all duration-200 cursor-pointer">
+                <span className="text-sm font-medium">Nästa</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </Link>
@@ -135,7 +135,7 @@ const TimelineWeekPage = () => {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 -mt-4">
+      <main className="view-transition-main max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 -mt-4">
         <WeeklySummarySection
           summary={weeklySummary?.summary ?? null}
           hasEntries={entries.length > 0}
@@ -157,10 +157,10 @@ const TimelineWeekPage = () => {
           </div>
         ) : (
           <Card>
-            <div className="text-center py-8">
-              <div className="text-4xl mb-4">🌑</div>
-              <p className="text-slate-400 mb-2">Inga reflektioner denna vecka</p>
-              <p className="text-slate-500 text-sm">
+            <div className="text-center py-12">
+              <div className="text-5xl mb-5 empty-state-icon">🌑</div>
+              <p className="text-slate-400 mb-2 text-lg">Inga reflektioner denna vecka</p>
+              <p className="text-slate-500">
                 Kom ihåg att ta en stund varje kväll för att reflektera
               </p>
             </div>

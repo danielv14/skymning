@@ -44,28 +44,28 @@ const HomePage = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-white">Skymning</h1>
             <p className="text-slate-300 mt-1">Din dagliga reflektion</p>
           </div>
-          <nav className="flex gap-2 sm:gap-4">
+          <nav className="flex gap-2 sm:gap-3">
             <Link
               to="/timeline"
-              className="flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-full hover:bg-white/10 transition-colors text-slate-300 hover:text-white"
+              className="nav-link flex items-center gap-2 p-2.5 sm:px-4 sm:py-2 rounded-full hover:bg-white/10 active:bg-white/15 transition-all duration-200 text-slate-300 hover:text-white"
               title="Tidslinje"
             >
               <Calendar className="w-5 h-5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline text-sm">Tidslinje</span>
+              <span className="hidden sm:inline text-sm font-medium">Tidslinje</span>
             </Link>
             <Link
               to="/about-me"
-              className="flex items-center gap-1.5 p-2 sm:px-3 sm:py-1.5 rounded-full hover:bg-white/10 transition-colors text-slate-300 hover:text-white"
+              className="nav-link flex items-center gap-2 p-2.5 sm:px-4 sm:py-2 rounded-full hover:bg-white/10 active:bg-white/15 transition-all duration-200 text-slate-300 hover:text-white"
               title="Om mig"
             >
               <User className="w-5 h-5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline text-sm">Om mig</span>
+              <span className="hidden sm:inline text-sm font-medium">Om mig</span>
             </Link>
           </nav>
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 -mt-4">
+      <main className="view-transition-main max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 -mt-4 stagger-children">
         {chatPreview && !todayEntry && (
           <Card className="bg-gradient-to-r from-cyan-500/10 to-teal-500/10 border-cyan-500/30">
             <div className="flex items-start gap-3 sm:gap-4">

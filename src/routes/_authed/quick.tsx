@@ -60,7 +60,7 @@ const QuickPage = () => {
         subtitle="Reflektera utan AI-chatt"
       />
 
-      <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6">
+      <main className="view-transition-main max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 stagger-children">
         <Card>
           <h2 className="text-lg font-semibold text-white mb-4">
             Hur har din dag varit?
