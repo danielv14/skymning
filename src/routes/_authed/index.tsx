@@ -64,7 +64,7 @@ const HomePage = () => {
         </div>
       </AppHeader>
 
-      <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 -mt-4 stagger-children">
+      <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 stagger-children">
         {chatPreview && !todayEntry && (
           <Card className="bg-gradient-to-r from-cyan-500/10 to-teal-500/10 border-cyan-500/30">
             <div className="flex items-start gap-3 sm:gap-4">
