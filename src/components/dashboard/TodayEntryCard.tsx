@@ -18,7 +18,7 @@ export const TodayEntryCard = ({ entry, hasChatPreview, onUpdated }: TodayEntryC
 
   return (
     <>
-      <Card gradient>
+      <Card>
         {entry ? (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
