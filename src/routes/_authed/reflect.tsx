@@ -1,6 +1,6 @@
 import type { UIMessage } from "@tanstack/ai-react";
 import { fetchServerSentEvents, useChat } from "@tanstack/ai-react";
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { RefreshCw } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
@@ -20,7 +20,7 @@ import { formatTime } from "../../utils/date";
 
 const ReflectPage = () => {
   const router = useRouter();
-  const { todayEntry, existingChat } = Route.useLoaderData();
+  const { existingChat } = Route.useLoaderData();
   const [modalOpen, setModalOpen] = useState(false);
   const [restartDialogOpen, setRestartDialogOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -42,12 +42,21 @@ const ReflectPage = () => {
     initialMessages: initialMessages.length > 0 ? initialMessages : undefined,
   });
 
-  // Redirect if today's entry already exists
+  // Sync loader data to useChat when they're out of sync (navigation bug workaround)
   useEffect(() => {
-    if (todayEntry) {
-      router.navigate({ to: "/" });
+    if (existingChat.length > 0 && messages.length === 0) {
+      const newMessages: UIMessage[] = existingChat.map((message) => ({
+        id: `db-${message.id}`,
+        role: message.role as "user" | "assistant",
+        parts: [{ type: "text" as const, content: message.content }],
+        createdAt: new Date(message.createdAt),
+      }));
+      setMessages(newMessages);
+      savedMessageIds.current = new Set(
+        existingChat.map((message) => `db-${message.id}`)
+      );
     }
-  }, [todayEntry, router]);
+  }, [existingChat, setMessages]);
 
   // Scroll to bottom on initial load (instant) and when new messages arrive (smooth)
   useEffect(() => {
@@ -65,48 +74,42 @@ const ReflectPage = () => {
     }
   }, [messages]);
 
+  // Save assistant messages after streaming completes
   useEffect(() => {
-    const saveNewMessages = async () => {
-      for (let i = 0; i < messages.length; i++) {
-        const message = messages[i];
+    if (isLoading || messages.length === 0) return;
 
-        // Skip if already saved or if AI is still streaming this message
-        if (savedMessageIds.current.has(message.id)) continue;
-        if (
-          message.role === "assistant" &&
-          isLoading &&
-          i === messages.length - 1
-        )
-          continue;
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage.role !== "assistant") return;
+    if (savedMessageIds.current.has(lastMessage.id)) return;
 
-        const content = getMessageText(message.parts);
-        if (!content) continue;
+    const content = getMessageText(lastMessage.parts);
+    if (!content) return;
 
-        // Mark as saved BEFORE the async operation to prevent race conditions
-        savedMessageIds.current.add(message.id);
+    savedMessageIds.current.add(lastMessage.id);
 
-        try {
-          await saveChatMessage({
-            data: {
-              role: message.role as "user" | "assistant",
-              content,
-            },
-          });
-        } catch (error) {
-          console.error("Failed to save chat message:", error);
-          savedMessageIds.current.delete(message.id);
-          toast.error("Kunde inte spara meddelandet");
-        }
-      }
-    };
-
-    saveNewMessages();
+    saveChatMessage({
+      data: { role: "assistant", content },
+    }).catch((error) => {
+      console.error("Failed to save assistant message:", error);
+      savedMessageIds.current.delete(lastMessage.id);
+      toast.error("Kunde inte spara meddelandet");
+    });
   }, [messages, isLoading]);
 
-  const handleSendMessage = () => {
-    if (input.trim() && !isLoading) {
-      sendMessage(input);
-      setInput("");
+  const handleSendMessage = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const message = input.trim();
+    setInput("");
+    sendMessage(message);
+
+    try {
+      await saveChatMessage({
+        data: { role: "user", content: message },
+      });
+    } catch (error) {
+      console.error("Failed to save user message:", error);
+      toast.error("Kunde inte spara meddelandet");
     }
   };
 
@@ -244,7 +247,12 @@ export const Route = createFileRoute("/_authed/reflect")({
       getTodayEntry(),
       getTodayChat(),
     ]);
-    return { todayEntry, existingChat };
+
+    if (todayEntry) {
+      throw redirect({ to: "/" });
+    }
+
+    return { existingChat };
   },
   component: ReflectPage,
 });
