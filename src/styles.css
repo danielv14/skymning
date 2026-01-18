@@ -463,31 +463,6 @@ body {
   transition-duration: 0.1s;
 }
 
-/* Subtilare hover för mindre kort */
-.card-interactive-subtle {
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.card-interactive-subtle:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.3);
-}
-
-/* Button press effect */
-.btn-press {
-  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
-              box-shadow 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.btn-press:hover {
-  transform: translateY(-2px);
-}
-
-.btn-press:active {
-  transform: translateY(1px) scale(0.98);
-}
-
 /* Icon hover rotation */
 .icon-hover-rotate {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
