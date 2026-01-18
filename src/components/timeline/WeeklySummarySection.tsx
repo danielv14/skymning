@@ -23,7 +23,7 @@ export const WeeklySummarySection = ({
 }: WeeklySummarySectionProps) => {
   if (summary) {
     return (
-      <Card gradient>
+      <Card>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-3 mb-3">
           <h2 className="text-lg font-semibold text-white">Veckans summering</h2>
           <div className="flex items-center gap-3">
@@ -47,7 +47,7 @@ export const WeeklySummarySection = ({
 
   if (hasEntries) {
     return (
-      <Card gradient>
+      <Card>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold text-white">Veckans summering</h2>
           {moodDescription && (
