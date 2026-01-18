@@ -18,11 +18,11 @@ export const formatRelativeDay = (dateString: string): string => {
   const date = parseISO(dateString)
 
   if (isToday(date)) {
-    return 'i dag'
+    return 'idag'
   }
 
   if (isYesterday(date)) {
-    return 'i går'
+    return 'igår'
   }
 
   const dayOfWeek = getDay(date)
