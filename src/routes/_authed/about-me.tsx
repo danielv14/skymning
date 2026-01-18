@@ -137,7 +137,7 @@ const AboutMePage = () => {
           </div>
         </Card>
 
-        <Card className="bg-slate-800/50">
+        <Card className="bg-slate-800/40">
           <div className="space-y-2">
             <h3 className="text-sm font-medium text-slate-300">Hur används detta?</h3>
             <p className="text-sm text-slate-400">
