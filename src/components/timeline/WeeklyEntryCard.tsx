@@ -31,7 +31,7 @@ export const WeeklyEntryCard = ({ entry, useRelativeDates, onUpdated }: WeeklyEn
     <>
       <Card className={`${getMoodCardClass(entry.mood)} card-interactive-subtle`}>
         <div className="flex items-center justify-between mb-3">
-          <p className="text-sm text-slate-500 capitalize">
+          <p className="text-sm text-slate-500">
             {formattedDate}
           </p>
           <div className="flex items-center gap-3">
