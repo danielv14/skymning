@@ -24,7 +24,7 @@ const ReflectPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [restartDialogOpen, setRestartDialogOpen] = useState(false);
   const [input, setInput] = useState("");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const hasScrolledOnMount = useRef(false);
   const savedMessageIds = useRef<Set<string>>(
     new Set(existingChat.map((message) => `db-${message.id}`))
@@ -58,19 +58,32 @@ const ReflectPage = () => {
     }
   }, [existingChat, setMessages]);
 
+  // Scroll to bottom within the chat container (not the whole page)
+  const scrollToBottom = (smooth = false) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    if (smooth) {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: "smooth",
+      });
+    } else {
+      container.scrollTop = container.scrollHeight;
+    }
+  };
+
   // Scroll to bottom on initial load (instant) and when new messages arrive (smooth)
   useEffect(() => {
     if (messages.length === 0) return;
 
     if (!hasScrolledOnMount.current) {
-      // First scroll on mount - use instant to avoid jarring animation
-      requestAnimationFrame(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
-      });
+      // First scroll on mount - instant, no animation
+      requestAnimationFrame(() => scrollToBottom(false));
       hasScrolledOnMount.current = true;
     } else {
-      // Subsequent scrolls - use smooth for new messages
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      // Subsequent scrolls - smooth for new messages
+      scrollToBottom(true);
     }
   }, [messages]);
 
@@ -193,7 +206,7 @@ const ReflectPage = () => {
           }
         />
 
-        <div className="flex-1 overflow-y-auto">
+        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
           <div className="max-w-2xl mx-auto px-6 sm:px-8 py-6 space-y-5">
             {messages.length === 0 && !isLoading && (
               <div className="text-center py-20">
@@ -220,8 +233,6 @@ const ReflectPage = () => {
                 time={formatTime(message.createdAt)}
               />
             ))}
-
-            <div ref={messagesEndRef} />
           </div>
         </div>
 
