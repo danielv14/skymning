@@ -24,9 +24,9 @@ export const WeeklySummarySection = ({
   if (summary) {
     return (
       <Card>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-4">
+        <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-white">Veckans summering</h2>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {moodDescription && (
               <span className="text-sm text-slate-400">{moodDescription}</span>
             )}

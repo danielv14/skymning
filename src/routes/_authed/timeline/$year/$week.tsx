@@ -15,8 +15,10 @@ import { WeeklyEntryCard } from '../../../../components/timeline/WeeklyEntryCard
 import { WeeklySummarySection } from '../../../../components/timeline/WeeklySummarySection'
 import { ChevronLeft, ChevronRight, Home } from 'lucide-react'
 import { useState } from 'react'
+import { getDay } from 'date-fns'
 import { getWeekMoodDescription } from '../../../../constants/mood'
 import { getAdjacentWeek } from '../../../../utils/isoWeek'
+import { getTodayDateString } from '../../../../utils/date'
 
 const TimelineWeekPage = () => {
   const { year, week, entries, weeklySummary, averageMood } = Route.useLoaderData()
@@ -71,7 +73,12 @@ const TimelineWeekPage = () => {
   const nextWeek = getAdjacentWeek(year, week, 'next')
 
   const weekLabel = `Vecka ${week}, ${year}`
-  const moodDescription = isCurrentWeek ? null : getWeekMoodDescription(averageMood)
+
+  const isSunday = getDay(new Date()) === 0
+  const todayDate = getTodayDateString()
+  const hasSundayEntry = entries.some((entry) => entry.date === todayDate)
+  const isWeekComplete = !isCurrentWeek || (isSunday && hasSundayEntry)
+  const moodDescription = isWeekComplete ? getWeekMoodDescription(averageMood) : null
 
   return (
     <>
