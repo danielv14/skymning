@@ -113,7 +113,7 @@ export const CompletionModal = ({
           disabled={!selectedMood || !summary?.trim() || isSaving || isGenerating}
           className="flex-1"
         >
-          {isSaving ? 'Sparar...' : 'Spara dagen'}
+          {isSaving ? 'Sparar...' : 'Spara'}
         </Button>
       </div>
     </Modal>

@@ -82,7 +82,7 @@ export const QuickPolishModal = ({
           disabled={!polishedText?.trim() || isGenerating}
           className="flex-1"
         >
-          Använd denna
+          Använd
         </Button>
       </div>
     </Modal>
