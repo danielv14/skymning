@@ -63,7 +63,6 @@ export const EditReflectionModal = ({
       open={open}
       onOpenChange={onOpenChange}
       title="Redigera reflektion"
-      description="Ändra humör eller sammanfattning för denna dag"
     >
       <div className="mb-6">
         <h3 className="text-sm font-medium text-slate-300 mb-3">
@@ -85,14 +84,14 @@ export const EditReflectionModal = ({
         />
       </div>
 
-      <div className="flex gap-3">
-        <ModalCloseButton variant="secondary" className="flex-1">
+      <div className="flex flex-col-reverse sm:flex-row gap-3">
+        <ModalCloseButton variant="secondary" className="sm:flex-1">
           Avbryt
         </ModalCloseButton>
         <Button
           onClick={handleSave}
           disabled={!summary.trim() || isSaving || !hasChanges}
-          className="flex-1"
+          className="sm:flex-1"
         >
           {isSaving ? 'Sparar...' : 'Uppdatera'}
         </Button>
