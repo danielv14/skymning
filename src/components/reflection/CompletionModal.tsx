@@ -104,16 +104,16 @@ export const CompletionModal = ({
         />
       </div>
 
-      <div className="flex flex-col-reverse sm:flex-row gap-3">
-        <ModalCloseButton variant="secondary" className="sm:flex-1">
+      <div className="flex flex-row gap-3">
+        <ModalCloseButton variant="secondary" className="flex-1">
           Avbryt
         </ModalCloseButton>
         <Button
           onClick={handleSave}
           disabled={!selectedMood || !summary?.trim() || isSaving || isGenerating}
-          className="sm:flex-1"
+          className="flex-1"
         >
-          {isSaving ? 'Sparar...' : 'Spara dagen'}
+          {isSaving ? 'Sparar...' : 'Spara'}
         </Button>
       </div>
     </Modal>

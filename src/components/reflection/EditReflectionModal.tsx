@@ -84,14 +84,14 @@ export const EditReflectionModal = ({
         />
       </div>
 
-      <div className="flex flex-col-reverse sm:flex-row gap-3">
-        <ModalCloseButton variant="secondary" className="sm:flex-1">
+      <div className="flex flex-row gap-3">
+        <ModalCloseButton variant="secondary" className="flex-1">
           Avbryt
         </ModalCloseButton>
         <Button
           onClick={handleSave}
           disabled={!summary.trim() || isSaving || !hasChanges}
-          className="sm:flex-1"
+          className="flex-1"
         >
           {isSaving ? 'Sparar...' : 'Uppdatera'}
         </Button>
