@@ -10,10 +10,9 @@ import { EditReflectionModal } from '../reflection/EditReflectionModal'
 type TodayEntryCardProps = {
   entry: Entry | null
   hasChatPreview: boolean
-  onUpdated?: (entry: Entry) => void
 }
 
-export const TodayEntryCard = ({ entry, hasChatPreview, onUpdated }: TodayEntryCardProps) => {
+export const TodayEntryCard = ({ entry, hasChatPreview }: TodayEntryCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   return (
@@ -64,7 +63,6 @@ export const TodayEntryCard = ({ entry, hasChatPreview, onUpdated }: TodayEntryC
           open={isEditModalOpen}
           onOpenChange={setIsEditModalOpen}
           entry={entry}
-          onUpdated={(updated) => onUpdated?.(updated)}
         />
       )}
     </>

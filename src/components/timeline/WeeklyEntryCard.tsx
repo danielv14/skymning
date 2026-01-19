@@ -12,7 +12,6 @@ import { formatRelativeDay } from '../../utils/date'
 type WeeklyEntryCardProps = {
   entry: Entry
   useRelativeDates?: boolean
-  onUpdated?: (entry: Entry) => void
 }
 
 const getMoodCardClass = (mood: number): string => {
@@ -20,7 +19,7 @@ const getMoodCardClass = (mood: number): string => {
   return `card-mood-${name}`
 }
 
-export const WeeklyEntryCard = ({ entry, useRelativeDates, onUpdated }: WeeklyEntryCardProps) => {
+export const WeeklyEntryCard = ({ entry, useRelativeDates }: WeeklyEntryCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   const formattedDate = useRelativeDates
@@ -52,7 +51,6 @@ export const WeeklyEntryCard = ({ entry, useRelativeDates, onUpdated }: WeeklyEn
         open={isEditModalOpen}
         onOpenChange={setIsEditModalOpen}
         entry={entry}
-        onUpdated={(updated) => onUpdated?.(updated)}
       />
     </>
   )

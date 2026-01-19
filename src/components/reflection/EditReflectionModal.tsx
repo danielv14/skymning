@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { Modal, ModalCloseButton } from '../ui/Modal'
 import { MoodSelector } from './MoodSelector'
@@ -11,15 +12,14 @@ type EditReflectionModalProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   entry: Entry
-  onUpdated: (entry: Entry) => void
 }
 
 export const EditReflectionModal = ({
   open,
   onOpenChange,
   entry,
-  onUpdated,
 }: EditReflectionModalProps) => {
+  const router = useRouter()
   const [selectedMood, setSelectedMood] = useState<number>(entry.mood)
   const [summary, setSummary] = useState(entry.summary)
   const [isSaving, setIsSaving] = useState(false)
@@ -44,9 +44,9 @@ export const EditReflectionModal = ({
         },
       })
       if (updated) {
-        onUpdated(updated)
         onOpenChange(false)
         toast.success('Reflektionen har uppdaterats')
+        router.invalidate()
       }
     } catch (error) {
       console.error('Failed to update entry:', error)

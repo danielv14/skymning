@@ -17,7 +17,7 @@ const RootComponent = () => {
       <body className="min-h-screen bg-slate-950 text-stone-100 font-sans">
         <Outlet />
         <Toaster
-          position="top-center"
+          position="bottom-right"
           richColors
           toastOptions={{
             style: {
