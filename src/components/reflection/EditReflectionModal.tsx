@@ -63,7 +63,6 @@ export const EditReflectionModal = ({
       open={open}
       onOpenChange={onOpenChange}
       title="Redigera reflektion"
-      description="Ändra humör eller sammanfattning för denna dag"
     >
       <div className="mb-6">
         <h3 className="text-sm font-medium text-slate-300 mb-3">
