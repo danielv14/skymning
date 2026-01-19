@@ -61,7 +61,7 @@ export const ChatInputBar = ({
             disabled={isLoading}
             autoResize
             maxHeight={150}
-            className="rounded-2xl !pr-12"
+            className="rounded-2xl !pr-16"
           />
           <button
             onClick={handleSend}
