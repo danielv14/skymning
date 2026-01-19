@@ -431,8 +431,8 @@ body {
 .card-mood-okay,
 .card-mood-good,
 .card-mood-great {
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--card-mood-color) 25%, transparent);
-  background: linear-gradient(135deg, color-mix(in srgb, var(--card-mood-color) 8%, transparent) 0%, transparent 50%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--card-mood-color) 35%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--card-mood-color) 12%, transparent) 0%, transparent 60%);
 }
 
 .card-mood-awful { --card-mood-color: var(--color-mood-awful); }
