@@ -2,9 +2,15 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { getDb } from '../db'
 import { entries, chatMessages } from '../db/schema'
-import { eq, desc, and, gte, lt } from 'drizzle-orm'
+import { eq, desc, and, gte, lt, count } from 'drizzle-orm'
 import { setISOWeek, setISOWeekYear, startOfISOWeek, addWeeks, format } from 'date-fns'
 import { weekInputSchema } from '../../constants'
+import {
+  calculateMoodLevel,
+  calculateTrend,
+  calculateStability,
+  type MoodInsight,
+} from '../../constants/moodInsight'
 import { getTodayDateString, subtractDays } from '../../utils/date'
 import { authMiddleware } from '../middleware/auth'
 
@@ -195,4 +201,48 @@ export const updateEntry = createServerFn({ method: 'POST' })
       .returning()
 
     return updated ?? null
+  })
+
+const moodInsightSchema = z.object({
+  entryCount: z.number().min(4).max(30).optional().default(14),
+})
+
+export const getMoodInsight = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])
+  .inputValidator((data: unknown) => moodInsightSchema.parse(data))
+  .handler(async ({ data }): Promise<MoodInsight | null> => {
+    const db = getDb()
+
+    const totalEntries = await db
+      .select({ count: count() })
+      .from(entries)
+      .then((result) => result[0]?.count ?? 0)
+
+    if (totalEntries < data.entryCount) return null
+
+    const recentEntries = await db.query.entries.findMany({
+      columns: { mood: true },
+      orderBy: [desc(entries.date)],
+      limit: data.entryCount,
+    })
+
+    const moods = recentEntries.map((e) => e.mood)
+    const halfIndex = Math.floor(moods.length / 2)
+
+    const recentHalf = moods.slice(0, halfIndex)
+    const olderHalf = moods.slice(halfIndex)
+
+    const recentAverage =
+      recentHalf.reduce((sum, m) => sum + m, 0) / recentHalf.length
+    const olderAverage =
+      olderHalf.reduce((sum, m) => sum + m, 0) / olderHalf.length
+    const totalAverage = moods.reduce((sum, m) => sum + m, 0) / moods.length
+
+    return {
+      trend: calculateTrend(recentAverage, olderAverage),
+      stability: calculateStability(moods),
+      average: totalAverage,
+      level: calculateMoodLevel(totalAverage),
+      entryCount: moods.length,
+    }
   })

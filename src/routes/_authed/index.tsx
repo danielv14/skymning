@@ -4,7 +4,7 @@ import {
   getTodayEntry,
   getMoodTrend,
   getStreak,
-  getRecentMoodAverage,
+  getMoodInsight,
   hasAnyEntries,
 } from '../../server/functions/entries'
 import { getLastWeekSummary } from '../../server/functions/weeklySummaries'
@@ -15,12 +15,12 @@ import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { AppHeader } from '../../components/ui/AppHeader'
 import { StreakCard } from '../../components/dashboard/StreakCard'
-import { RecentMoodCard } from '../../components/dashboard/RecentMoodCard'
+import { MoodInsightCard } from '../../components/dashboard/MoodInsightCard'
 import { TodayEntryCard } from '../../components/dashboard/TodayEntryCard'
 import { formatTime } from '../../utils/date'
 
 const HomePage = () => {
-  const { hasEntries, todayEntry, moodTrend, streak, recentMood, lastWeekSummary, chatPreview } = Route.useLoaderData()
+  const { hasEntries, todayEntry, moodTrend, streak, moodInsight, lastWeekSummary, chatPreview } = Route.useLoaderData()
 
   if (!hasEntries) {
     return <Welcome />
@@ -92,10 +92,9 @@ const HomePage = () => {
 
         <TodayEntryCard entry={todayEntry} hasChatPreview={!!chatPreview} />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <StreakCard streak={streak} />
-          {recentMood && <RecentMoodCard average={recentMood.average} />}
-        </div>
+        {moodInsight && <MoodInsightCard insight={moodInsight} />}
+
+        <StreakCard streak={streak} />
 
         {lastWeekSummary && (
           <Card>
@@ -132,13 +131,13 @@ export const Route = createFileRoute('/_authed/')({
     meta: [{ title: 'Skymning' }],
   }),
   loader: async () => {
-    const [hasEntries, todayEntry, moodTrend, streak, recentMood, lastWeekSummary, chatPreview] =
+    const [hasEntries, todayEntry, moodTrend, streak, moodInsight, lastWeekSummary, chatPreview] =
       await Promise.all([
         hasAnyEntries(),
         getTodayEntry(),
         getMoodTrend({ data: { limit: 30 } }),
         getStreak(),
-        getRecentMoodAverage({ data: { days: 7 } }),
+        getMoodInsight({ data: { entryCount: 14 } }),
         getLastWeekSummary(),
         getChatPreview(),
       ])
@@ -148,7 +147,7 @@ export const Route = createFileRoute('/_authed/')({
       todayEntry,
       moodTrend,
       streak,
-      recentMood,
+      moodInsight,
       lastWeekSummary,
       chatPreview,
     }
