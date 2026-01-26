@@ -48,8 +48,8 @@ export const ChatInputBar = ({
   }
 
   return (
-    <div className="shrink-0 px-4 sm:px-6 py-4">
-      <div className="max-w-2xl mx-auto bg-slate-800/60 border border-slate-700/50 backdrop-blur-sm rounded-2xl px-4 sm:px-5 py-4">
+    <div className="shrink-0 px-4 sm:px-6 py-4 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent">
+      <div className="max-w-2xl mx-auto bg-slate-800/50 border border-slate-700/40 backdrop-blur-md rounded-2xl px-4 sm:px-5 py-4 shadow-lg">
         <div className="relative">
           <Textarea
             ref={textareaRef}
@@ -66,16 +66,16 @@ export const ChatInputBar = ({
           <button
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
-            className="absolute right-4 bottom-4 w-9 h-9 flex items-center justify-center bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 rounded-full text-white transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:scale-110 active:scale-95 hover:shadow-lg hover:shadow-emerald-500/30"
+            className="absolute right-4 bottom-4 w-10 h-10 flex items-center justify-center bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 active:from-emerald-600 active:to-teal-700 rounded-full text-white transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer hover:scale-110 active:scale-95 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40"
           >
             <SendHorizontal className="w-4 h-4" />
           </button>
         </div>
         {canComplete && !isLoading && onComplete && (
-          <div className="flex justify-end mt-2">
+          <div className="flex justify-end mt-3">
             <button
               onClick={onComplete}
-              className="text-sm text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+              className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer font-medium"
             >
               Jag är klar – spara dagen
             </button>

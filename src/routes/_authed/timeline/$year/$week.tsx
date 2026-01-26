@@ -1,5 +1,8 @@
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
+import { useState } from 'react'
+import { getDay } from 'date-fns'
+import { ChevronLeft, ChevronRight, Home } from 'lucide-react'
 import { getEntriesForWeek } from '../../../../server/functions/entries'
 import {
   getWeeklySummary,
@@ -8,20 +11,17 @@ import {
   getCurrentWeek,
 } from '../../../../server/functions/weeklySummaries'
 import { generateWeeklySummary } from '../../../../server/ai'
-import { Card } from '../../../../components/ui/Card'
 import { AppHeader } from '../../../../components/ui/AppHeader'
 import { RegenerateConfirmModal } from '../../../../components/reflection/RegenerateConfirmModal'
-import { WeeklyEntryCard } from '../../../../components/timeline/WeeklyEntryCard'
+import { TimelineDayItem } from '../../../../components/timeline/TimelineDayItem'
 import { WeeklySummarySection } from '../../../../components/timeline/WeeklySummarySection'
-import { ChevronLeft, ChevronRight, Home } from 'lucide-react'
-import { useState } from 'react'
-import { getDay } from 'date-fns'
 import { getWeekMoodDescription } from '../../../../constants/mood'
-import { getAdjacentWeek } from '../../../../utils/isoWeek'
+import { getAdjacentWeek, getWeekDays } from '../../../../utils/isoWeek'
 import { getTodayDateString } from '../../../../utils/date'
+import '../../../../components/timeline/timeline.css'
 
 const TimelineWeekPage = () => {
-  const { year, week, entries, weeklySummary, averageMood } = Route.useLoaderData()
+  const { year, week, entries, weeklySummary, averageMood, weekDays } = Route.useLoaderData()
   const router = useRouter()
   const [isGenerating, setIsGenerating] = useState(false)
   const [isRegenerating, setIsRegenerating] = useState(false)
@@ -29,6 +29,9 @@ const TimelineWeekPage = () => {
 
   const currentWeek = getCurrentWeek()
   const isCurrentWeek = year === currentWeek.year && week === currentWeek.week
+
+  // Create a map of date -> entry for quick lookup
+  const entryMap = new Map(entries.map(e => [e.date, e]))
 
   const handleSummaryGeneration = async (isRegenerate: boolean) => {
     if (entries.length === 0) return
@@ -139,37 +142,32 @@ const TimelineWeekPage = () => {
           </div>
         </AppHeader>
 
-      <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 stagger-children">
+      <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8">
         <WeeklySummarySection
           summary={weeklySummary?.summary ?? null}
           hasEntries={entries.length > 0}
           moodDescription={moodDescription}
+          entryCount={entries.length}
+          averageMood={averageMood}
           onGenerate={handleGenerateSummary}
           onOpenRegenerateModal={() => setConfirmModalOpen(true)}
           isGenerating={isGenerating}
           isRegenerating={isRegenerating}
         />
 
-        {entries.length > 0 ? (
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-slate-200 px-1">Veckans dagar</h2>
-            <div className="space-y-4 stagger-children">
-              {entries.map((entry) => (
-                <WeeklyEntryCard key={entry.id} entry={entry} useRelativeDates={isCurrentWeek} />
-              ))}
-            </div>
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-slate-200 px-1">Veckans dagar</h2>
+          <div className="timeline-container space-y-3">
+            {weekDays.map((date) => (
+              <TimelineDayItem
+                key={date}
+                date={date}
+                entry={entryMap.get(date) ?? null}
+                useRelativeDates={isCurrentWeek}
+              />
+            ))}
           </div>
-        ) : (
-          <Card>
-            <div className="text-center py-12">
-              <div className="text-5xl mb-5 empty-state-icon">🌑</div>
-              <p className="text-slate-400 mb-2 text-lg">Inga reflektioner denna vecka</p>
-              <p className="text-slate-500">
-                Kom ihåg att ta en stund varje kväll för att reflektera
-              </p>
-            </div>
-          </Card>
-        )}
+        </div>
       </main>
     </div>
     </>
@@ -194,12 +192,15 @@ export const Route = createFileRoute('/_authed/timeline/$year/$week')({
       ? entries.reduce((sum, e) => sum + e.mood, 0) / entries.length
       : null
 
+    const weekDays = getWeekDays(year, week)
+
     return {
       year,
       week,
       entries,
       weeklySummary,
       averageMood,
+      weekDays,
     }
   },
   head: ({ params }) => ({

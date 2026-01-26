@@ -47,37 +47,48 @@ export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
   const dayLabels = ['M', 'T', 'O', 'T', 'F', 'L', 'S']
 
   return (
-    <div className="space-y-2">
-      <div className="flex gap-1 ml-12">
+    <div className="space-y-3">
+      {/* Day labels */}
+      <div className="flex gap-1.5 ml-12">
         {dayLabels.map((day, i) => (
-          <div key={i} className="w-8 h-4 text-xs text-slate-500 text-center">
+          <div key={i} className="w-8 h-4 text-xs text-slate-500 text-center font-medium">
             {day}
           </div>
         ))}
       </div>
 
-      <div className="space-y-1">
+      {/* Weeks grid */}
+      <div className="space-y-1.5">
         {weeks.map((week, weekIndex) => (
-          <div key={weekIndex} className="flex items-center gap-1">
-            <span className="w-10 text-xs text-slate-500 text-right pr-2">
+          <div key={weekIndex} className="flex items-center gap-1.5">
+            <span className="w-10 text-xs text-slate-500 text-right pr-2 font-medium tabular-nums">
               v{week.weekNum}
             </span>
             {week.days.map((day, dayIndex) => (
               <div
                 key={dayIndex}
-                className="w-8 h-8 rounded-md flex items-center justify-center relative group cursor-default"
+                className={`w-8 h-8 rounded-lg flex items-center justify-center relative group cursor-default transition-all duration-200 ${
+                  day ? 'hover:scale-110 hover:z-10' : ''
+                }`}
                 style={{
                   backgroundColor: day
                     ? MOOD_COLORS[day.mood]
-                    : 'rgba(51, 65, 85, 0.3)',
+                    : 'rgba(51, 65, 85, 0.2)',
+                  boxShadow: day
+                    ? `0 2px 8px -2px ${MOOD_COLORS[day.mood]}40`
+                    : 'none',
                 }}
               >
                 {day && (
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-800 rounded-lg text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 border border-slate-700">
-                    <p className="text-slate-400">
-                      {format(parseISO(day.date), 'd MMM', { locale: sv })}
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-2 bg-slate-900/95 backdrop-blur-sm rounded-xl text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-20 border border-slate-700/50 shadow-xl scale-95 group-hover:scale-100">
+                    <p className="text-slate-400 mb-0.5">
+                      {format(parseISO(day.date), 'd MMMM', { locale: sv })}
                     </p>
-                    <p className="text-white">{getMoodLabel(day.mood)}</p>
+                    <p className="text-white font-medium">{getMoodLabel(day.mood)}</p>
+                    {/* Arrow */}
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px">
+                      <div className="w-2 h-2 bg-slate-900/95 border-r border-b border-slate-700/50 rotate-45" />
+                    </div>
                   </div>
                 )}
               </div>
@@ -86,15 +97,21 @@ export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
         ))}
       </div>
 
-      <div className="flex items-center justify-center gap-2 pt-2">
+      {/* Legend */}
+      <div className="flex items-center justify-center gap-2 pt-3">
         <span className="text-xs text-slate-500">{MOODS[0].label}</span>
-        {MOODS.map(({ value, color }) => (
-          <div
-            key={value}
-            className="w-4 h-4 rounded-sm"
-            style={{ backgroundColor: color }}
-          />
-        ))}
+        <div className="flex gap-1">
+          {MOODS.map(({ value, color }) => (
+            <div
+              key={value}
+              className="w-4 h-4 rounded"
+              style={{
+                backgroundColor: color,
+                boxShadow: `0 1px 4px -1px ${color}50`,
+              }}
+            />
+          ))}
+        </div>
         <span className="text-xs text-slate-500">{MOODS[MOODS.length - 1].label}</span>
       </div>
     </div>

@@ -17,16 +17,16 @@ export const MoodSelector = ({ value, onChange }: MoodSelectorProps) => {
             key={moodValue}
             type="button"
             onClick={() => onChange(moodValue)}
-            className={`p-4 rounded-2xl transition-all duration-300 cursor-pointer ${
+            className={`relative p-4 rounded-2xl transition-all duration-300 cursor-pointer ${
               isSelected
-                ? 'scale-110 shadow-lg'
-                : 'hover:bg-slate-700/50 hover:scale-105 active:scale-95'
+                ? 'scale-110'
+                : 'hover:bg-slate-700/30 hover:scale-105 active:scale-95'
             }`}
             style={
               isSelected
                 ? {
-                    backgroundColor: `color-mix(in srgb, var(${cssVar}) 15%, transparent)`,
-                    boxShadow: `0 0 0 2px var(${cssVar}), 0 8px 24px -8px color-mix(in srgb, var(${cssVar}) 40%, transparent)`,
+                    backgroundColor: `color-mix(in srgb, var(${cssVar}) 18%, transparent)`,
+                    boxShadow: `0 0 0 2px var(${cssVar}), 0 8px 24px -6px color-mix(in srgb, var(${cssVar}) 40%, transparent)`,
                   }
                 : undefined
             }

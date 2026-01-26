@@ -20,7 +20,7 @@ export const MoodEmoji = ({
   const iconSizes = {
     sm: 18,
     md: 24,
-    lg: 28,
+    lg: 32,
   }
 
   if (showLabel) {
