@@ -8,6 +8,7 @@ import {
   isFuture,
   getDay,
 } from 'date-fns'
+import { sv } from 'date-fns/locale'
 
 export const getTodayDateString = (): string => {
   return format(new Date(), 'yyyy-MM-dd')
@@ -21,16 +22,6 @@ const PAST_DAY_NAMES: Record<number, string> = {
   4: 'i torsdags',
   5: 'i fredags',
   6: 'i lördags',
-}
-
-const FUTURE_DAY_NAMES: Record<number, string> = {
-  0: 'söndag',
-  1: 'måndag',
-  2: 'tisdag',
-  3: 'onsdag',
-  4: 'torsdag',
-  5: 'fredag',
-  6: 'lördag',
 }
 
 export const formatRelativeDay = (dateString: string): string => {
@@ -48,12 +39,11 @@ export const formatRelativeDay = (dateString: string): string => {
     return 'imorgon'
   }
 
-  const dayOfWeek = getDay(date)
-
   if (isFuture(date)) {
-    return FUTURE_DAY_NAMES[dayOfWeek]
+    return format(date, 'EEEE', { locale: sv })
   }
 
+  const dayOfWeek = getDay(date)
   return PAST_DAY_NAMES[dayOfWeek]
 }
 
