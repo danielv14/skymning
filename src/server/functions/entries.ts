@@ -25,6 +25,21 @@ export const getTodayEntry = createServerFn({ method: 'GET' })
     return entry ?? null
   })
 
+const getEntryForDateSchema = z.object({
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+})
+
+export const getEntryForDate = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])
+  .inputValidator((data: unknown) => getEntryForDateSchema.parse(data))
+  .handler(async ({ data }) => {
+    const db = getDb()
+    const entry = await db.query.entries.findFirst({
+      where: eq(entries.date, data.date),
+    })
+    return entry ?? null
+  })
+
 export const hasAnyEntries = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
   .handler(async () => {
@@ -51,6 +66,7 @@ export const getEntriesForWeek = createServerFn({ method: 'GET' })
 const createEntrySchema = z.object({
   mood: z.number().min(1).max(5),
   summary: z.string().min(1),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 })
 
 export const createEntry = createServerFn({ method: 'POST' })
@@ -58,27 +74,26 @@ export const createEntry = createServerFn({ method: 'POST' })
   .inputValidator((data: unknown) => createEntrySchema.parse(data))
   .handler(async ({ data }) => {
     const db = getDb()
-    const today = getTodayDateString()
+    const entryDate = data.date ?? getTodayDateString()
 
     const existingEntry = await db.query.entries.findFirst({
-      where: eq(entries.date, today),
+      where: eq(entries.date, entryDate),
     })
 
     if (existingEntry) {
-      return { error: 'Du har redan skapat en reflektion för idag' }
+      return { error: 'Du har redan skapat en reflektion för det datumet' }
     }
 
     const [entry] = await db
       .insert(entries)
       .values({
-        date: today,
+        date: entryDate,
         mood: data.mood,
         summary: data.summary,
       })
       .returning()
 
-    // Clear today's chat after saving the reflection
-    await db.delete(chatMessages).where(eq(chatMessages.date, today))
+    await db.delete(chatMessages).where(eq(chatMessages.date, entryDate))
 
     return entry
   })

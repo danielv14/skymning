@@ -2,11 +2,12 @@
  * Test utilities for Skymning
  *
  * Usage:
- *   bun scripts/test-utils.ts reset       - Clear all tables
- *   bun scripts/test-utils.ts seed        - Seed 4 weeks of reflections
- *   bun scripts/test-utils.ts reseed      - Reset + seed combined
- *   bun scripts/test-utils.ts clear-today - Clear today's entry
- *   bun scripts/test-utils.ts sync-prod   - Sync production D1 to local
+ *   bun scripts/test-utils.ts reset          - Clear all tables
+ *   bun scripts/test-utils.ts seed           - Seed 4 weeks of reflections
+ *   bun scripts/test-utils.ts reseed         - Reset + seed combined
+ *   bun scripts/test-utils.ts clear-today    - Clear today's entry
+ *   bun scripts/test-utils.ts sync-prod      - Sync production D1 to local
+ *   bun scripts/test-utils.ts seed-past-chat - Seed incomplete chat from yesterday
  *
  * NOTE: These commands run against local D1 database via wrangler.
  * For remote (production), add --remote flag in package.json scripts.
@@ -138,6 +139,32 @@ const seed = async () => {
   console.log('Seeding complete!')
 }
 
+const PAST_CHAT_MESSAGES = [
+  { role: 'user', content: 'Idag har varit en lång dag på jobbet. Mycket möten och lite tid för fokusarbete.' },
+  { role: 'assistant', content: 'Det låter som en intensiv dag! Hur känner du dig efter alla möten? Fick du ändå känslan av att ha åstadkommit något?' },
+  { role: 'user', content: 'Jo, faktiskt. Ett av mötena ledde till ett viktigt beslut som vi har skjutit upp länge.' },
+  { role: 'assistant', content: 'Vad bra att ni fick till det beslutet! Det måste kännas skönt. Är det något annat som ligger i tankarna inför kvällen?' },
+]
+
+const seedPastChat = async () => {
+  const yesterday = format(subDays(new Date(), 1), 'yyyy-MM-dd')
+  console.log(`Seeding incomplete chat from yesterday (${yesterday})...`)
+
+  await execSql('DELETE FROM chat_messages')
+
+  for (let i = 0; i < PAST_CHAT_MESSAGES.length; i++) {
+    const msg = PAST_CHAT_MESSAGES[i]
+    const createdAt = new Date().toISOString()
+    const escapedContent = msg.content.replace(/'/g, "''")
+    await execSql(
+      `INSERT INTO chat_messages (date, role, content, order_index, created_at) VALUES ('${yesterday}', '${msg.role}', '${escapedContent}', ${i}, '${createdAt}')`
+    )
+  }
+
+  console.log(`   ${PAST_CHAT_MESSAGES.length} chat messages created for ${yesterday}`)
+  console.log('Past chat seeded! Visit /reflect to see the recovery modal.')
+}
+
 const syncProd = async () => {
   const tempFile = '.prod-backup.sql'
   const filteredFile = '.prod-backup-filtered.sql'
@@ -214,15 +241,19 @@ switch (command) {
   case 'sync-prod':
     await syncProd()
     break
+  case 'seed-past-chat':
+    await seedPastChat()
+    break
   default:
     console.log(`
 Skymning Test Utilities
 
 Usage:
-  bun scripts/test-utils.ts reset       - Clear all tables
-  bun scripts/test-utils.ts seed        - Seed 4 weeks of reflections
-  bun scripts/test-utils.ts reseed      - Reset + seed combined
-  bun scripts/test-utils.ts clear-today - Clear today's entry (to test summaries)
-  bun scripts/test-utils.ts sync-prod   - Sync production D1 to local
+  bun scripts/test-utils.ts reset          - Clear all tables
+  bun scripts/test-utils.ts seed           - Seed 4 weeks of reflections
+  bun scripts/test-utils.ts reseed         - Reset + seed combined
+  bun scripts/test-utils.ts clear-today    - Clear today's entry (to test summaries)
+  bun scripts/test-utils.ts sync-prod      - Sync production D1 to local
+  bun scripts/test-utils.ts seed-past-chat - Seed incomplete chat from yesterday
 `)
 }

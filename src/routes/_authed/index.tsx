@@ -1,14 +1,15 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Calendar, User, MessageCircle } from 'lucide-react'
+import { Calendar, User, MessageCircle, Clock } from 'lucide-react'
 import {
   getTodayEntry,
   getMoodTrend,
   getStreak,
   getMoodInsight,
   hasAnyEntries,
+  getEntryForDate,
 } from '../../server/functions/entries'
 import { getLastWeekSummary } from '../../server/functions/weeklySummaries'
-import { getChatPreview } from '../../server/functions/chat'
+import { getChatPreview, getIncompletePastChat, clearPastChats } from '../../server/functions/chat'
 import { MOODS } from '../../constants'
 import { MoodTrend } from '../../components/mood/MoodTrend'
 import { Welcome } from '../../components/Welcome'
@@ -18,14 +19,14 @@ import { AppHeader } from '../../components/ui/AppHeader'
 import { StreakCard } from '../../components/dashboard/StreakCard'
 import { MoodInsightCard } from '../../components/dashboard/MoodInsightCard'
 import { TodayEntryCard } from '../../components/dashboard/TodayEntryCard'
-import { formatTime } from '../../utils/date'
+import { formatTime, formatRelativeDay } from '../../utils/date'
 
 const getMoodColor = (mood: number) => {
   return MOODS.find((m) => m.value === mood)?.color || '#64748b'
 }
 
 const HomePage = () => {
-  const { hasEntries, todayEntry, moodTrend, streak, moodInsight, lastWeekSummary, chatPreview } = Route.useLoaderData()
+  const { hasEntries, todayEntry, moodTrend, streak, moodInsight, lastWeekSummary, chatPreview, incompletePastChat } = Route.useLoaderData()
 
   if (!hasEntries) {
     return <Welcome />
@@ -95,6 +96,32 @@ const HomePage = () => {
             </Card>
         )}
 
+        {incompletePastChat && !todayEntry && (
+          <Card className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30">
+            <div className="flex items-start gap-3 sm:gap-4">
+              <div className="shrink-0 p-2.5 rounded-2xl bg-amber-500/20">
+                <Clock className="w-5 h-5 text-amber-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-2">
+                  <h3 className="font-semibold text-white">Osparad reflektion</h3>
+                  <span className="text-xs text-slate-400">
+                    från {formatRelativeDay(incompletePastChat.date)}
+                  </span>
+                </div>
+                <p className="text-sm text-slate-300 mb-3">
+                  Du har en ofullständig reflektion som aldrig sparades.
+                </p>
+                <Link to="/reflect">
+                  <Button variant="ghost" size="sm" className="w-full sm:w-auto bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white shadow-lg shadow-amber-500/20 hover:shadow-amber-500/30">
+                    Hantera
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </Card>
+        )}
+
         <TodayEntryCard entry={todayEntry} hasChatPreview={!!chatPreview} />
 
         <div className="bento-grid">
@@ -156,7 +183,7 @@ export const Route = createFileRoute('/_authed/')({
     meta: [{ title: 'Skymning' }],
   }),
   loader: async () => {
-    const [hasEntries, todayEntry, moodTrend, streak, moodInsight, lastWeekSummary, chatPreview] =
+    const [hasEntries, todayEntry, moodTrend, streak, moodInsight, lastWeekSummary, chatPreview, incompletePastChat] =
       await Promise.all([
         hasAnyEntries(),
         getTodayEntry(),
@@ -165,7 +192,17 @@ export const Route = createFileRoute('/_authed/')({
         getMoodInsight({ data: { entryCount: 14 } }),
         getLastWeekSummary(),
         getChatPreview(),
+        getIncompletePastChat(),
       ])
+
+    let validPastChat = incompletePastChat
+    if (incompletePastChat) {
+      const pastDateEntry = await getEntryForDate({ data: { date: incompletePastChat.date } })
+      if (pastDateEntry || todayEntry) {
+        await clearPastChats()
+        validPastChat = null
+      }
+    }
 
     return {
       hasEntries,
@@ -175,6 +212,7 @@ export const Route = createFileRoute('/_authed/')({
       moodInsight,
       lastWeekSummary,
       chatPreview,
+      incompletePastChat: validPastChat,
     }
   },
   component: HomePage,

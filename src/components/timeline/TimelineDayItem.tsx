@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { format, parseISO, isFuture } from 'date-fns'
+import { format, parseISO, isFuture, differenceInDays, startOfDay } from 'date-fns'
 import { sv } from 'date-fns/locale'
+import { Link } from '@tanstack/react-router'
 import { Pencil } from 'lucide-react'
 import type { Entry } from '../../server/db/schema'
 import { MOODS } from '../../constants'
@@ -24,10 +25,14 @@ const getMoodColor = (mood: number): string => {
   return MOODS.find(m => m.value === mood)?.color || '#64748b'
 }
 
+const MAX_DAYS_TO_FILL_IN = 5
+
 export const TimelineDayItem = ({ date, entry, useRelativeDates }: TimelineDayItemProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const parsedDate = parseISO(date)
   const isFutureDay = isFuture(parsedDate)
+  const daysAgo = differenceInDays(startOfDay(new Date()), startOfDay(parsedDate))
+  const canFillIn = !isFutureDay && daysAgo <= MAX_DAYS_TO_FILL_IN
   const dayAbbrev = format(parsedDate, 'EEEEE', { locale: sv }).toUpperCase()
 
   const formattedDate = useRelativeDates
@@ -81,6 +86,14 @@ export const TimelineDayItem = ({ date, entry, useRelativeDates }: TimelineDayIt
           <p className="text-sm text-slate-600 capitalize">{formattedDate}</p>
           {isFutureDay ? (
             <span className="text-xs text-slate-600">Kommande</span>
+          ) : canFillIn ? (
+            <Link
+              to="/quick"
+              search={{ date }}
+              className="text-xs text-emerald-500 hover:text-emerald-400 transition-colors"
+            >
+              Fyll i
+            </Link>
           ) : (
             <span className="text-xs text-slate-500">Ingen reflektion</span>
           )}
