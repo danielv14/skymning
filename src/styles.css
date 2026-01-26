@@ -148,7 +148,7 @@ body {
 }
 
 .flame-animate {
-  animation: flame-flicker 0.8s ease-in-out infinite;
+  animation: flame-flicker 0.8s ease-in-out 5;
   transform-origin: bottom center;
 }
 
