@@ -6,6 +6,7 @@ import {
   isYesterday,
   isTomorrow,
   isFuture,
+  isThisWeek,
   getDay,
 } from 'date-fns'
 import { sv } from 'date-fns/locale'
@@ -37,6 +38,11 @@ export const formatRelativeDay = (dateString: string): string => {
 
   if (isTomorrow(date)) {
     return 'imorgon'
+  }
+
+  // Only use relative day names for current week
+  if (!isThisWeek(date, { weekStartsOn: 1 })) {
+    return format(date, 'EEE d MMM', { locale: sv })
   }
 
   if (isFuture(date)) {
