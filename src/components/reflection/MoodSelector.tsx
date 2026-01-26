@@ -8,7 +8,7 @@ type MoodSelectorProps = {
 
 export const MoodSelector = ({ value, onChange }: MoodSelectorProps) => {
   return (
-    <div className="flex justify-around py-4">
+    <div className="flex justify-between">
       {MOODS.map(({ value: moodValue, name }) => {
         const cssVar = `--color-mood-${name}`
         const isSelected = value === moodValue
@@ -17,7 +17,7 @@ export const MoodSelector = ({ value, onChange }: MoodSelectorProps) => {
             key={moodValue}
             type="button"
             onClick={() => onChange(moodValue)}
-            className={`relative p-4 rounded-2xl transition-all duration-300 cursor-pointer ${
+            className={`relative p-3 rounded-2xl transition-all duration-300 cursor-pointer ${
               isSelected
                 ? 'scale-110'
                 : 'hover:bg-slate-700/30 hover:scale-105 active:scale-95'
