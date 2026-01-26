@@ -36,8 +36,8 @@ const HomePage = () => {
       <AppHeader>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white">Skymning</h1>
-            <p className="text-slate-300 mt-1">Din dagliga reflektion</p>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">Skymning</h1>
+            <p className="text-slate-400 mt-1 text-sm sm:text-base">Din dagliga reflektion</p>
           </div>
           <nav className="flex gap-2 sm:gap-3">
             <Link
@@ -60,64 +60,74 @@ const HomePage = () => {
         </div>
       </AppHeader>
 
-      <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 stagger-children">
+      <main className="max-w-2xl mx-auto p-4 sm:p-8 space-y-4 sm:space-y-5 stagger-children">
         {chatPreview && !todayEntry && (
           <Card className="bg-gradient-to-r from-cyan-500/10 to-teal-500/10 border-cyan-500/30">
-            <div className="flex items-start gap-3 sm:gap-4">
-              <div className="shrink-0 p-2 rounded-full bg-cyan-500/20">
-                <MessageCircle className="w-5 h-5 text-cyan-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-2">
-                  <h3 className="font-semibold text-white">Pågående reflektion</h3>
-                  <span className="text-xs text-slate-400">
-                    {chatPreview.messageCount} {chatPreview.messageCount === 1 ? 'meddelande' : 'meddelanden'}
-                    {chatPreview.lastMessage && ` · ${formatTime(chatPreview.lastMessage.createdAt)}`}
-                  </span>
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="shrink-0 p-2.5 rounded-2xl bg-cyan-500/20">
+                  <MessageCircle className="w-5 h-5 text-cyan-400" />
                 </div>
-                {chatPreview.lastMessage && (
-                  <p className="text-sm text-slate-300 mb-3 line-clamp-2">
-                    {truncateMessage(chatPreview.lastMessage.content, 120)}
-                  </p>
-                )}
-                <Link to="/reflect">
-                  <Button size="sm" className="w-full sm:w-auto">
-                    Fortsätt chatta
-                  </Button>
-                </Link>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-2">
+                    <h3 className="font-semibold text-white">Pågående reflektion</h3>
+                    <span className="text-xs text-slate-400">
+                      {chatPreview.messageCount} {chatPreview.messageCount === 1 ? 'meddelande' : 'meddelanden'}
+                      {chatPreview.lastMessage && ` · ${formatTime(chatPreview.lastMessage.createdAt)}`}
+                    </span>
+                  </div>
+                  {chatPreview.lastMessage && (
+                    <p className="text-sm text-slate-300 mb-3 line-clamp-2">
+                      {truncateMessage(chatPreview.lastMessage.content, 120)}
+                    </p>
+                  )}
+                  <Link to="/reflect">
+                    <Button size="sm" className="w-full sm:w-auto">
+                      Fortsätt chatta
+                    </Button>
+                  </Link>
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
         )}
 
         <TodayEntryCard entry={todayEntry} hasChatPreview={!!chatPreview} />
 
-        {moodInsight && <MoodInsightCard insight={moodInsight} />}
+        <div className="bento-grid">
+          <div className="bento-half">
+            <StreakCard streak={streak} />
+          </div>
 
-        <StreakCard streak={streak} />
-
-        {lastWeekSummary && (
-          <Card>
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium text-slate-400">Förra veckan</h3>
-              <Link
-                to="/timeline/$year/$week"
-                params={{
-                  year: String(lastWeekSummary.year),
-                  week: String(lastWeekSummary.week),
-                }}
-                className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors"
-              >
-                Se hela veckan →
-              </Link>
+          {moodInsight && (
+            <div className="bento-half">
+              <MoodInsightCard insight={moodInsight} />
             </div>
-            <p className="text-slate-300 line-clamp-3">{lastWeekSummary.summary}</p>
-          </Card>
-        )}
+          )}
+
+          {lastWeekSummary && (
+            <div className="bento-full">
+              <Card>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-medium text-slate-400 uppercase tracking-wider">Förra veckan</h3>
+                  <Link
+                    to="/timeline/$year/$week"
+                    params={{
+                      year: String(lastWeekSummary.year),
+                      week: String(lastWeekSummary.week),
+                    }}
+                    className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors link-animated"
+                  >
+                    Se hela veckan →
+                  </Link>
+                </div>
+                <p className="text-slate-300 leading-relaxed line-clamp-3">{lastWeekSummary.summary}</p>
+              </Card>
+            </div>
+          )}
+        </div>
 
         {moodTrend.length > 0 && (
           <Card>
-            <h2 className="text-lg font-semibold text-white mb-4">Hur du har mått</h2>
+            <h2 className="text-lg font-semibold text-white mb-5">Hur du har mått</h2>
             <MoodTrend data={moodTrend} />
           </Card>
         )}

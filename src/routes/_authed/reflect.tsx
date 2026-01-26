@@ -212,13 +212,19 @@ const ReflectPage = () => {
         <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
           <div className="max-w-2xl mx-auto px-6 sm:px-8 py-6 space-y-5">
             {messages.length === 0 && !isLoading && (
-              <div className="text-center py-20">
-                <div className="text-6xl mb-6 empty-state-icon">🌙</div>
-                <p className="text-stone-200 text-xl mb-3">
-                  Hej! Hur har din dag varit?
-                </p>
-                <p className="text-stone-500">
-                  Berätta vad du har gjort eller hur du mår
+              <div className="text-center py-16 sm:py-20">
+                <div className="relative inline-block mb-8">
+                  {/* Glow behind moon */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/20 to-violet-400/20 rounded-full blur-2xl scale-150" />
+                  <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/50 flex items-center justify-center empty-state-icon shadow-xl">
+                    <span className="text-4xl">🌙</span>
+                  </div>
+                </div>
+                <h2 className="text-stone-100 text-2xl sm:text-3xl font-semibold mb-3">
+                  Hur har din dag varit?
+                </h2>
+                <p className="text-slate-400 text-base sm:text-lg max-w-sm mx-auto leading-relaxed">
+                  Berätta vad du har gjort, hur du mår, eller vad som ligger i tankarna
                 </p>
               </div>
             )}

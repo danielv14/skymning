@@ -140,6 +140,7 @@ const seed = async () => {
 
 const syncProd = async () => {
   const tempFile = '.prod-backup.sql'
+  const filteredFile = '.prod-backup-filtered.sql'
 
   console.log('Exporting production database...')
   try {
@@ -157,19 +158,34 @@ const syncProd = async () => {
 
   const sqlContent = await file(tempFile).text()
   const rowCounts = {
-    entries: (sqlContent.match(/INSERT INTO entries/g) || []).length,
-    weeklySummaries: (sqlContent.match(/INSERT INTO weekly_summaries/g) || []).length,
-    userContext: (sqlContent.match(/INSERT INTO user_context/g) || []).length,
-    chatMessages: (sqlContent.match(/INSERT INTO chat_messages/g) || []).length,
+    entries: (sqlContent.match(/INSERT INTO "entries"/g) || []).length,
+    weeklySummaries: (sqlContent.match(/INSERT INTO "weekly_summaries"/g) || []).length,
+    userContext: (sqlContent.match(/INSERT INTO "user_context"/g) || []).length,
+    chatMessages: (sqlContent.match(/INSERT INTO "chat_messages"/g) || []).length,
   }
+
+  // Filter to only keep INSERT statements for app tables (not migrations or sqlite internals)
+  const statements = sqlContent.split(';').map(s => s.trim()).filter(Boolean)
+  const filteredStatements = statements.filter(stmt => {
+    const upper = stmt.toUpperCase()
+    // Only keep INSERT statements, excluding internal sqlite tables and migrations
+    if (!upper.startsWith('INSERT INTO')) return false
+    if (upper.includes('SQLITE_SEQUENCE')) return false
+    if (upper.includes('__DRIZZLE_MIGRATIONS')) return false
+    return true
+  })
+
+  const filteredSql = filteredStatements.join(';\n') + ';'
+  await Bun.write(filteredFile, filteredSql)
 
   console.log('Clearing local database...')
   await reset()
 
   console.log('Importing to local database...')
-  await $`bunx wrangler d1 execute skymning-db --local --file=${tempFile}`.quiet()
+  await $`bunx wrangler d1 execute skymning-db --local --file=${filteredFile}`.quiet()
 
   unlinkSync(tempFile)
+  unlinkSync(filteredFile)
 
   console.log('Sync complete!')
   console.log(`   ${rowCounts.entries} entries`)

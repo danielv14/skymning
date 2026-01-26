@@ -25,13 +25,13 @@ export const PageHeader = ({
             {backIcon || <ArrowLeft className="w-5 h-5 text-slate-300" />}
           </button>
         </Link>
-        <div className="flex-1">
-          <h1 className="text-lg font-semibold text-white">{title}</h1>
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl font-semibold text-white tracking-tight">{title}</h1>
           {subtitle && (
             <p className="text-sm text-slate-400 mt-0.5">{subtitle}</p>
           )}
         </div>
-        {rightContent && <div>{rightContent}</div>}
+        {rightContent && <div className="shrink-0">{rightContent}</div>}
       </div>
     </AppHeader>
   )

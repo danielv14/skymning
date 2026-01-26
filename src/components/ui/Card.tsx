@@ -1,3 +1,5 @@
+import './card.css'
+
 type CardProps = {
   children: React.ReactNode
   className?: string
@@ -13,9 +15,9 @@ export const Card = ({
   interactive = false,
   style,
 }: CardProps) => {
-  const baseStyles = 'rounded-3xl p-6 sm:p-8 border border-slate-700/40 backdrop-blur-md'
-  const bgStyle = gradient ? 'bg-night-subtle' : 'bg-slate-800/60'
-  const interactiveStyle = interactive ? 'card-interactive cursor-pointer' : ''
+  const baseStyles = 'relative rounded-3xl p-5 sm:p-6 border border-slate-700/30 backdrop-blur-md'
+  const bgStyle = gradient ? 'bg-slate-800/40' : 'bg-slate-800/50'
+  const interactiveStyle = interactive ? 'cursor-pointer hover:border-slate-600/50 hover:bg-slate-800/60 transition-colors' : ''
 
   return (
     <div
