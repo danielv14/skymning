@@ -12,12 +12,65 @@ export const getTodayChat = createServerFn({ method: 'GET' })
     const db = getDb()
     const today = getTodayDateString()
 
-    // Auto-clear incomplete chats from previous days (not today's)
-    // This ensures users start fresh if they didn't finish yesterday's reflection
-    await db.delete(chatMessages).where(lt(chatMessages.date, today))
-
     const messages = await db.query.chatMessages.findMany({
       where: eq(chatMessages.date, today),
+      orderBy: [asc(chatMessages.orderIndex)],
+    })
+
+    return messages
+  })
+
+export const getIncompletePastChat = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])
+  .handler(async () => {
+    const db = getDb()
+    const today = getTodayDateString()
+
+    const pastMessages = await db.query.chatMessages.findMany({
+      where: lt(chatMessages.date, today),
+      orderBy: [desc(chatMessages.date), asc(chatMessages.orderIndex)],
+    })
+
+    if (pastMessages.length === 0) {
+      return null
+    }
+
+    const date = pastMessages[0].date
+    const messagesForDate = pastMessages.filter((m) => m.date === date)
+
+    return {
+      date,
+      messages: messagesForDate.map((m) => ({
+        role: m.role as 'user' | 'assistant',
+        content: m.content,
+      })),
+      messageCount: messagesForDate.length,
+    }
+  })
+
+export const clearPastChats = createServerFn({ method: 'POST' })
+  .middleware([authMiddleware])
+  .handler(async () => {
+    const db = getDb()
+    const today = getTodayDateString()
+
+    await db.delete(chatMessages).where(lt(chatMessages.date, today))
+
+    return { success: true }
+  })
+
+const getChatForDateSchema = z.object({
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+})
+
+export const getChatForDate = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])
+  .inputValidator((data: unknown) => getChatForDateSchema.parse(data))
+  .handler(async ({ data }) => {
+    const db = getDb()
+
+    const messages = await db.query.chatMessages.findMany({
+      where: eq(chatMessages.date, data.date),
       orderBy: [asc(chatMessages.orderIndex)],
     })
 
@@ -54,6 +107,7 @@ export const getChatPreview = createServerFn({ method: 'GET' })
 const saveChatMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
   content: z.string().min(1).max(10000),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 })
 
 export const saveChatMessage = createServerFn({ method: 'POST' })
@@ -61,10 +115,10 @@ export const saveChatMessage = createServerFn({ method: 'POST' })
   .inputValidator((data: unknown) => saveChatMessageSchema.parse(data))
   .handler(async ({ data }) => {
     const db = getDb()
-    const today = getTodayDateString()
+    const messageDate = data.date ?? getTodayDateString()
 
     const existingMessages = await db.query.chatMessages.findMany({
-      where: eq(chatMessages.date, today),
+      where: eq(chatMessages.date, messageDate),
       columns: { id: true },
     })
     const orderIndex = existingMessages.length
@@ -72,7 +126,7 @@ export const saveChatMessage = createServerFn({ method: 'POST' })
     const [message] = await db
       .insert(chatMessages)
       .values({
-        date: today,
+        date: messageDate,
         role: data.role,
         content: data.content,
         orderIndex,
