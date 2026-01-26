@@ -18,12 +18,12 @@ const RootComponent = () => {
         <Outlet />
         <Toaster
           position="bottom-right"
-          richColors
           toastOptions={{
-            style: {
-              background: '#0f172a',
-              border: '1px solid #1e3a4a',
-              color: '#f1f5f9',
+            unstyled: true,
+            classNames: {
+              toast: 'toast-base',
+              title: 'toast-title',
+              description: 'toast-description',
             },
           }}
         />

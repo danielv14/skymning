@@ -46,7 +46,8 @@
 }
 
 .timeline-dot.empty {
-  opacity: 0.5;
+  background: #0f172a;
+  border-color: #334155;
 }
 
 @keyframes timeline-slide-in {
