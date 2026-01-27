@@ -240,7 +240,7 @@ const ReflectPage = () => {
         variant="danger"
         onConfirm={handleRestartChat}
       />
-      <div className="h-dvh flex flex-col bg-slate-950 overflow-hidden">
+      <div className="h-dvh flex flex-col bg-slate-950 overflow-hidden relative">
         <PageHeader
           title="Dagens reflektion"
           subtitle="Ta en stund att reflektera"
@@ -260,7 +260,7 @@ const ReflectPage = () => {
         />
 
         <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
-          <div className="max-w-2xl mx-auto px-6 sm:px-8 py-6 space-y-5">
+          <div className="max-w-2xl mx-auto px-6 sm:px-8 pt-6 pb-44 space-y-5">
             {messages.length === 0 && !isLoading && (
               <div className="text-center py-16 sm:py-20">
                 <div className="relative inline-block mb-8">
