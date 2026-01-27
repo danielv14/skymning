@@ -240,7 +240,7 @@ const ReflectPage = () => {
         variant="danger"
         onConfirm={handleRestartChat}
       />
-      <div className="h-screen flex flex-col bg-slate-950 overflow-hidden">
+      <div className="h-dvh flex flex-col bg-slate-950 overflow-hidden">
         <PageHeader
           title="Dagens reflektion"
           subtitle="Ta en stund att reflektera"
