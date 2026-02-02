@@ -57,9 +57,9 @@ export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
         ))}
       </div>
 
-      {/* Weeks grid */}
+      {/* Weeks grid - reversed so current week appears at top */}
       <div className="space-y-1.5">
-        {weeks.map((week, weekIndex) => (
+        {[...weeks].reverse().map((week, weekIndex) => (
           <div key={weekIndex} className="flex items-center gap-1.5">
             <span className="w-10 text-xs text-slate-500 text-right pr-2 font-medium tabular-nums">
               v{week.weekNum}
