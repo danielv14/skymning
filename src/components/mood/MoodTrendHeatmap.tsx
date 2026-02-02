@@ -1,5 +1,19 @@
-import { format, parseISO, startOfISOWeek, getISOWeek } from 'date-fns'
+import { useState } from 'react'
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  addDays,
+  addMonths,
+  subMonths,
+  isSameMonth,
+  isToday,
+  isFuture,
+} from 'date-fns'
 import { sv } from 'date-fns/locale'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { MOOD_COLORS, getMoodLabel } from '../../constants'
 import type { TrendData } from './MoodTrend'
 
@@ -8,95 +22,146 @@ type MoodTrendHeatmapProps = {
 }
 
 export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
+  const [currentMonth, setCurrentMonth] = useState(new Date())
   const dataByDate = new Map(data.map((d) => [d.date, d.mood]))
 
-  const dates = data.map((d) => parseISO(d.date))
-  const minDate = new Date(Math.min(...dates.map((d) => d.getTime())))
-  const maxDate = new Date(Math.max(...dates.map((d) => d.getTime())))
+  const monthStart = startOfMonth(currentMonth)
+  const monthEnd = endOfMonth(currentMonth)
+  const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 })
+  const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 })
 
-  const weeks: { weekNum: number; year: number; days: (TrendData | null)[] }[] =
-    []
+  const weeks: Date[][] = []
+  let currentDate = calendarStart
 
-  const currentDate = startOfISOWeek(minDate)
-  const endDate = new Date(maxDate)
-  endDate.setDate(endDate.getDate() + 7)
-
-  while (currentDate <= endDate) {
-    const weekNum = getISOWeek(currentDate)
-    const year = currentDate.getFullYear()
-    const days: (TrendData | null)[] = []
-
+  while (currentDate <= calendarEnd) {
+    const week: Date[] = []
     for (let i = 0; i < 7; i++) {
-      const dateStr = format(currentDate, 'yyyy-MM-dd')
-      const mood = dataByDate.get(dateStr)
-
-      if (mood !== undefined) {
-        days.push({ date: dateStr, mood })
-      } else {
-        days.push(null)
-      }
-
-      currentDate.setDate(currentDate.getDate() + 1)
+      week.push(currentDate)
+      currentDate = addDays(currentDate, 1)
     }
-
-    if (days.some((d) => d !== null)) {
-      weeks.push({ weekNum, year, days })
-    }
+    weeks.push(week)
   }
 
-  const dayLabels = ['M', 'T', 'O', 'T', 'F', 'L', 'S']
+  const goToPreviousMonth = () => setCurrentMonth(subMonths(currentMonth, 1))
+  const goToNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1))
+  const goToToday = () => setCurrentMonth(new Date())
+
+  const canGoNext = !isSameMonth(currentMonth, new Date())
+
+  const dayLabels = ['Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör', 'Sön']
 
   return (
-    <div className="space-y-3">
-      {/* Day labels */}
-      <div className="flex gap-1.5 ml-12">
-        {dayLabels.map((day, i) => (
-          <div key={i} className="w-8 h-4 text-xs text-slate-500 text-center font-medium">
-            {day}
-          </div>
-        ))}
+    <div className="space-y-4">
+      {/* Month header with navigation */}
+      <div className="flex items-center justify-between">
+        <button
+          onClick={goToPreviousMonth}
+          className="p-1.5 rounded-lg hover:bg-slate-700/50 text-slate-400 hover:text-white transition-colors"
+          aria-label="Föregående månad"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+
+        <button
+          onClick={goToToday}
+          className="text-lg font-semibold text-white capitalize hover:text-emerald-400 transition-colors"
+        >
+          {format(currentMonth, 'MMMM yyyy', { locale: sv })}
+        </button>
+
+        <button
+          onClick={goToNextMonth}
+          disabled={!canGoNext}
+          className={`p-1.5 rounded-lg transition-colors ${
+            canGoNext
+              ? 'hover:bg-slate-700/50 text-slate-400 hover:text-white'
+              : 'text-slate-700 cursor-not-allowed'
+          }`}
+          aria-label="Nästa månad"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
       </div>
 
-      {/* Weeks grid - reversed so current week appears at top */}
-      <div className="space-y-1.5">
-        {[...weeks].reverse().map((week, weekIndex) => (
-          <div key={weekIndex} className="flex items-center gap-1.5">
-            <span className="w-10 text-xs text-slate-500 text-right pr-2 font-medium tabular-nums">
-              v{week.weekNum}
-            </span>
-            {week.days.map((day, dayIndex) => (
-              <div
-                key={dayIndex}
-                className={`w-8 h-8 rounded-lg flex items-center justify-center relative group cursor-default transition-all duration-200 ${
-                  day ? 'hover:scale-110 hover:z-10' : ''
-                }`}
-                style={{
-                  backgroundColor: day
-                    ? MOOD_COLORS[day.mood]
-                    : 'rgba(51, 65, 85, 0.2)',
-                  boxShadow: day
-                    ? `0 2px 8px -2px ${MOOD_COLORS[day.mood]}40`
-                    : 'none',
-                }}
-              >
-                {day && (
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 px-3 py-2 bg-slate-900/95 backdrop-blur-sm rounded-xl text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-20 border border-slate-700/50 shadow-xl scale-95 group-hover:scale-100">
-                    <p className="text-slate-400 mb-0.5">
-                      {format(parseISO(day.date), 'd MMMM', { locale: sv })}
-                    </p>
-                    <p className="text-white font-medium">{getMoodLabel(day.mood)}</p>
-                    {/* Arrow */}
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px">
-                      <div className="w-2 h-2 bg-slate-900/95 border-r border-b border-slate-700/50 rotate-45" />
-                    </div>
+      {/* Calendar grid */}
+      <div>
+        {/* Day labels */}
+        <div className="grid grid-cols-7 mb-2">
+          {dayLabels.map((day) => (
+            <div
+              key={day}
+              className="text-xs text-slate-500 text-center font-medium py-1"
+            >
+              {day}
+            </div>
+          ))}
+        </div>
+
+        {/* Weeks */}
+        <div className="grid gap-1">
+          {weeks.map((week, weekIndex) => (
+            <div key={weekIndex} className="grid grid-cols-7 gap-1">
+              {week.map((day) => {
+                const dateStr = format(day, 'yyyy-MM-dd')
+                const mood = dataByDate.get(dateStr)
+                const isCurrentMonth = isSameMonth(day, currentMonth)
+                const isDayToday = isToday(day)
+                const isDayFuture = isFuture(day)
+
+                return (
+                  <div
+                    key={dateStr}
+                    className={`aspect-square rounded-lg flex items-center justify-center relative group cursor-default transition-all duration-200 ${
+                      mood && isCurrentMonth ? 'hover:scale-105 hover:z-10' : ''
+                    }`}
+                    style={{
+                      backgroundColor:
+                        mood && isCurrentMonth
+                          ? MOOD_COLORS[mood]
+                          : isCurrentMonth && !isDayFuture
+                            ? 'rgba(51, 65, 85, 0.3)'
+                            : 'transparent',
+                      boxShadow:
+                        mood && isCurrentMonth
+                          ? `0 2px 8px -2px ${MOOD_COLORS[mood]}40`
+                          : 'none',
+                    }}
+                  >
+                    <span
+                      className={`text-sm font-medium ${
+                        !isCurrentMonth
+                          ? 'text-slate-700'
+                          : isDayFuture
+                            ? 'text-slate-600'
+                            : mood
+                              ? 'text-white/90'
+                              : 'text-slate-400'
+                      } ${isDayToday ? 'underline underline-offset-2' : ''}`}
+                    >
+                      {format(day, 'd')}
+                    </span>
+
+                    {/* Tooltip */}
+                    {mood && isCurrentMonth && (
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-slate-900/95 backdrop-blur-sm rounded-xl text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-20 border border-slate-700/50 shadow-xl scale-95 group-hover:scale-100">
+                        <p className="text-slate-400 mb-0.5">
+                          {format(day, 'd MMMM', { locale: sv })}
+                        </p>
+                        <p className="text-white font-medium">
+                          {getMoodLabel(mood)}
+                        </p>
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px">
+                          <div className="w-2 h-2 bg-slate-900/95 border-r border-b border-slate-700/50 rotate-45" />
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
-        ))}
+                )
+              })}
+            </div>
+          ))}
+        </div>
       </div>
-
     </div>
   )
 }
