@@ -114,7 +114,7 @@ export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
             <MoodEmoji mood={Math.round(stats.average)} size="md" showLabel={false} />
             <div>
               <p className="text-white font-medium text-sm">{getPeriodMoodDescription(stats.average)}</p>
-              <p className="text-slate-500 text-xs">{stats.totalDays} dagar loggade</p>
+              <p className="text-slate-500 text-xs">{stats.totalDays} {stats.totalDays === 1 ? 'dag loggad' : 'dagar loggade'}</p>
             </div>
           </div>
 
