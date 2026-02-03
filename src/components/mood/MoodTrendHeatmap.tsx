@@ -223,7 +223,7 @@ export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
             )}
             {stats.toughDays > 0 && (
               <span className="text-slate-400">
-                <span className="text-violet-400 font-medium">{stats.toughDays}</span> tuffa {stats.toughDays === 1 ? 'dag' : 'dagar'}
+                <span className="text-violet-400 font-medium">{stats.toughDays}</span> {stats.toughDays === 1 ? 'tuff dag' : 'tuffa dagar'}
               </span>
             )}
           </div>
