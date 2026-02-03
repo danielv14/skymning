@@ -10,7 +10,6 @@ import {
 } from '../../server/functions/entries'
 import { getLastWeekSummary } from '../../server/functions/weeklySummaries'
 import { getChatPreview, getIncompletePastChat, clearPastChats } from '../../server/functions/chat'
-import { MOODS } from '../../constants'
 import { MoodTrend } from '../../components/mood/MoodTrend'
 import { Welcome } from '../../components/Welcome'
 import { Button } from '../../components/ui/Button'
@@ -20,10 +19,6 @@ import { StreakCard } from '../../components/dashboard/StreakCard'
 import { MoodInsightCard } from '../../components/dashboard/MoodInsightCard'
 import { TodayEntryCard } from '../../components/dashboard/TodayEntryCard'
 import { formatTime, formatRelativeDay } from '../../utils/date'
-
-const getMoodColor = (mood: number) => {
-  return MOODS.find((m) => m.value === mood)?.color || '#64748b'
-}
 
 const HomePage = () => {
   const { hasEntries, todayEntry, moodTrend, streak, moodInsight, lastWeekSummary, chatPreview, incompletePastChat } = Route.useLoaderData()
@@ -157,22 +152,11 @@ const HomePage = () => {
           )}
         </div>
 
-        {moodTrend.length > 0 && (() => {
-          const average = moodTrend.reduce((sum, d) => sum + d.mood, 0) / moodTrend.length
-          const moodColor = getMoodColor(Math.round(average))
-          return (
-            <Card
-              className="relative overflow-hidden"
-              style={{
-                borderColor: `color-mix(in srgb, ${moodColor} 25%, transparent)`,
-                background: `linear-gradient(135deg, color-mix(in srgb, ${moodColor} 6%, transparent) 0%, rgba(30, 41, 59, 0.5) 100%)`,
-              }}
-            >
-              <h2 className="text-lg font-semibold text-white mb-5">Hur du har mått</h2>
-              <MoodTrend data={moodTrend} />
-            </Card>
-          )
-        })()}
+        {moodTrend.length > 0 && (
+          <Card>
+            <MoodTrend data={moodTrend} />
+          </Card>
+        )}
       </main>
     </div>
   )
