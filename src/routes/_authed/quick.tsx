@@ -108,7 +108,7 @@ const QuickPage = () => {
             onClick={() => router.navigate({ to: '/reflect' })}
             className="w-full sm:w-auto"
           >
-            Prata med AI istället
+            Chatta istället
           </Button>
           <Button
             onClick={handleSave}
