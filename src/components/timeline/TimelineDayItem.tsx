@@ -8,6 +8,7 @@ import { MOODS } from '../../constants'
 import { Card } from '../ui/Card'
 import { MoodEmoji } from '../mood/MoodEmoji'
 import { EditReflectionModal } from '../reflection/EditReflectionModal'
+import { ExpandableText } from '../ui/ExpandableText'
 import { formatRelativeDay } from '../../utils/date'
 
 type TimelineDayItemProps = {
@@ -63,7 +64,9 @@ export const TimelineDayItem = ({ date, entry, useRelativeDates }: TimelineDayIt
                 <MoodEmoji mood={entry.mood} size="md" layout="horizontal" />
               </div>
             </div>
-            <p className="text-slate-300 leading-relaxed">{entry.summary}</p>
+            <ExpandableText lines={3} className="text-slate-300 leading-relaxed">
+              {entry.summary}
+            </ExpandableText>
           </Card>
         </div>
 

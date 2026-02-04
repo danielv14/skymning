@@ -1,6 +1,7 @@
 import { RotateCw } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
+import { ExpandableText } from '../ui/ExpandableText'
 import { MoodEmoji } from '../mood/MoodEmoji'
 
 type WeeklySummarySectionProps = {
@@ -53,7 +54,9 @@ export const WeeklySummarySection = ({
             </div>
           )}
         </div>
-        <p className="text-slate-300 leading-relaxed">{summary}</p>
+        <ExpandableText lines={4} className="text-slate-300 leading-relaxed">
+          {summary}
+        </ExpandableText>
       </Card>
     )
   }
