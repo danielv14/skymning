@@ -35,7 +35,7 @@ const QuickPage = () => {
         data: {
           mood: selectedMood,
           summary: summary.trim(),
-          date: targetDate,
+          ...(targetDate && { date: targetDate }),
         },
       })
       await clearPastChats()
