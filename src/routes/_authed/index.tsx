@@ -153,9 +153,11 @@ const HomePage = () => {
         </div>
 
         {moodTrend.length > 0 && (
-          <Card>
-            <MoodTrend data={moodTrend} />
-          </Card>
+          <div className="sm:max-w-sm">
+            <Card>
+              <MoodTrend data={moodTrend} />
+            </Card>
+          </div>
         )}
       </main>
     </div>

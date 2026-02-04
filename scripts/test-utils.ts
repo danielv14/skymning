@@ -191,19 +191,9 @@ const syncProd = async () => {
     chatMessages: (sqlContent.match(/INSERT INTO "chat_messages"/g) || []).length,
   }
 
-  // Filter to only keep INSERT statements for app tables (not migrations or sqlite internals)
-  const statements = sqlContent.split(';').map(s => s.trim()).filter(Boolean)
-  const filteredStatements = statements.filter(stmt => {
-    const upper = stmt.toUpperCase()
-    // Only keep INSERT statements, excluding internal sqlite tables and migrations
-    if (!upper.startsWith('INSERT INTO')) return false
-    if (upper.includes('SQLITE_SEQUENCE')) return false
-    if (upper.includes('__DRIZZLE_MIGRATIONS')) return false
-    return true
-  })
-
-  const filteredSql = filteredStatements.join(';\n') + ';'
-  await Bun.write(filteredFile, filteredSql)
+  // Use grep to filter - keep only INSERT statements for app tables
+  // grep returns exit code 1 if no matches, so we use || true to handle empty results
+  await $`grep -E "INSERT INTO \"(entries|weekly_summaries|user_context|chat_messages)\"" ${tempFile} > ${filteredFile} || true`
 
   console.log('Clearing local database...')
   await reset()
