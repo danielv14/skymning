@@ -51,6 +51,16 @@ export const subtractDays = (dateStr: string, days: number): string => {
   return format(subDays(new Date(dateStr), days), 'yyyy-MM-dd')
 }
 
+export const getTimeOfDayGreeting = (): string => {
+  const hour = new Date().getHours()
+  if (hour < 5) return 'God natt'
+  if (hour < 10) return 'God morgon'
+  if (hour < 13) return 'God förmiddag'
+  if (hour < 17) return 'God eftermiddag'
+  if (hour < 22) return 'God kväll'
+  return 'God natt'
+}
+
 export const formatTime = (date: Date | string | undefined | null): string | null => {
   if (!date) return null
   const d = typeof date === 'string' ? new Date(date) : date

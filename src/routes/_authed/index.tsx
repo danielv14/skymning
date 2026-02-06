@@ -7,6 +7,7 @@ import {
   getMoodInsight,
   hasAnyEntries,
   getEntryForDate,
+  getWeekdayPatterns,
 } from '../../server/functions/entries'
 import { getLastWeekSummary } from '../../server/functions/weeklySummaries'
 import { getChatPreview, getIncompletePastChat, clearPastChats } from '../../server/functions/chat'
@@ -18,10 +19,12 @@ import { AppHeader } from '../../components/ui/AppHeader'
 import { StreakCard } from '../../components/dashboard/StreakCard'
 import { MoodInsightCard } from '../../components/dashboard/MoodInsightCard'
 import { TodayEntryCard } from '../../components/dashboard/TodayEntryCard'
-import { formatTime, formatRelativeDay } from '../../utils/date'
+import { DashboardSkeleton } from '../../components/dashboard/DashboardSkeleton'
+import { WeekdayPatternCard } from '../../components/dashboard/WeekdayPatternCard'
+import { formatTime, formatRelativeDay, getTimeOfDayGreeting } from '../../utils/date'
 
 const HomePage = () => {
-  const { hasEntries, todayEntry, moodTrend, streak, moodInsight, lastWeekSummary, chatPreview, incompletePastChat } = Route.useLoaderData()
+  const { hasEntries, todayEntry, moodTrend, streak, moodInsight, lastWeekSummary, chatPreview, incompletePastChat, weekdayPatterns } = Route.useLoaderData()
 
   if (!hasEntries) {
     return <Welcome />
@@ -38,7 +41,7 @@ const HomePage = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">Skymning</h1>
-            <p className="text-slate-400 mt-1 text-sm sm:text-base">Din dagliga reflektion</p>
+            <p className="text-slate-400 mt-1 text-sm sm:text-base">{getTimeOfDayGreeting()}</p>
           </div>
           <nav className="flex gap-2 sm:gap-3">
             <Link
@@ -150,6 +153,12 @@ const HomePage = () => {
               </Card>
             </div>
           )}
+
+          {weekdayPatterns && (
+            <div className="bento-full">
+              <WeekdayPatternCard data={weekdayPatterns} />
+            </div>
+          )}
         </div>
 
         {moodTrend.length > 0 && (
@@ -169,7 +178,7 @@ export const Route = createFileRoute('/_authed/')({
     meta: [{ title: 'Skymning' }],
   }),
   loader: async () => {
-    const [hasEntries, todayEntry, moodTrend, streak, moodInsight, lastWeekSummary, chatPreview, incompletePastChat] =
+    const [hasEntries, todayEntry, moodTrend, streak, moodInsight, lastWeekSummary, chatPreview, incompletePastChat, weekdayPatterns] =
       await Promise.all([
         hasAnyEntries(),
         getTodayEntry(),
@@ -179,6 +188,7 @@ export const Route = createFileRoute('/_authed/')({
         getLastWeekSummary(),
         getChatPreview(),
         getIncompletePastChat(),
+        getWeekdayPatterns(),
       ])
 
     let validPastChat = incompletePastChat
@@ -199,7 +209,9 @@ export const Route = createFileRoute('/_authed/')({
       lastWeekSummary,
       chatPreview,
       incompletePastChat: validPastChat,
+      weekdayPatterns,
     }
   },
+  pendingComponent: DashboardSkeleton,
   component: HomePage,
 })
