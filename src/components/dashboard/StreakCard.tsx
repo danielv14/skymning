@@ -5,17 +5,67 @@ type StreakCardProps = {
   streak: number
 }
 
+type Milestone = {
+  threshold: number
+  label: string
+  gradient: string
+  border: string
+}
+
+const MILESTONES: Milestone[] = [
+  { threshold: 100, label: '100 dagar! Legendariskt!', gradient: 'bg-gradient-to-br from-amber-500/15 via-yellow-500/10 to-orange-500/15', border: 'border-amber-400/30' },
+  { threshold: 60, label: 'Två månader! Imponerande!', gradient: 'bg-gradient-to-br from-rose-500/15 via-pink-500/10 to-fuchsia-500/15', border: 'border-rose-400/30' },
+  { threshold: 30, label: 'En hel månad!', gradient: 'bg-gradient-to-br from-violet-500/15 via-purple-500/10 to-indigo-500/15', border: 'border-violet-400/30' },
+  { threshold: 14, label: 'Två veckor!', gradient: 'bg-gradient-to-br from-cyan-500/12 via-sky-500/8 to-blue-500/12', border: 'border-cyan-400/25' },
+  { threshold: 7, label: 'En hel vecka!', gradient: 'bg-gradient-to-br from-emerald-500/12 via-teal-500/8 to-green-500/12', border: 'border-emerald-400/25' },
+]
+
+const getActiveMilestone = (streak: number): Milestone | null => {
+  return MILESTONES.find((milestone) => streak >= milestone.threshold) ?? null
+}
+
+const getNextMilestone = (streak: number): Milestone | null => {
+  // Walk backwards to find the smallest milestone above the current streak
+  for (let i = MILESTONES.length - 1; i >= 0; i--) {
+    if (MILESTONES[i].threshold > streak) {
+      return MILESTONES[i]
+    }
+  }
+  return null
+}
+
 export const StreakCard = ({ streak }: StreakCardProps) => {
   const hasStreak = streak > 0
+  const activeMilestone = hasStreak ? getActiveMilestone(streak) : null
+  const nextMilestone = hasStreak ? getNextMilestone(streak) : null
+
+  const cardGradient = activeMilestone
+    ? `${activeMilestone.gradient} ${activeMilestone.border}`
+    : hasStreak
+      ? 'bg-gradient-to-br from-orange-500/10 via-rose-500/10 to-pink-500/10 border-orange-500/20'
+      : 'bg-gradient-to-br from-slate-500/10 to-slate-600/10 border-slate-500/20'
+
+  const subtextContent = () => {
+    if (!hasStreak) return null
+
+    if (activeMilestone) {
+      return <p className="text-slate-300 text-sm font-medium">{activeMilestone.label}</p>
+    }
+
+    if (nextMilestone) {
+      const remaining = nextMilestone.threshold - streak
+      return (
+        <p className="text-slate-400 text-sm">
+          {remaining} {remaining === 1 ? 'dag' : 'dagar'} till nästa milstolpe
+        </p>
+      )
+    }
+
+    return <p className="text-slate-400 text-sm">{streak === 1 ? 'Streak startad!' : 'i rad'}</p>
+  }
 
   return (
-    <Card
-      className={`h-full ${
-        hasStreak
-          ? 'bg-gradient-to-br from-orange-500/10 via-rose-500/10 to-pink-500/10 border-orange-500/20'
-          : 'bg-gradient-to-br from-slate-500/10 to-slate-600/10 border-slate-500/20'
-      }`}
-    >
+    <Card className={`h-full ${cardGradient}`}>
       <div className="flex items-center gap-4">
         <div className={`relative ${hasStreak ? 'flame-animate' : ''}`}>
           <StreakFlame
@@ -40,9 +90,7 @@ export const StreakCard = ({ streak }: StreakCardProps) => {
                   {streak === 1 ? 'dag' : 'dagar'}
                 </span>
               </p>
-              <p className="text-slate-400 text-sm">
-                {streak === 1 ? 'Streak startad!' : 'i rad'}
-              </p>
+              {subtextContent()}
             </>
           ) : (
             <>

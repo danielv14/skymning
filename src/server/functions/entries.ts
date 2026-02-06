@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { getDb } from '../db'
 import { entries, chatMessages } from '../db/schema'
 import { eq, desc, and, gte, lt, count } from 'drizzle-orm'
-import { setISOWeek, setISOWeekYear, startOfISOWeek, addWeeks, format } from 'date-fns'
+import { setISOWeek, setISOWeekYear, startOfISOWeek, addWeeks, format, getDay, parseISO } from 'date-fns'
 import { dateString, weekInputSchema } from '../../constants'
 import {
   calculateMoodLevel,
@@ -261,5 +261,73 @@ export const getMoodInsight = createServerFn({ method: 'GET' })
       average: totalAverage,
       level: calculateMoodLevel(totalAverage),
       entryCount: moods.length,
+    }
+  })
+
+export type WeekdayPattern = {
+  dayIndex: number
+  dayName: string
+  average: number
+  count: number
+}
+
+export type WeekdayPatternResult = {
+  patterns: WeekdayPattern[]
+  bestDay: WeekdayPattern
+  worstDay: WeekdayPattern
+  totalEntries: number
+}
+
+const WEEKDAY_NAMES = ['söndag', 'måndag', 'tisdag', 'onsdag', 'torsdag', 'fredag', 'lördag']
+
+export const getWeekdayPatterns = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])
+  .handler(async (): Promise<WeekdayPatternResult | null> => {
+    const db = getDb()
+
+    const cutoffDate = subtractDays(getTodayDateString(), 90)
+
+    const allEntries = await db.query.entries.findMany({
+      columns: { date: true, mood: true },
+      where: gte(entries.date, cutoffDate),
+    })
+
+    // Need at least 14 entries for meaningful patterns
+    if (allEntries.length < 14) return null
+
+    const dayBuckets: { total: number; count: number }[] = Array.from(
+      { length: 7 },
+      () => ({ total: 0, count: 0 })
+    )
+
+    for (const entry of allEntries) {
+      const dayIndex = getDay(parseISO(entry.date))
+      dayBuckets[dayIndex].total += entry.mood
+      dayBuckets[dayIndex].count += 1
+    }
+
+    const patterns: WeekdayPattern[] = dayBuckets
+      .map((bucket, dayIndex) => ({
+        dayIndex,
+        dayName: WEEKDAY_NAMES[dayIndex],
+        average: bucket.count > 0 ? bucket.total / bucket.count : 0,
+        count: bucket.count,
+      }))
+      .filter((pattern) => pattern.count > 0)
+
+    if (patterns.length < 3) return null
+
+    const bestDay = patterns.reduce((best, current) =>
+      current.average > best.average ? current : best
+    )
+    const worstDay = patterns.reduce((worst, current) =>
+      current.average < worst.average ? current : worst
+    )
+
+    return {
+      patterns,
+      bestDay,
+      worstDay,
+      totalEntries: allEntries.length,
     }
   })
