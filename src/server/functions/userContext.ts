@@ -23,7 +23,7 @@ export const getUserContext = createServerFn({ method: 'GET' })
   })
 
 const updateContextSchema = z.object({
-  content: z.string(),
+  content: z.string().max(2000),
   historyCount: z.number().min(0).max(20),
 })
 

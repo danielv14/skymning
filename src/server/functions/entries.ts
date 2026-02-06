@@ -4,7 +4,7 @@ import { getDb } from '../db'
 import { entries, chatMessages } from '../db/schema'
 import { eq, desc, and, gte, lt, count } from 'drizzle-orm'
 import { setISOWeek, setISOWeekYear, startOfISOWeek, addWeeks, format } from 'date-fns'
-import { weekInputSchema } from '../../constants'
+import { dateString, weekInputSchema } from '../../constants'
 import {
   calculateMoodLevel,
   calculateTrend,
@@ -26,7 +26,7 @@ export const getTodayEntry = createServerFn({ method: 'GET' })
   })
 
 const getEntryForDateSchema = z.object({
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  date: dateString,
 })
 
 export const getEntryForDate = createServerFn({ method: 'GET' })
@@ -66,7 +66,7 @@ export const getEntriesForWeek = createServerFn({ method: 'GET' })
 const createEntrySchema = z.object({
   mood: z.number().min(1).max(5),
   summary: z.string().min(1),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  date: dateString.optional(),
 })
 
 export const createEntry = createServerFn({ method: 'POST' })
@@ -164,9 +164,11 @@ export const getStreak = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
   .handler(async () => {
     const db = getDb()
+    // Limit to 400 entries - more than enough for any realistic streak
     const allEntries = await db.query.entries.findMany({
       columns: { date: true },
       orderBy: [desc(entries.date)],
+      limit: 400,
     })
 
     if (allEntries.length === 0) return 0

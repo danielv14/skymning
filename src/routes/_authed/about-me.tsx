@@ -86,6 +86,7 @@ const AboutMePage = () => {
               onChange={setContent}
               placeholder="T.ex. Jag heter Anna och bor i Stockholm. Jag har två barn, Gustav (8 år) och Oscar (5 år). Jag jobbar som lärare på en grundskola..."
               rows={8}
+              maxLength={2000}
             />
 
             <div className="pt-4 border-t border-slate-700">
@@ -117,7 +118,7 @@ const AboutMePage = () => {
 
             <div className="flex items-center justify-between">
               <p className="text-sm text-slate-500">
-                {content.length > 0 ? `${content.length} tecken` : 'Inga ändringar'}
+                {content.length > 0 ? `${content.length}/2000 tecken` : 'Inga ändringar'}
               </p>
               <div className="flex items-center gap-3">
                 {showSaved && (

@@ -94,10 +94,8 @@ const TimelineWeekPage = () => {
       <div className="min-h-screen">
         <AppHeader>
           <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <Link to="/">
-              <button className="p-2.5 -ml-2 rounded-full hover:bg-white/10 active:bg-white/15 transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95">
-                <Home className="w-5 h-5 text-slate-200" />
-              </button>
+            <Link to="/" className="p-2.5 -ml-2 rounded-full hover:bg-white/10 active:bg-white/15 transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95 inline-flex">
+              <Home className="w-5 h-5 text-slate-200" />
             </Link>
             <div className="text-center">
               <h1 className="text-xl font-semibold text-white">{weekLabel}</h1>
@@ -110,34 +108,28 @@ const TimelineWeekPage = () => {
               to="/timeline/$year/$week"
               params={{ year: String(prevWeek.year), week: String(prevWeek.week) }}
               viewTransition={false}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full text-slate-300 hover:text-white hover:bg-white/10 active:bg-white/15 transition-all duration-200"
             >
-              <button className="flex items-center gap-1.5 px-3 py-2 rounded-full text-slate-300 hover:text-white hover:bg-white/10 active:bg-white/15 transition-all duration-200 cursor-pointer">
-                <ChevronLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Förra</span>
-              </button>
+              <ChevronLeft className="w-4 h-4" />
+              <span className="text-sm font-medium">Förra</span>
             </Link>
             <Link
               to="/timeline/$year/$week"
               params={{ year: String(currentWeek.year), week: String(currentWeek.week) }}
               viewTransition={false}
               disabled={isCurrentWeek}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${isCurrentWeek ? 'opacity-50 cursor-not-allowed text-slate-300' : 'text-slate-300 hover:text-white hover:bg-white/10 active:bg-white/15'}`}
             >
-              <button
-                className="px-4 py-2 rounded-full text-sm font-medium text-slate-300 hover:text-white hover:bg-white/10 active:bg-white/15 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:text-slate-300 disabled:hover:bg-transparent"
-                disabled={isCurrentWeek}
-              >
-                Denna vecka
-              </button>
+              Denna vecka
             </Link>
             <Link
               to="/timeline/$year/$week"
               params={{ year: String(nextWeek.year), week: String(nextWeek.week) }}
               viewTransition={false}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full text-slate-300 hover:text-white hover:bg-white/10 active:bg-white/15 transition-all duration-200"
             >
-              <button className="flex items-center gap-1.5 px-3 py-2 rounded-full text-slate-300 hover:text-white hover:bg-white/10 active:bg-white/15 transition-all duration-200 cursor-pointer">
-                <span className="text-sm font-medium">Nästa</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
+              <span className="text-sm font-medium">Nästa</span>
+              <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
         </AppHeader>

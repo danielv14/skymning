@@ -1,38 +1,49 @@
-// In-memory rate limiting for login attempts
-// Resets on Worker cold-start, but sufficient for basic brute-force protection
+// In-memory rate limiting
+// Resets on Worker cold-start, but sufficient for basic protection
 
 type AttemptRecord = {
   count: number
   firstAttempt: number
 }
 
-const failedAttempts = new Map<string, AttemptRecord>()
+const createRateLimiter = (maxAttempts: number, windowMs: number) => {
+  const attempts = new Map<string, AttemptRecord>()
 
-const MAX_ATTEMPTS = 5
-const WINDOW_MS = 15 * 60 * 1000 // 15 minutes
+  const isRateLimited = (key: string): boolean => {
+    const record = attempts.get(key)
+    if (!record) return false
 
-export const isRateLimited = (ip: string): boolean => {
-  const record = failedAttempts.get(ip)
-  if (!record) return false
+    if (Date.now() - record.firstAttempt > windowMs) {
+      attempts.delete(key)
+      return false
+    }
 
-  // Reset if the time window has passed
-  if (Date.now() - record.firstAttempt > WINDOW_MS) {
-    failedAttempts.delete(ip)
-    return false
+    return record.count >= maxAttempts
   }
 
-  return record.count >= MAX_ATTEMPTS
-}
-
-export const recordFailedAttempt = (ip: string) => {
-  const record = failedAttempts.get(ip)
-  if (!record || Date.now() - record.firstAttempt > WINDOW_MS) {
-    failedAttempts.set(ip, { count: 1, firstAttempt: Date.now() })
-  } else {
-    record.count++
+  const recordAttempt = (key: string) => {
+    const record = attempts.get(key)
+    if (!record || Date.now() - record.firstAttempt > windowMs) {
+      attempts.set(key, { count: 1, firstAttempt: Date.now() })
+    } else {
+      record.count++
+    }
   }
+
+  const clearAttempts = (key: string) => {
+    attempts.delete(key)
+  }
+
+  return { isRateLimited, recordAttempt, clearAttempts }
 }
 
-export const clearFailedAttempts = (ip: string) => {
-  failedAttempts.delete(ip)
-}
+// Login: 5 attempts per 15 minutes
+export const loginLimiter = createRateLimiter(5, 15 * 60 * 1000)
+
+// Chat API: 30 requests per 5 minutes (LLM calls are expensive)
+export const chatLimiter = createRateLimiter(30, 5 * 60 * 1000)
+
+// Keep old exports for backwards compatibility with auth.ts
+export const isRateLimited = loginLimiter.isRateLimited
+export const recordFailedAttempt = loginLimiter.recordAttempt
+export const clearFailedAttempts = loginLimiter.clearAttempts
