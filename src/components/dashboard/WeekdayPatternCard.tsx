@@ -33,14 +33,20 @@ export const WeekdayPatternCard = ({ data }: WeekdayPatternCardProps) => {
 
   const patternsByDay = new Map(patterns.map((pattern) => [pattern.dayIndex, pattern]))
 
-  const maxAverage = Math.max(...patterns.map((pattern) => pattern.average))
+  const averages = patterns.map((pattern) => pattern.average)
+  const minAverage = Math.min(...averages)
+  const maxAverage = Math.max(...averages)
+  const spread = maxAverage - minAverage
 
   return (
     <Card className="bg-gradient-to-br from-indigo-500/8 via-slate-800/50 to-cyan-500/8 border-indigo-500/15">
       <div className="space-y-4">
-        <div className="flex items-center gap-2 text-slate-400">
-          <CalendarDays className="w-4 h-4" />
-          <h3 className="text-xs font-medium uppercase tracking-wider">Veckodagsmönster</h3>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-slate-400">
+            <CalendarDays className="w-4 h-4" />
+            <h3 className="text-xs font-medium uppercase tracking-wider">Veckodagsmönster</h3>
+          </div>
+          <span className="text-xs text-slate-600">Senaste 90 dagarna</span>
         </div>
 
         {/* Bar chart */}
@@ -56,7 +62,12 @@ export const WeekdayPatternCard = ({ data }: WeekdayPatternCardProps) => {
               )
             }
 
-            const heightPercent = maxAverage > 0 ? (pattern.average / 5) * 100 : 0
+            // Relative scaling: worst day ~25%, best day 100%
+            const MIN_HEIGHT = 25
+            const normalized = spread > 0
+              ? (pattern.average - minAverage) / spread
+              : 0.5
+            const heightPercent = MIN_HEIGHT + normalized * (100 - MIN_HEIGHT)
             const color = getMoodColor(pattern.average)
             const isBest = pattern.dayIndex === bestDay.dayIndex
             const isWorst = pattern.dayIndex === worstDay.dayIndex

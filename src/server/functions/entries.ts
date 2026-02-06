@@ -285,8 +285,11 @@ export const getWeekdayPatterns = createServerFn({ method: 'GET' })
   .handler(async (): Promise<WeekdayPatternResult | null> => {
     const db = getDb()
 
+    const cutoffDate = subtractDays(getTodayDateString(), 90)
+
     const allEntries = await db.query.entries.findMany({
       columns: { date: true, mood: true },
+      where: gte(entries.date, cutoffDate),
     })
 
     // Need at least 14 entries for meaningful patterns
