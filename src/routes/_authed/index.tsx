@@ -19,7 +19,6 @@ import { AppHeader } from '../../components/ui/AppHeader'
 import { StreakCard } from '../../components/dashboard/StreakCard'
 import { MoodInsightCard } from '../../components/dashboard/MoodInsightCard'
 import { TodayEntryCard } from '../../components/dashboard/TodayEntryCard'
-import { DashboardSkeleton } from '../../components/dashboard/DashboardSkeleton'
 import { WeekdayPatternCard } from '../../components/dashboard/WeekdayPatternCard'
 import { formatTime, formatRelativeDay, getTimeOfDayGreeting } from '../../utils/date'
 
@@ -212,6 +211,5 @@ export const Route = createFileRoute('/_authed/')({
       weekdayPatterns,
     }
   },
-  pendingComponent: DashboardSkeleton,
   component: HomePage,
 })
