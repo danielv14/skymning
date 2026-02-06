@@ -8,7 +8,7 @@ export const authMiddleware = createMiddleware({ type: 'function' }).server(
       throw new Error('Unauthorized')
     }
 
-    return next()
+    return next({ context: { session } })
   }
 )
 
@@ -18,5 +18,5 @@ export const requestAuthMiddleware = createMiddleware().server(async ({ next }) 
     throw new Error('Unauthorized')
   }
 
-  return next()
+  return next({ context: { session } })
 })

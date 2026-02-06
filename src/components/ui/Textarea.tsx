@@ -8,6 +8,7 @@ type TextareaProps = {
   disabled?: boolean
   autoResize?: boolean
   maxHeight?: number
+  maxLength?: number
   className?: string
   onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void
   ref?: React.Ref<HTMLTextAreaElement>
@@ -21,6 +22,7 @@ export const Textarea = ({
   disabled = false,
   autoResize = false,
   maxHeight = 150,
+  maxLength,
   className = '',
   onKeyDown,
   ref,
@@ -49,6 +51,7 @@ export const Textarea = ({
       placeholder={placeholder}
       rows={rows}
       disabled={disabled}
+      maxLength={maxLength}
       onKeyDown={onKeyDown}
       className={`${baseStyles} ${className}`}
     />

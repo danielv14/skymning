@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { getDb } from '../db'
 import { chatMessages } from '../db/schema'
 import { eq, lt, asc, desc } from 'drizzle-orm'
+import { dateString } from '../../constants'
 import { getTodayDateString } from '../../utils/date'
 import { authMiddleware } from '../middleware/auth'
 
@@ -60,7 +61,7 @@ export const clearPastChats = createServerFn({ method: 'POST' })
   })
 
 const getChatForDateSchema = z.object({
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  date: dateString,
 })
 
 export const getChatForDate = createServerFn({ method: 'GET' })
@@ -107,7 +108,7 @@ export const getChatPreview = createServerFn({ method: 'GET' })
 const saveChatMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
   content: z.string().min(1).max(10000),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  date: dateString.optional(),
 })
 
 export const saveChatMessage = createServerFn({ method: 'POST' })

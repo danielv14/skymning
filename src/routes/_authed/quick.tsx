@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
+import { dateString } from '../../constants'
 import { differenceInDays, isFuture, parseISO, startOfDay } from 'date-fns'
 import { getTodayEntry, createEntry, getEntryForDate } from '../../server/functions/entries'
 import { clearPastChats } from '../../server/functions/chat'
@@ -124,7 +125,7 @@ const QuickPage = () => {
 }
 
 const searchSchema = z.object({
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  date: dateString.optional(),
 })
 
 export const Route = createFileRoute('/_authed/quick')({
