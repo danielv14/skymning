@@ -13,6 +13,7 @@ import {
 import { generateWeeklySummary } from '../../../../server/ai'
 import { AppHeader } from '../../../../components/ui/AppHeader'
 import { RegenerateConfirmModal } from '../../../../components/reflection/RegenerateConfirmModal'
+import { EditWeeklySummaryModal } from '../../../../components/timeline/EditWeeklySummaryModal'
 import { TimelineDayItem } from '../../../../components/timeline/TimelineDayItem'
 import { WeeklySummarySection } from '../../../../components/timeline/WeeklySummarySection'
 import { getWeekMoodDescription } from '../../../../constants'
@@ -26,6 +27,7 @@ const TimelineWeekPage = () => {
   const [isGenerating, setIsGenerating] = useState(false)
   const [isRegenerating, setIsRegenerating] = useState(false)
   const [confirmModalOpen, setConfirmModalOpen] = useState(false)
+  const [editModalOpen, setEditModalOpen] = useState(false)
 
   const currentWeek = getCurrentWeek()
   const isCurrentWeek = year === currentWeek.year && week === currentWeek.week
@@ -93,6 +95,15 @@ const TimelineWeekPage = () => {
         onConfirm={handleRegenerateSummary}
         isLoading={isRegenerating}
       />
+      {weeklySummary?.summary && (
+        <EditWeeklySummaryModal
+          open={editModalOpen}
+          onOpenChange={setEditModalOpen}
+          year={year}
+          week={week}
+          summary={weeklySummary.summary}
+        />
+      )}
       <div className="min-h-screen">
         <AppHeader>
           <div className="flex items-center justify-between mb-3 sm:mb-4">
@@ -145,6 +156,7 @@ const TimelineWeekPage = () => {
           averageMood={averageMood}
           onGenerate={handleGenerateSummary}
           onOpenRegenerateModal={() => setConfirmModalOpen(true)}
+          onEdit={() => setEditModalOpen(true)}
           isGenerating={isGenerating}
           isRegenerating={isRegenerating}
         />
