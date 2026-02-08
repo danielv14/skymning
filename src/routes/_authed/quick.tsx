@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { dateString } from '../../constants'
+import { dateString, MAX_DAYS_TO_FILL_IN } from '../../constants'
 import { differenceInDays, isFuture, parseISO, startOfDay } from 'date-fns'
 import { getTodayEntry, createEntry, getEntryForDate } from '../../server/functions/entries'
 import { clearPastChats } from '../../server/functions/chat'
@@ -141,7 +141,6 @@ export const Route = createFileRoute('/_authed/quick')({
       const parsedDate = parseISO(targetDate)
       const today = startOfDay(new Date())
       const daysAgo = differenceInDays(today, startOfDay(parsedDate))
-      const MAX_DAYS_TO_FILL_IN = 5
 
       if (isFuture(parsedDate) || daysAgo > MAX_DAYS_TO_FILL_IN) {
         throw redirect({ to: '/' })

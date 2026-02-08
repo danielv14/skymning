@@ -3,8 +3,8 @@ import { z } from 'zod'
 import { getDb } from '../db'
 import { entries, chatMessages } from '../db/schema'
 import { eq, desc, and, gte, lt, count } from 'drizzle-orm'
-import { setISOWeek, setISOWeekYear, startOfISOWeek, addWeeks, format, getDay, parseISO } from 'date-fns'
-import { dateString, weekInputSchema } from '../../constants'
+import { startOfISOWeek, addWeeks, format, getDay, parseISO } from 'date-fns'
+import { dateString, weekInputSchema, MAX_STREAK_ENTRIES, MOOD_INSIGHT_DAYS, WEEKDAY_PATTERN_DAYS } from '../../constants'
 import {
   calculateMoodLevel,
   calculateTrend,
@@ -12,6 +12,7 @@ import {
   type MoodInsight,
 } from '../../constants/moodInsight'
 import { getTodayDateString, subtractDays } from '../../utils/date'
+import { getDateFromISOWeek } from '../../utils/isoWeek'
 import { authMiddleware } from '../middleware/auth'
 
 export const getTodayEntry = createServerFn({ method: 'GET' })
@@ -120,8 +121,7 @@ export const getMoodTrend = createServerFn({ method: 'GET' })
   })
 
 const getWeekDateRange = (year: number, week: number) => {
-  const dateInWeek = setISOWeek(setISOWeekYear(new Date(), year), week)
-  const weekStart = startOfISOWeek(dateInWeek)
+  const weekStart = startOfISOWeek(getDateFromISOWeek(year, week))
   const weekEnd = addWeeks(weekStart, 1)
 
   return {
@@ -130,45 +130,14 @@ const getWeekDateRange = (year: number, week: number) => {
   }
 }
 
-
-const recentMoodSchema = z.object({
-  days: z.number().min(1).max(30).optional().default(7),
-})
-
-export const getRecentMoodAverage = createServerFn({ method: 'GET' })
-  .middleware([authMiddleware])
-  .inputValidator((data: unknown) => recentMoodSchema.parse(data))
-  .handler(async ({ data }) => {
-    const db = getDb()
-    const today = getTodayDateString()
-    const startDate = subtractDays(today, data.days)
-
-    const recentEntries = await db.query.entries.findMany({
-      columns: { mood: true },
-      where: gte(entries.date, startDate),
-    })
-
-    if (recentEntries.length === 0) return null
-
-    const average =
-      recentEntries.reduce((sum, entry) => sum + entry.mood, 0) /
-      recentEntries.length
-
-    return {
-      average,
-      count: recentEntries.length,
-    }
-  })
-
 export const getStreak = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
   .handler(async () => {
     const db = getDb()
-    // Limit to 400 entries - more than enough for any realistic streak
     const allEntries = await db.query.entries.findMany({
       columns: { date: true },
       orderBy: [desc(entries.date)],
-      limit: 400,
+      limit: MAX_STREAK_ENTRIES,
     })
 
     if (allEntries.length === 0) return 0
@@ -221,7 +190,7 @@ export const updateEntry = createServerFn({ method: 'POST' })
   })
 
 const moodInsightSchema = z.object({
-  entryCount: z.number().min(4).max(30).optional().default(14),
+  entryCount: z.number().min(4).max(30).optional().default(MOOD_INSIGHT_DAYS),
 })
 
 export const getMoodInsight = createServerFn({ method: 'GET' })
@@ -285,7 +254,7 @@ export const getWeekdayPatterns = createServerFn({ method: 'GET' })
   .handler(async (): Promise<WeekdayPatternResult | null> => {
     const db = getDb()
 
-    const cutoffDate = subtractDays(getTodayDateString(), 90)
+    const cutoffDate = subtractDays(getTodayDateString(), WEEKDAY_PATTERN_DAYS)
 
     const allEntries = await db.query.entries.findMany({
       columns: { date: true, mood: true },

@@ -45,10 +45,5 @@ export const chatMessages = sqliteTable("chat_messages", {
 });
 
 export type Entry = typeof entries.$inferSelect;
-export type NewEntry = typeof entries.$inferInsert;
 export type WeeklySummary = typeof weeklySummaries.$inferSelect;
-export type NewWeeklySummary = typeof weeklySummaries.$inferInsert;
-export type UserContext = typeof userContext.$inferSelect;
-export type NewUserContext = typeof userContext.$inferInsert;
 export type ChatMessage = typeof chatMessages.$inferSelect;
-export type NewChatMessage = typeof chatMessages.$inferInsert;

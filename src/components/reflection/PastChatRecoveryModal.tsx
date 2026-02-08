@@ -3,6 +3,7 @@ import { Clock, MessageCircle, Trash2, ArrowRight, PenLine } from 'lucide-react'
 import { Modal } from '../ui/Modal'
 import { Button } from '../ui/Button'
 import { formatRelativeDay } from '../../utils/date'
+import { truncateText } from '../../utils/string'
 
 type PastChatRecoveryModalProps = {
   open: boolean
@@ -49,9 +50,6 @@ export const PastChatRecoveryModal = ({
     }
   }
 
-  const truncate = (text: string, max: number) =>
-    text.length <= max ? text : text.slice(0, max).trim() + '...'
-
   return (
     <Modal
       open={open}
@@ -78,7 +76,7 @@ export const PastChatRecoveryModal = ({
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-slate-500 mb-1">Du skrev</p>
                 <p className="text-sm text-slate-300 line-clamp-2">
-                  {truncate(firstUserMessage.content, 100)}
+                  {truncateText(firstUserMessage.content, 100)}
                 </p>
               </div>
             </div>
@@ -92,7 +90,7 @@ export const PastChatRecoveryModal = ({
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-slate-500 mb-1">AI svarade</p>
                   <p className="text-sm text-slate-400 line-clamp-2">
-                    {truncate(lastAssistantMessage.content, 100)}
+                    {truncateText(lastAssistantMessage.content, 100)}
                   </p>
                 </div>
               </div>

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { Pencil, Sparkles } from 'lucide-react'
 import type { Entry } from '../../server/db/schema'
-import { MOODS } from '../../constants'
+import { getMoodColor } from '../../constants'
 import { MoodEmoji } from '../mood/MoodEmoji'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
@@ -15,11 +15,6 @@ type TodayEntryCardProps = {
 
 export const TodayEntryCard = ({ entry, hasChatPreview }: TodayEntryCardProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-
-  const getMoodColor = (mood: number) => {
-    const moodConfig = MOODS.find((m) => m.value === mood)
-    return moodConfig?.color || '#64748b'
-  }
 
   return (
     <>

@@ -1,6 +1,7 @@
 import { CalendarDays } from 'lucide-react'
 import type { WeekdayPatternResult } from '../../server/functions/entries'
-import { MOOD_COLORS } from '../../constants'
+import { getMoodColor, WEEKDAY_PATTERN_DAYS } from '../../constants'
+import { capitalizeFirst } from '../../utils/string'
 import { Card } from '../ui/Card'
 
 type WeekdayPatternCardProps = {
@@ -19,14 +20,10 @@ const SHORT_NAMES: Record<number, string> = {
   6: 'Lör',
 }
 
-const getMoodColor = (average: number): string => {
-  const rounded = Math.round(average)
-  const clamped = Math.max(1, Math.min(5, rounded))
-  return MOOD_COLORS[clamped]
+const getMoodColorFromAverage = (average: number): string => {
+  const clamped = Math.max(1, Math.min(5, Math.round(average)))
+  return getMoodColor(clamped)
 }
-
-const capitalizeFirst = (str: string): string =>
-  str.charAt(0).toUpperCase() + str.slice(1)
 
 export const WeekdayPatternCard = ({ data }: WeekdayPatternCardProps) => {
   const { patterns, bestDay, worstDay } = data
@@ -46,7 +43,7 @@ export const WeekdayPatternCard = ({ data }: WeekdayPatternCardProps) => {
             <CalendarDays className="w-4 h-4" />
             <h3 className="text-xs font-medium uppercase tracking-wider">Veckodagsmönster</h3>
           </div>
-          <span className="text-xs text-slate-600">Senaste 90 dagarna</span>
+          <span className="text-xs text-slate-600">Senaste {WEEKDAY_PATTERN_DAYS} dagarna</span>
         </div>
 
         {/* Bar chart */}
@@ -68,7 +65,7 @@ export const WeekdayPatternCard = ({ data }: WeekdayPatternCardProps) => {
               ? (pattern.average - minAverage) / spread
               : 0.5
             const heightPercent = MIN_HEIGHT + normalized * (100 - MIN_HEIGHT)
-            const color = getMoodColor(pattern.average)
+            const color = getMoodColorFromAverage(pattern.average)
             const isBest = pattern.dayIndex === bestDay.dayIndex
             const isWorst = pattern.dayIndex === worstDay.dayIndex
 

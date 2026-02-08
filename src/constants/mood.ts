@@ -14,8 +14,11 @@ export const MOODS: MoodConfig[] = [
   { value: 5, name: 'great', label: 'Jättebra', color: '#f472b6' },
 ]
 
-const getMoodByValue = (value: number): MoodConfig | undefined =>
+export const getMoodByValue = (value: number): MoodConfig | undefined =>
   MOODS.find(m => m.value === value)
+
+export const getMoodColor = (mood: number): string =>
+  getMoodByValue(mood)?.color || '#64748b'
 
 export const getMoodLabel = (mood: number): string =>
   getMoodByValue(mood)?.label || 'Okänd'

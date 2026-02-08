@@ -5,5 +5,3 @@ import * as schema from './schema'
 export const getDb = () => {
   return drizzle(env.DB, { schema })
 }
-
-export type DbClient = ReturnType<typeof getDb>
