@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { chat, toStreamResponse } from '@tanstack/ai'
+import { chat, toServerSentEventsResponse } from '@tanstack/ai'
 import { desc } from 'drizzle-orm'
 import { z } from 'zod'
 import { REFLECTION_SYSTEM_PROMPT } from '../../server/ai/prompts'
@@ -95,7 +95,7 @@ export const Route = createFileRoute('/api/chat')({
           messages,
         })
 
-        return toStreamResponse(stream)
+        return toServerSentEventsResponse(stream)
       },
     },
   },

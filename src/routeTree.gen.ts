@@ -65,13 +65,13 @@ const AuthedTimelineYearWeekRoute = AuthedTimelineYearWeekRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof AuthedIndexRoute
   '/login': typeof LoginRoute
   '/about-me': typeof AuthedAboutMeRoute
   '/quick': typeof AuthedQuickRoute
   '/reflect': typeof AuthedReflectRoute
   '/timeline': typeof AuthedTimelineRouteWithChildren
   '/api/chat': typeof ApiChatRoute
-  '/': typeof AuthedIndexRoute
   '/timeline/$year/$week': typeof AuthedTimelineYearWeekRoute
 }
 export interface FileRoutesByTo {
@@ -99,13 +99,13 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
     | '/login'
     | '/about-me'
     | '/quick'
     | '/reflect'
     | '/timeline'
     | '/api/chat'
-    | '/'
     | '/timeline/$year/$week'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -148,7 +148,7 @@ declare module '@tanstack/react-router' {
     '/_authed': {
       id: '/_authed'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof AuthedRouteImport
       parentRoute: typeof rootRouteImport
     }
