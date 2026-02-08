@@ -181,7 +181,7 @@ export const Route = createFileRoute('/_authed/')({
         getTodayEntry(),
         getMoodTrend({ data: { limit: 30 } }),
         getStreak(),
-        getMoodInsight(),
+        getMoodInsight({ data: {} }),
         getLastWeekSummary(),
         getChatPreview(),
         getIncompletePastChat(),
