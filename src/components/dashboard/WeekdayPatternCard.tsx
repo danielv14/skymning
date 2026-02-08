@@ -47,20 +47,22 @@ export const WeekdayPatternCard = ({ data }: WeekdayPatternCardProps) => {
         </div>
 
         {/* Bar chart */}
-        <div className="flex items-end gap-1.5 sm:gap-2 h-20">
+        <div className="flex gap-1.5 sm:gap-2">
           {DISPLAY_ORDER.map((dayIndex) => {
             const pattern = patternsByDay.get(dayIndex)
             if (!pattern) {
               return (
                 <div key={dayIndex} className="flex-1 flex flex-col items-center gap-1">
-                  <div className="w-full rounded-t-md bg-slate-700/20 h-2" />
+                  <div className="w-full h-16 flex items-end">
+                    <div className="w-full rounded-t-md bg-slate-700/20 h-1" />
+                  </div>
                   <span className="text-[10px] text-slate-600">{SHORT_NAMES[dayIndex]}</span>
                 </div>
               )
             }
 
-            // Relative scaling: worst day ~25%, best day 100%
-            const MIN_HEIGHT = 25
+            // Relative scaling: worst day ~15%, best day 100%
+            const MIN_HEIGHT = 15
             const normalized = spread > 0
               ? (pattern.average - minAverage) / spread
               : 0.5
@@ -71,15 +73,16 @@ export const WeekdayPatternCard = ({ data }: WeekdayPatternCardProps) => {
 
             return (
               <div key={dayIndex} className="flex-1 flex flex-col items-center gap-1 group relative">
-                <div
-                  className="w-full rounded-t-lg transition-all duration-300 group-hover:opacity-80"
-                  style={{
-                    height: `${heightPercent}%`,
-                    backgroundColor: color,
-                    boxShadow: isBest ? `0 0 12px ${color}40` : 'none',
-                    minHeight: '4px',
-                  }}
-                />
+                <div className="w-full h-16 flex items-end">
+                  <div
+                    className="w-full rounded-t-lg transition-all duration-300 group-hover:opacity-80"
+                    style={{
+                      height: `${heightPercent}%`,
+                      backgroundColor: color,
+                      boxShadow: isBest ? `0 0 12px ${color}40` : 'none',
+                    }}
+                  />
+                </div>
                 <span className={`text-[10px] sm:text-xs ${isBest || isWorst ? 'font-semibold text-slate-200' : 'text-slate-500'}`}>
                   {SHORT_NAMES[dayIndex]}
                 </span>
