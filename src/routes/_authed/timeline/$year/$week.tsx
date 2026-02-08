@@ -15,7 +15,7 @@ import { AppHeader } from '../../../../components/ui/AppHeader'
 import { RegenerateConfirmModal } from '../../../../components/reflection/RegenerateConfirmModal'
 import { TimelineDayItem } from '../../../../components/timeline/TimelineDayItem'
 import { WeeklySummarySection } from '../../../../components/timeline/WeeklySummarySection'
-import { getWeekMoodDescription } from '../../../../constants/mood'
+import { getWeekMoodDescription } from '../../../../constants'
 import { getAdjacentWeek, getWeekDays } from '../../../../utils/isoWeek'
 import { getTodayDateString } from '../../../../utils/date'
 import '../../../../components/timeline/timeline.css'
@@ -83,6 +83,8 @@ const TimelineWeekPage = () => {
   const isWeekComplete = !isCurrentWeek || (isSunday && hasSundayEntry)
   const moodDescription = isWeekComplete ? getWeekMoodDescription(averageMood) : null
 
+  const weekNavLinkClass = "flex items-center gap-1.5 px-3 py-2 rounded-full text-slate-300 hover:text-white hover:bg-white/10 active:bg-white/15 transition-all duration-200"
+
   return (
     <>
       <RegenerateConfirmModal
@@ -108,7 +110,7 @@ const TimelineWeekPage = () => {
               to="/timeline/$year/$week"
               params={{ year: String(prevWeek.year), week: String(prevWeek.week) }}
               viewTransition={false}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-full text-slate-300 hover:text-white hover:bg-white/10 active:bg-white/15 transition-all duration-200"
+              className={weekNavLinkClass}
             >
               <ChevronLeft className="w-4 h-4" />
               <span className="text-sm font-medium">Förra</span>
@@ -126,7 +128,7 @@ const TimelineWeekPage = () => {
               to="/timeline/$year/$week"
               params={{ year: String(nextWeek.year), week: String(nextWeek.week) }}
               viewTransition={false}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-full text-slate-300 hover:text-white hover:bg-white/10 active:bg-white/15 transition-all duration-200"
+              className={weekNavLinkClass}
             >
               <span className="text-sm font-medium">Nästa</span>
               <ChevronRight className="w-4 h-4" />

@@ -21,6 +21,7 @@ import { MoodInsightCard } from '../../components/dashboard/MoodInsightCard'
 import { TodayEntryCard } from '../../components/dashboard/TodayEntryCard'
 import { WeekdayPatternCard } from '../../components/dashboard/WeekdayPatternCard'
 import { formatTime, formatRelativeDay, getTimeOfDayGreeting } from '../../utils/date'
+import { truncateText } from '../../utils/string'
 
 const HomePage = () => {
   const { hasEntries, todayEntry, moodTrend, streak, moodInsight, lastWeekSummary, chatPreview, incompletePastChat, weekdayPatterns } = Route.useLoaderData()
@@ -29,10 +30,7 @@ const HomePage = () => {
     return <Welcome />
   }
 
-  const truncateMessage = (text: string, maxLength: number) => {
-    if (text.length <= maxLength) return text
-    return text.slice(0, maxLength).trim() + '...'
-  }
+  const navLinkClass = "nav-link flex items-center gap-2 p-2.5 sm:px-4 sm:py-2 rounded-full hover:bg-white/10 active:bg-white/15 transition-all duration-200 text-slate-300 hover:text-white"
 
   return (
     <div className="min-h-screen">
@@ -45,7 +43,7 @@ const HomePage = () => {
           <nav className="flex gap-2 sm:gap-3">
             <Link
               to="/timeline"
-              className="nav-link flex items-center gap-2 p-2.5 sm:px-4 sm:py-2 rounded-full hover:bg-white/10 active:bg-white/15 transition-all duration-200 text-slate-300 hover:text-white"
+              className={navLinkClass}
               title="Tidslinje"
             >
               <Calendar className="w-5 h-5 sm:w-4 sm:h-4" />
@@ -53,7 +51,7 @@ const HomePage = () => {
             </Link>
             <Link
               to="/about-me"
-              className="nav-link flex items-center gap-2 p-2.5 sm:px-4 sm:py-2 rounded-full hover:bg-white/10 active:bg-white/15 transition-all duration-200 text-slate-300 hover:text-white"
+              className={navLinkClass}
               title="Om mig"
             >
               <User className="w-5 h-5 sm:w-4 sm:h-4" />
@@ -80,7 +78,7 @@ const HomePage = () => {
                   </div>
                   {chatPreview.lastMessage && (
                     <p className="text-sm text-slate-300 mb-3 line-clamp-2">
-                      {truncateMessage(chatPreview.lastMessage.content, 120)}
+                      {truncateText(chatPreview.lastMessage.content, 120)}
                     </p>
                   )}
                   <Link to="/reflect">
@@ -183,7 +181,7 @@ export const Route = createFileRoute('/_authed/')({
         getTodayEntry(),
         getMoodTrend({ data: { limit: 30 } }),
         getStreak(),
-        getMoodInsight({ data: { entryCount: 14 } }),
+        getMoodInsight({ data: {} }),
         getLastWeekSummary(),
         getChatPreview(),
         getIncompletePastChat(),

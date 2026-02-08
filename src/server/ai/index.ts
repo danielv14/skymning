@@ -6,11 +6,12 @@ import { sv } from 'date-fns/locale'
 import { DAY_SUMMARY_SYSTEM_PROMPT, WEEK_SUMMARY_SYSTEM_PROMPT, QUICK_POLISH_SYSTEM_PROMPT } from './prompts'
 import { openai } from './client'
 import { getMoodLabel } from '../../constants'
+import { capitalizeFirst } from '../../utils/string'
 
 const formatWeekday = (dateString: string): string => {
   const date = parseISO(dateString)
   const weekday = format(date, 'EEEE', { locale: sv })
-  return weekday.charAt(0).toUpperCase() + weekday.slice(1)
+  return capitalizeFirst(weekday)
 }
 
 const messageSchema = z.object({

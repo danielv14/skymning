@@ -21,6 +21,21 @@ import {
 } from "../../server/functions/chat";
 import { createEntry, getTodayEntry, getEntryForDate } from "../../server/functions/entries";
 import { formatTime, getTodayDateString } from "../../utils/date";
+import type { ChatMessage as DbChatMessage } from "../../server/db/schema";
+
+const getMessageText = (parts: UIMessage["parts"]) =>
+  parts
+    .filter((part) => part.type === "text")
+    .map((part) => part.content)
+    .join("");
+
+const dbMessagesToUIMessages = (messages: DbChatMessage[]): UIMessage[] =>
+  messages.map((message) => ({
+    id: `db-${message.id}`,
+    role: message.role as "user" | "assistant",
+    parts: [{ type: "text" as const, content: message.content }],
+    createdAt: new Date(message.createdAt),
+  }));
 
 const ReflectPage = () => {
   const router = useRouter();
@@ -37,12 +52,7 @@ const ReflectPage = () => {
   );
   const hasMounted = useRef(false);
 
-  const initialMessages: UIMessage[] = existingChat.map((message) => ({
-    id: `db-${message.id}`,
-    role: message.role as "user" | "assistant",
-    parts: [{ type: "text" as const, content: message.content }],
-    createdAt: new Date(message.createdAt),
-  }));
+  const initialMessages = dbMessagesToUIMessages(existingChat);
 
   const { messages: hookMessages, sendMessage, isLoading, setMessages } = useChat({
     connection: fetchServerSentEvents("/api/chat"),
@@ -58,13 +68,7 @@ const ReflectPage = () => {
       return;
     }
     if (existingChat.length > 0 && hookMessages.length === 0) {
-      const newMessages: UIMessage[] = existingChat.map((message) => ({
-        id: `db-${message.id}`,
-        role: message.role as "user" | "assistant",
-        parts: [{ type: "text" as const, content: message.content }],
-        createdAt: new Date(message.createdAt),
-      }));
-      setMessages(newMessages);
+      setMessages(dbMessagesToUIMessages(existingChat));
       savedMessageIds.current = new Set(
         existingChat.map((message) => `db-${message.id}`)
       );
@@ -177,14 +181,8 @@ const ReflectPage = () => {
     setReflectionDate(incompletePastChat.date);
 
     const pastChatMessages = await getChatForDate({ data: { date: incompletePastChat.date } });
-    const uiMessages: UIMessage[] = pastChatMessages.map((message) => ({
-      id: `db-${message.id}`,
-      role: message.role as "user" | "assistant",
-      parts: [{ type: "text" as const, content: message.content }],
-      createdAt: new Date(message.createdAt),
-    }));
 
-    setMessages(uiMessages);
+    setMessages(dbMessagesToUIMessages(pastChatMessages));
     savedMessageIds.current = new Set(pastChatMessages.map((m) => `db-${m.id}`));
     setRecoveryModalOpen(false);
   };
@@ -198,13 +196,6 @@ const ReflectPage = () => {
   const handleRecoveryDiscard = async () => {
     await clearPastChats();
     setRecoveryModalOpen(false);
-  };
-
-  const getMessageText = (parts: (typeof messages)[0]["parts"]) => {
-    return parts
-      .filter((part) => part.type === "text")
-      .map((part) => part.content)
-      .join("");
   };
 
   const chatMessages = messages.map((message) => ({

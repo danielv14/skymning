@@ -4,6 +4,7 @@ import {
   type MoodTrend,
   getInsightMessage,
 } from "../../constants/moodInsight";
+import { MOOD_INSIGHT_DAYS } from "../../constants";
 import { MoodEmoji } from "../mood/MoodEmoji";
 import { Card } from "../ui/Card";
 
@@ -69,7 +70,7 @@ export const MoodInsightCard = ({ insight }: MoodInsightCardProps) => {
         </div>
         <p className="text-white font-medium text-sm sm:text-base leading-relaxed flex-1">{message}</p>
         <p className="text-slate-500 text-xs mt-3">
-          Senaste 14 dagarna
+          Senaste {MOOD_INSIGHT_DAYS} dagarna
         </p>
       </div>
     </Card>

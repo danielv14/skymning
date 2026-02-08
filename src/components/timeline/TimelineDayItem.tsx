@@ -4,7 +4,7 @@ import { sv } from 'date-fns/locale'
 import { Link } from '@tanstack/react-router'
 import { Pencil } from 'lucide-react'
 import type { Entry } from '../../server/db/schema'
-import { MOODS } from '../../constants'
+import { MOODS, getMoodColor, MAX_DAYS_TO_FILL_IN } from '../../constants'
 import { Card } from '../ui/Card'
 import { MoodEmoji } from '../mood/MoodEmoji'
 import { EditReflectionModal } from '../reflection/EditReflectionModal'
@@ -21,12 +21,6 @@ const getMoodCardClass = (mood: number): string => {
   const name = MOODS.find(m => m.value === mood)?.name || 'okay'
   return `card-mood-${name}`
 }
-
-const getMoodColor = (mood: number): string => {
-  return MOODS.find(m => m.value === mood)?.color || '#64748b'
-}
-
-const MAX_DAYS_TO_FILL_IN = 5
 
 export const TimelineDayItem = ({ date, entry, useRelativeDates }: TimelineDayItemProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
