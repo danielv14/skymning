@@ -1,4 +1,4 @@
-import { RotateCw } from 'lucide-react'
+import { Pencil, RotateCw } from 'lucide-react'
 import { Button } from '../ui/Button'
 import { Card } from '../ui/Card'
 import { ExpandableText } from '../ui/ExpandableText'
@@ -12,6 +12,7 @@ type WeeklySummarySectionProps = {
   averageMood: number | null
   onGenerate: () => void
   onOpenRegenerateModal: () => void
+  onEdit: () => void
   isGenerating: boolean
   isRegenerating: boolean
 }
@@ -24,6 +25,7 @@ export const WeeklySummarySection = ({
   averageMood,
   onGenerate,
   onOpenRegenerateModal,
+  onEdit,
   isGenerating,
   isRegenerating,
 }: WeeklySummarySectionProps) => {
@@ -36,14 +38,23 @@ export const WeeklySummarySection = ({
         <div className="mb-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-white">Veckans summering</h2>
-            <button
-              onClick={onOpenRegenerateModal}
-              disabled={isRegenerating}
-              className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700/50 active:bg-slate-700/70 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              aria-label="Regenerera summering"
-            >
-              <RotateCw className={`w-4 h-4 ${isRegenerating ? 'animate-spin' : ''}`} />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={onEdit}
+                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700/50 active:bg-slate-700/70 transition-all duration-200"
+                aria-label="Redigera summering"
+              >
+                <Pencil className="w-4 h-4" />
+              </button>
+              <button
+                onClick={onOpenRegenerateModal}
+                disabled={isRegenerating}
+                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700/50 active:bg-slate-700/70 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Regenerera summering"
+              >
+                <RotateCw className={`w-4 h-4 ${isRegenerating ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
           </div>
           {roundedMood !== null && (
             <div className="flex items-center gap-3 mt-2">
