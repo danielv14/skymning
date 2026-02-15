@@ -4,10 +4,13 @@ En personlig reflektions- och dagboksapp på svenska. Följ ditt mående över t
 
 ## Features
 
-- **Dagliga reflektioner** - Skriv en kort sammanfattning av din dag
+- **Dagliga reflektioner** - Skriv en kort sammanfattning av din dag via AI-chatt eller snabbinmatning
 - **Mood tracking** - Betygsätt ditt mående (1-5) varje dag
 - **AI-assisterad skrivning** - Få hjälp att polera och förbättra dina reflektioner
 - **Veckosammanfattningar** - Automatiska AI-genererade sammanfattningar per vecka
+- **Månadsöversikter** - Dashboard med kalender-heatmap, humörfördelning och månadssammanfattningar
+- **Insikter** - AI-driven mönsteranalys som hittar korrelationer mellan aktiviteter och humör
+- **Dashboard** - Översikt med streak, humörtrend, veckodagsmönster och snabblänkar
 - **Timeline** - Se dina reflektioner över tid med mood-trender
 - **Personlig kontext** - Spara information om dig själv som AI:n använder för bättre svar
 - **Autentisering** - Skyddad med lösenord och krypterade sessioner
@@ -16,9 +19,10 @@ En personlig reflektions- och dagboksapp på svenska. Följ ditt mående över t
 
 - **Runtime**: Bun
 - **Framework**: TanStack Start (React + SSR)
-- **Database**: SQLite med Drizzle ORM
+- **Hosting**: Cloudflare Workers
+- **Database**: Cloudflare D1 (SQLite-compatible) med Drizzle ORM
 - **Styling**: Tailwind CSS v4
-- **AI**: TanStack AI med OpenAI (gpt-4o-mini)
+- **AI**: TanStack AI med OpenAI (gpt-4o)
 - **Language**: TypeScript (strict mode)
 
 ## Kom igång
@@ -67,21 +71,28 @@ Appen körs på http://localhost:3000 - du kommer dirigeras till `/login` där d
 
 ```bash
 # Development
-bun dev                    # Starta dev server på port 3000
+bun dev                    # Starta dev server på port 3000 (lokal D1 via miniflare)
 
-# Build & Preview
+# Build & Deploy
 bun run build              # Produktionsbygge
 bun run preview            # Förhandsgranska produktionsbygge
+bun run deploy             # Bygg och deploya till Cloudflare Workers
 
 # Type Checking
 npx tsc --noEmit           # Kör TypeScript-kontroll
 
-# Database
-bun db:push                # Pusha schemaändringar till SQLite
+# Database (lokal D1)
+bun db:push                # Synka schema till lokal D1
 bun db:reset               # Rensa alla tabeller
 bun db:seed                # Seeda 4 veckor med testdata
 bun db:reseed              # Reset + seed kombinerat
 bun db:clear-today         # Rensa dagens entry
+bun db:sync-prod           # Synka produktions-D1 till lokal
+
+# Database (produktion)
+bun db:migrate             # Kör väntande migreringar mot produktion
+bun db:migrate:generate    # Generera ny migrering från schemaändringar
+bun d1:studio              # Öppna D1 database studio
 ```
 
 ## Projektstruktur
@@ -89,19 +100,26 @@ bun db:clear-today         # Rensa dagens entry
 ```
 src/
   components/           # React-komponenter
-    mood/               # Mood-relaterade komponenter
-    reflection/         # Reflektions-komponenter
-    ui/                 # Generiska UI-komponenter (Button, Card, etc.)
+    dashboard/          # Dashboard-kort (StreakCard, TodayEntryCard, etc.)
+    insights/           # Insikts-komponenter (InsightCard)
+    months/             # Månadsvy-komponenter (CalendarHeatmap, MoodDistribution, etc.)
+    mood/               # Mood-relaterade komponenter (MoodEmoji, MoodTrend, etc.)
+    reflection/         # Reflektions-komponenter (MoodSelector, ChatMessage, etc.)
+    timeline/           # Timeline-komponenter (WeeklyEntryCard, WeeklySummarySection)
+    ui/                 # Generiska UI-komponenter (Button, Card, Modal, etc.)
   constants/            # Konstanter och scheman
   hooks/                # Custom React hooks
   routes/               # TanStack Router sidor
     _authed/            # Skyddade sidor (kräver inloggning)
-    api/                # API endpoints
+      months/           # Månadsvyer ($year/$month.tsx)
+      timeline/         # Tidslinje ($year/$week.tsx)
+    api/                # API endpoints (chat)
   server/               # Server-side kod
     ai/                 # AI/LLM-integration
     auth/               # Autentisering och sessioner
     db/                 # Databasschema och anslutning
-    functions/          # Server functions (RPC)
-  utils/                # Hjälpfunktioner
+    functions/          # Server functions (entries, chat, insights, weeklySummaries, monthlySummaries, auth)
+  utils/                # Hjälpfunktioner (date, isoWeek, string)
 scripts/                # Utility-scripts
+drizzle/                # Databasmigreringar
 ```

@@ -353,23 +353,26 @@ const averageMood = entries.reduce(...) / entries.length
 ```
 src/
   components/       # Reusable UI components
-    dashboard/      # Dashboard cards (RecentMoodCard, StreakCard, TodayEntryCard)
+    dashboard/      # Dashboard cards (StreakCard, TodayEntryCard, MoodInsightCard, WeekdayPatternCard, MissedYesterdayCard)
+    insights/       # Insights components (InsightCard)
+    months/         # Monthly view components (MonthlyCalendarHeatmap, MoodDistributionCard, MonthlySummarySection, etc.)
     mood/           # Mood-related components (MoodEmoji, MoodTrend, etc.)
     reflection/     # Reflection components (MoodSelector, SummaryEditor, ChatMessage, etc.)
     timeline/       # Timeline components (WeeklyEntryCard, WeeklySummarySection)
     ui/             # Generic UI (Button, Card, Modal, etc.)
-  constants/        # Constants (mood config, Zod schemas)
-  hooks/            # Custom React hooks (useAsyncGeneration)
+  constants/        # Constants (mood config, limits, Zod schemas)
+  hooks/            # Custom React hooks (useAsyncGeneration, useModalGeneration)
   routes/           # TanStack Router pages
     _authed/        # Protected routes (requires login)
+      months/       # Monthly views ($year/$month.tsx)
       timeline/     # Timeline views ($year/$week.tsx)
     api/            # API endpoints (chat)
   server/           # Server-side code
     ai/             # AI/LLM integration (client, prompts)
     auth/           # Authentication (session.ts)
     db/             # Database schema and connection
-    functions/      # Server functions (entries, userContext, weeklySummaries, auth)
-  utils/            # Utility functions (date, isoWeek, error)
+    functions/      # Server functions (entries, chat, insights, userContext, weeklySummaries, monthlySummaries, auth)
+  utils/            # Utility functions (date, isoWeek, string)
 scripts/            # Utility scripts (test-utils.ts)
 drizzle/            # Database migrations
 ```
