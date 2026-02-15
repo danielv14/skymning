@@ -8,6 +8,7 @@ import {
   isSameMonth,
   isToday,
   isFuture,
+  getISOWeek,
 } from 'date-fns'
 import { sv } from 'date-fns/locale'
 import { CalendarDays } from 'lucide-react'
@@ -68,7 +69,8 @@ export const MonthlyCalendarHeatmap = ({ year, month, entries }: MonthlyCalendar
 
         {/* Day labels */}
         <div>
-          <div className="grid grid-cols-7 mb-2">
+          <div className="grid grid-cols-[1.5rem_repeat(7,1fr)] gap-1 mb-2">
+            <div />
             {dayLabels.map((day) => (
               <div key={day} className="text-xs text-slate-500 text-center font-medium py-1">
                 {day}
@@ -79,7 +81,10 @@ export const MonthlyCalendarHeatmap = ({ year, month, entries }: MonthlyCalendar
           {/* Weeks */}
           <div className="grid gap-1">
             {weeks.map((week, weekIndex) => (
-              <div key={weekIndex} className="grid grid-cols-7 gap-1">
+              <div key={weekIndex} className="grid grid-cols-[1.5rem_repeat(7,1fr)] gap-1">
+                <span className="text-xs text-slate-500 font-medium self-center text-center tabular-nums">
+                  {getISOWeek(week[0])}
+                </span>
                 {week.map((day) => {
                   const dateStr = format(day, 'yyyy-MM-dd')
                   const mood = entryByDate.get(dateStr)
