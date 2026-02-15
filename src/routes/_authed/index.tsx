@@ -20,11 +20,12 @@ import { StreakCard } from '../../components/dashboard/StreakCard'
 import { MoodInsightCard } from '../../components/dashboard/MoodInsightCard'
 import { TodayEntryCard } from '../../components/dashboard/TodayEntryCard'
 import { WeekdayPatternCard } from '../../components/dashboard/WeekdayPatternCard'
-import { formatTime, formatRelativeDay, getTimeOfDayGreeting } from '../../utils/date'
+import { MissedYesterdayCard } from '../../components/dashboard/MissedYesterdayCard'
+import { formatTime, formatRelativeDay, getTimeOfDayGreeting, getTodayDateString, subtractDays } from '../../utils/date'
 import { truncateText } from '../../utils/string'
 
 const HomePage = () => {
-  const { hasEntries, todayEntry, moodTrend, streak, moodInsight, lastWeekSummary, chatPreview, incompletePastChat, weekdayPatterns } = Route.useLoaderData()
+  const { hasEntries, todayEntry, moodTrend, streak, moodInsight, lastWeekSummary, chatPreview, incompletePastChat, weekdayPatterns, yesterdayDate, yesterdayEntry } = Route.useLoaderData()
 
   if (!hasEntries) {
     return <Welcome />
@@ -128,6 +129,10 @@ const HomePage = () => {
 
         <TodayEntryCard entry={todayEntry} hasChatPreview={!!chatPreview} />
 
+        {!yesterdayEntry && (
+          <MissedYesterdayCard yesterdayDate={yesterdayDate} />
+        )}
+
         <div className="bento-grid">
           <div className="bento-half">
             <StreakCard streak={streak} />
@@ -184,7 +189,8 @@ export const Route = createFileRoute('/_authed/')({
     meta: [{ title: 'Skymning' }],
   }),
   loader: async () => {
-    const [hasEntries, todayEntry, moodTrend, streak, moodInsight, lastWeekSummary, chatPreview, incompletePastChat, weekdayPatterns] =
+    const yesterdayDate = subtractDays(getTodayDateString(), 1)
+    const [hasEntries, todayEntry, moodTrend, streak, moodInsight, lastWeekSummary, chatPreview, incompletePastChat, weekdayPatterns, yesterdayEntry] =
       await Promise.all([
         hasAnyEntries(),
         getTodayEntry(),
@@ -195,6 +201,7 @@ export const Route = createFileRoute('/_authed/')({
         getChatPreview(),
         getIncompletePastChat(),
         getWeekdayPatterns(),
+        getEntryForDate({ data: { date: yesterdayDate } }),
       ])
 
     let validPastChat = incompletePastChat
@@ -216,6 +223,8 @@ export const Route = createFileRoute('/_authed/')({
       chatPreview,
       incompletePastChat: validPastChat,
       weekdayPatterns,
+      yesterdayDate,
+      yesterdayEntry,
     }
   },
   component: HomePage,
