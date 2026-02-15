@@ -16,6 +16,7 @@ import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthedTimelineRouteImport } from './routes/_authed/timeline'
 import { Route as AuthedReflectRouteImport } from './routes/_authed/reflect'
 import { Route as AuthedQuickRouteImport } from './routes/_authed/quick'
+import { Route as AuthedInsightsRouteImport } from './routes/_authed/insights'
 import { Route as AuthedAboutMeRouteImport } from './routes/_authed/about-me'
 import { Route as AuthedTimelineYearWeekRouteImport } from './routes/_authed/timeline/$year/$week'
 import { Route as AuthedMonthsYearMonthRouteImport } from './routes/_authed/months/$year/$month'
@@ -54,6 +55,11 @@ const AuthedQuickRoute = AuthedQuickRouteImport.update({
   path: '/quick',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedInsightsRoute = AuthedInsightsRouteImport.update({
+  id: '/insights',
+  path: '/insights',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedAboutMeRoute = AuthedAboutMeRouteImport.update({
   id: '/about-me',
   path: '/about-me',
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthedIndexRoute
   '/login': typeof LoginRoute
   '/about-me': typeof AuthedAboutMeRoute
+  '/insights': typeof AuthedInsightsRoute
   '/quick': typeof AuthedQuickRoute
   '/reflect': typeof AuthedReflectRoute
   '/timeline': typeof AuthedTimelineRouteWithChildren
@@ -84,6 +91,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/about-me': typeof AuthedAboutMeRoute
+  '/insights': typeof AuthedInsightsRoute
   '/quick': typeof AuthedQuickRoute
   '/reflect': typeof AuthedReflectRoute
   '/timeline': typeof AuthedTimelineRouteWithChildren
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   '/_authed': typeof AuthedRouteWithChildren
   '/login': typeof LoginRoute
   '/_authed/about-me': typeof AuthedAboutMeRoute
+  '/_authed/insights': typeof AuthedInsightsRoute
   '/_authed/quick': typeof AuthedQuickRoute
   '/_authed/reflect': typeof AuthedReflectRoute
   '/_authed/timeline': typeof AuthedTimelineRouteWithChildren
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/about-me'
+    | '/insights'
     | '/quick'
     | '/reflect'
     | '/timeline'
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
   to:
     | '/login'
     | '/about-me'
+    | '/insights'
     | '/quick'
     | '/reflect'
     | '/timeline'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/_authed'
     | '/login'
     | '/_authed/about-me'
+    | '/_authed/insights'
     | '/_authed/quick'
     | '/_authed/reflect'
     | '/_authed/timeline'
@@ -199,6 +211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedQuickRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/insights': {
+      id: '/_authed/insights'
+      path: '/insights'
+      fullPath: '/insights'
+      preLoaderRoute: typeof AuthedInsightsRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/about-me': {
       id: '/_authed/about-me'
       path: '/about-me'
@@ -237,6 +256,7 @@ const AuthedTimelineRouteWithChildren = AuthedTimelineRoute._addFileChildren(
 
 interface AuthedRouteChildren {
   AuthedAboutMeRoute: typeof AuthedAboutMeRoute
+  AuthedInsightsRoute: typeof AuthedInsightsRoute
   AuthedQuickRoute: typeof AuthedQuickRoute
   AuthedReflectRoute: typeof AuthedReflectRoute
   AuthedTimelineRoute: typeof AuthedTimelineRouteWithChildren
@@ -246,6 +266,7 @@ interface AuthedRouteChildren {
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedAboutMeRoute: AuthedAboutMeRoute,
+  AuthedInsightsRoute: AuthedInsightsRoute,
   AuthedQuickRoute: AuthedQuickRoute,
   AuthedReflectRoute: AuthedReflectRoute,
   AuthedTimelineRoute: AuthedTimelineRouteWithChildren,

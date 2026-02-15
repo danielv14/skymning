@@ -22,6 +22,13 @@
       "when": 1771092777168,
       "tag": "0002_bent_silvermane",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1771152121229,
+      "tag": "0003_worthless_stephen_strange",
+      "breakpoints": true
     }
   ]
 }

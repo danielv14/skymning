@@ -63,7 +63,7 @@ Assistent: "Skönt! Förra veckan lät det stressigt med all övertid – känns
 - Alltid avsluta med en fråga
 - Vara för peppy när användaren har det tufft
 - Hitta på detaljer som användaren inte nämnde
-- Ge råd om användaren inte ber om det`
+- Ge råd om användaren inte ber om det`;
 
 // Day summary prompt
 export const DAY_SUMMARY_SYSTEM_PROMPT = `# Uppgift
@@ -118,7 +118,7 @@ Sammanfattning:
 En vanlig dag, inget speciellt hände.
 </example>
 
-Svara ENDAST med sammanfattningen, ingen inledning eller kommentar.`
+Svara ENDAST med sammanfattningen, ingen inledning eller kommentar.`;
 
 export const WEEK_SUMMARY_SYSTEM_PROMPT = `# Uppgift
 Sammanfatta följande dagboksinlägg från en vecka till en reflekterande veckosummering på svenska.
@@ -168,7 +168,7 @@ Sammanfattning:
 En fin vecka med stabilt bra humör. Samtalet med en gammal vän på tisdagen lyfte stämningen, och fredagens solpromenad rundade av veckan fint.
 </example>
 
-Svara ENDAST med sammanfattningen, ingen inledning eller kommentar.`
+Svara ENDAST med sammanfattningen, ingen inledning eller kommentar.`;
 
 export const QUICK_POLISH_SYSTEM_PROMPT = `# Uppgift
 Förbättra användarens text utan att ändra innehållet eller betydelsen.
@@ -208,7 +208,40 @@ Förbättrad:
 "Meh, inget speciellt har hänt."
 </example>
 
-Svara ENDAST med den förbättrade texten, ingen kommentar.`
+Svara ENDAST med den förbättrade texten, ingen kommentar.`;
+
+export const INSIGHTS_SYSTEM_PROMPT = `# Uppgift
+Analysera dagboksinlägg och hitta mönster, korrelationer och återkommande teman som kopplar ämnen till humör.
+
+# Kategorier att leta efter
+1. **topic_mood_correlation** – Specifika ämnen/aktiviteter som korrelerar med högt eller lågt humör
+2. **temporal_pattern** – Tidsmönster (veckodagar, perioder, säsonger)
+3. **recurring_theme** – Återkommande teman eller ämnen i reflektionerna
+4. **positive_correlation** – Saker som konsekvent kopplas till bra humör
+5. **negative_correlation** – Saker som konsekvent kopplas till dåligt humör
+6. **observation** – Övriga intressanta observationer
+
+# Riktlinjer
+- Var konkret och referera till faktisk data – hitta inte på mönster som inte finns
+- Returnera 3-8 insikter beroende på hur mycket data som finns
+- Skriv på svenska med "du"-tilltal
+- Varje insikt ska ha en kort, beskrivande titel och en mer detaljerad beskrivning
+- Ange confidence: "high" om mönstret är tydligt och återkommande, "medium" om det finns stöd men inte är starkt, "low" om det är en intressant observation med begränsat stöd
+- frequency anger hur ofta mönstret förekommer (t.ex. "3 av 4 måndagar", "de senaste 2 veckorna")
+- relatedMoods är en array av humörvärden (1-5) som mönstret relaterar till
+
+# Svarsformat
+Svara ENDAST med en JSON-array, ingen inledning eller kommentar:
+[
+  {
+    "category": "positive_correlation",
+    "title": "Träning lyfter humöret",
+    "description": "När du nämner träning eller motion i dina reflektioner har du konsekvent humör 4-5. Det verkar vara en stark positiv faktor för ditt välmående.",
+    "confidence": "high",
+    "relatedMoods": [4, 5],
+    "frequency": "8 av 10 gånger"
+  }
+]`;
 
 export const MONTH_SUMMARY_SYSTEM_PROMPT = `# Uppgift
 Sammanfatta följande dagboksinlägg och veckosummeringar från en månad till en reflekterande månadssummering på svenska.
@@ -247,4 +280,4 @@ Sammanfattning:
 En lugn och stabil månad utan större dramatik. Vardagen rullade på med sina vanliga rutiner, och du verkade trivas i det lugnet.
 </example>
 
-Svara ENDAST med sammanfattningen, ingen inledning eller kommentar.`
+Svara ENDAST med sammanfattningen, ingen inledning eller kommentar.`;

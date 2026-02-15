@@ -21,7 +21,7 @@ export const weeklySummaries = sqliteTable(
       .notNull()
       .$defaultFn(() => new Date().toISOString()),
   },
-  (table) => [unique("year_week_unique").on(table.year, table.week)]
+  (table) => [unique("year_week_unique").on(table.year, table.week)],
 );
 
 export const monthlySummaries = sqliteTable(
@@ -35,7 +35,7 @@ export const monthlySummaries = sqliteTable(
       .notNull()
       .$defaultFn(() => new Date().toISOString()),
   },
-  (table) => [unique("year_month_unique").on(table.year, table.month)]
+  (table) => [unique("year_month_unique").on(table.year, table.month)],
 );
 
 export const userContext = sqliteTable("user_context", {
@@ -58,7 +58,19 @@ export const chatMessages = sqliteTable("chat_messages", {
     .$defaultFn(() => new Date().toISOString()),
 });
 
+export const insights = sqliteTable("insights", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  insightsJson: text("insights_json").notNull(),
+  analyzedEntryCount: integer("analyzed_entry_count").notNull(),
+  periodStart: text("period_start").notNull(),
+  periodEnd: text("period_end").notNull(),
+  createdAt: text("created_at")
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
+});
+
 export type Entry = typeof entries.$inferSelect;
 export type WeeklySummary = typeof weeklySummaries.$inferSelect;
 export type MonthlySummary = typeof monthlySummaries.$inferSelect;
 export type ChatMessage = typeof chatMessages.$inferSelect;
+export type Insight = typeof insights.$inferSelect;
