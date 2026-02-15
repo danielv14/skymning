@@ -9,7 +9,7 @@ export {
   getPeriodMoodDescription,
   type MoodConfig,
 } from './mood'
-export { dateString, weekInputSchema, type WeekInput } from './schemas'
+export { dateString, weekInputSchema, monthInputSchema, type WeekInput, type MonthInput } from './schemas'
 export {
   MAX_DAYS_TO_FILL_IN,
   MOOD_INSIGHT_DAYS,

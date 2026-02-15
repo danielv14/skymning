@@ -18,6 +18,7 @@ import { Route as AuthedReflectRouteImport } from './routes/_authed/reflect'
 import { Route as AuthedQuickRouteImport } from './routes/_authed/quick'
 import { Route as AuthedAboutMeRouteImport } from './routes/_authed/about-me'
 import { Route as AuthedTimelineYearWeekRouteImport } from './routes/_authed/timeline/$year/$week'
+import { Route as AuthedMonthsYearMonthRouteImport } from './routes/_authed/months/$year/$month'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -63,15 +64,21 @@ const AuthedTimelineYearWeekRoute = AuthedTimelineYearWeekRouteImport.update({
   path: '/$year/$week',
   getParentRoute: () => AuthedTimelineRoute,
 } as any)
+const AuthedMonthsYearMonthRoute = AuthedMonthsYearMonthRouteImport.update({
+  id: '/months/$year/$month',
+  path: '/months/$year/$month',
+  getParentRoute: () => AuthedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AuthedIndexRoute
   '/login': typeof LoginRoute
   '/about-me': typeof AuthedAboutMeRoute
   '/quick': typeof AuthedQuickRoute
   '/reflect': typeof AuthedReflectRoute
   '/timeline': typeof AuthedTimelineRouteWithChildren
   '/api/chat': typeof ApiChatRoute
+  '/': typeof AuthedIndexRoute
+  '/months/$year/$month': typeof AuthedMonthsYearMonthRoute
   '/timeline/$year/$week': typeof AuthedTimelineYearWeekRoute
 }
 export interface FileRoutesByTo {
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/timeline': typeof AuthedTimelineRouteWithChildren
   '/api/chat': typeof ApiChatRoute
   '/': typeof AuthedIndexRoute
+  '/months/$year/$month': typeof AuthedMonthsYearMonthRoute
   '/timeline/$year/$week': typeof AuthedTimelineYearWeekRoute
 }
 export interface FileRoutesById {
@@ -94,18 +102,20 @@ export interface FileRoutesById {
   '/_authed/timeline': typeof AuthedTimelineRouteWithChildren
   '/api/chat': typeof ApiChatRoute
   '/_authed/': typeof AuthedIndexRoute
+  '/_authed/months/$year/$month': typeof AuthedMonthsYearMonthRoute
   '/_authed/timeline/$year/$week': typeof AuthedTimelineYearWeekRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
     | '/login'
     | '/about-me'
     | '/quick'
     | '/reflect'
     | '/timeline'
     | '/api/chat'
+    | '/'
+    | '/months/$year/$month'
     | '/timeline/$year/$week'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | '/timeline'
     | '/api/chat'
     | '/'
+    | '/months/$year/$month'
     | '/timeline/$year/$week'
   id:
     | '__root__'
@@ -127,6 +138,7 @@ export interface FileRouteTypes {
     | '/_authed/timeline'
     | '/api/chat'
     | '/_authed/'
+    | '/_authed/months/$year/$month'
     | '/_authed/timeline/$year/$week'
   fileRoutesById: FileRoutesById
 }
@@ -148,7 +160,7 @@ declare module '@tanstack/react-router' {
     '/_authed': {
       id: '/_authed'
       path: ''
-      fullPath: '/'
+      fullPath: ''
       preLoaderRoute: typeof AuthedRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -201,6 +213,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedTimelineYearWeekRouteImport
       parentRoute: typeof AuthedTimelineRoute
     }
+    '/_authed/months/$year/$month': {
+      id: '/_authed/months/$year/$month'
+      path: '/months/$year/$month'
+      fullPath: '/months/$year/$month'
+      preLoaderRoute: typeof AuthedMonthsYearMonthRouteImport
+      parentRoute: typeof AuthedRoute
+    }
   }
 }
 
@@ -222,6 +241,7 @@ interface AuthedRouteChildren {
   AuthedReflectRoute: typeof AuthedReflectRoute
   AuthedTimelineRoute: typeof AuthedTimelineRouteWithChildren
   AuthedIndexRoute: typeof AuthedIndexRoute
+  AuthedMonthsYearMonthRoute: typeof AuthedMonthsYearMonthRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
@@ -230,6 +250,7 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedReflectRoute: AuthedReflectRoute,
   AuthedTimelineRoute: AuthedTimelineRouteWithChildren,
   AuthedIndexRoute: AuthedIndexRoute,
+  AuthedMonthsYearMonthRoute: AuthedMonthsYearMonthRoute,
 }
 
 const AuthedRouteWithChildren =

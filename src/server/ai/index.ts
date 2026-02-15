@@ -1,9 +1,9 @@
 import { createServerFn } from '@tanstack/react-start'
 import { chat } from '@tanstack/ai'
 import { z } from 'zod'
-import { format, parseISO } from 'date-fns'
+import { format, getISOWeek, parseISO } from 'date-fns'
 import { sv } from 'date-fns/locale'
-import { DAY_SUMMARY_SYSTEM_PROMPT, WEEK_SUMMARY_SYSTEM_PROMPT, QUICK_POLISH_SYSTEM_PROMPT } from './prompts'
+import { DAY_SUMMARY_SYSTEM_PROMPT, WEEK_SUMMARY_SYSTEM_PROMPT, MONTH_SUMMARY_SYSTEM_PROMPT, QUICK_POLISH_SYSTEM_PROMPT } from './prompts'
 import { openai } from './client'
 import { getMoodLabel } from '../../constants'
 import { capitalizeFirst } from '../../utils/string'
@@ -72,6 +72,73 @@ export const generateWeeklySummary = createServerFn({ method: 'POST' })
         {
           role: 'user',
           content: entriesText,
+        },
+      ],
+      stream: false,
+    })
+
+    return response
+  })
+
+const generateMonthlySummarySchema = z.object({
+  entries: z.array(
+    z.object({
+      date: z.string(),
+      mood: z.number(),
+      summary: z.string(),
+    })
+  ),
+  weeklySummaries: z.array(
+    z.object({
+      year: z.number(),
+      week: z.number(),
+      summary: z.string(),
+    })
+  ),
+})
+
+const formatAverageMood = (entries: Array<{ mood: number }>): string => {
+  if (entries.length === 0) return '?'
+  const average = entries.reduce((sum, entry) => sum + entry.mood, 0) / entries.length
+  return average.toFixed(1)
+}
+
+export const generateMonthlySummary = createServerFn({ method: 'POST' })
+  .inputValidator((data: unknown) => generateMonthlySummarySchema.parse(data))
+  .handler(async ({ data }) => {
+    const weeklySummariesText = data.weeklySummaries
+      .map((weeklySummary) => {
+        const weekEntries = data.entries.filter((entry) => {
+          const entryDate = parseISO(entry.date)
+          return getISOWeek(entryDate) === weeklySummary.week
+        })
+        const averageMood = formatAverageMood(weekEntries)
+        return `Vecka ${weeklySummary.week} (snitthumör: ${averageMood}): ${weeklySummary.summary}`
+      })
+      .join('\n\n')
+
+    const entriesText = data.entries
+      .map(
+        (entry) =>
+          `${formatWeekday(entry.date)} ${entry.date} (${getMoodLabel(entry.mood)}):\n${entry.summary}`
+      )
+      .join('\n\n---\n\n')
+
+    const fullPromptContent = [
+      'Veckosummeringar:',
+      weeklySummariesText,
+      '',
+      'Enskilda dagboksinlägg:',
+      entriesText,
+    ].join('\n\n')
+
+    const response = await chat({
+      adapter: openai,
+      systemPrompts: [MONTH_SUMMARY_SYSTEM_PROMPT],
+      messages: [
+        {
+          role: 'user',
+          content: fullPromptContent,
         },
       ],
       stream: false,

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { Calendar, User, MessageCircle, Clock } from 'lucide-react'
+import { Calendar, BarChart3, User, MessageCircle, Clock } from 'lucide-react'
 import {
   getTodayEntry,
   getMoodTrend,
@@ -48,6 +48,15 @@ const HomePage = () => {
             >
               <Calendar className="w-5 h-5 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline text-sm font-medium">Tidslinje</span>
+            </Link>
+            <Link
+              to="/months/$year/$month"
+              params={{ year: String(new Date().getFullYear()), month: String(new Date().getMonth() + 1) }}
+              className={navLinkClass}
+              title="Månader"
+            >
+              <BarChart3 className="w-5 h-5 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline text-sm font-medium">Månader</span>
             </Link>
             <Link
               to="/about-me"

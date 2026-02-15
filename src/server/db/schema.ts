@@ -24,6 +24,20 @@ export const weeklySummaries = sqliteTable(
   (table) => [unique("year_week_unique").on(table.year, table.week)]
 );
 
+export const monthlySummaries = sqliteTable(
+  "monthly_summaries",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    year: integer("year").notNull(),
+    month: integer("month").notNull(),
+    summary: text("summary").notNull(),
+    createdAt: text("created_at")
+      .notNull()
+      .$defaultFn(() => new Date().toISOString()),
+  },
+  (table) => [unique("year_month_unique").on(table.year, table.month)]
+);
+
 export const userContext = sqliteTable("user_context", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   content: text("content").notNull().default(""),
@@ -46,4 +60,5 @@ export const chatMessages = sqliteTable("chat_messages", {
 
 export type Entry = typeof entries.$inferSelect;
 export type WeeklySummary = typeof weeklySummaries.$inferSelect;
+export type MonthlySummary = typeof monthlySummaries.$inferSelect;
 export type ChatMessage = typeof chatMessages.$inferSelect;

@@ -209,3 +209,42 @@ Förbättrad:
 </example>
 
 Svara ENDAST med den förbättrade texten, ingen kommentar.`
+
+export const MONTH_SUMMARY_SYSTEM_PROMPT = `# Uppgift
+Sammanfatta följande dagboksinlägg och veckosummeringar från en månad till en reflekterande månadssummering på svenska.
+
+# Riktlinjer
+- Fokusera på övergripande teman, mönster och utveckling under månaden
+- Använd veckosummeringarna som grund för de stora dragen, och enskilda dagboksinlägg för konkreta detaljer
+- Referera till specifika veckor när det är relevant (t.ex. "Under tredje veckan..." eller "I mitten av månaden...")
+- Var balanserad – om det varit både bra och dåliga perioder, nämn båda
+- Skriv i andra person ("du") för personlig känsla
+- Hitta INTE på detaljer som inte finns i inläggen eller summeringarna
+- Var konkret – referera till faktiska händelser snarare än generella känslor
+- Om månaden varit händelselös eller likformig, håll det kort (2-3 meningar)
+- Om månaden haft tydliga skiften eller teman, utveckla mer (4-6 meningar)
+
+# Exempel
+
+<example>
+Veckosummeringar:
+- Vecka 1 (snitthumör: 3.2): En lugn och händelselös vecka utan dramatik. Rutinerna rullade på som vanligt.
+- Vecka 2 (snitthumör: 4.0): En fin vecka med stabilt bra humör. Samtalet med en gammal vän på tisdagen lyfte stämningen.
+- Vecka 3 (snitthumör: 2.5): En tuff vecka. Stressigt på jobbet och dålig sömn under flera nätter.
+- Vecka 4 (snitthumör: 3.8): En vecka med både toppar och dalar. Du kämpade med en trög start men avrundade fint med kollegorna på fredagen.
+
+Sammanfattning:
+Månaden startade lugnt men fick en positiv skjuts under andra veckan, inte minst tack vare samtalet med en gammal vän. Tredje veckan blev tyngre med jobbstress och sömnproblem, men du lyckades hämta dig och avsluta månaden på ett bra sätt. Överlag en månad med tydliga svängningar, men med en positiv avslutning.
+</example>
+
+<example>
+Veckosummeringar:
+- Vecka 1 (snitthumör: 3.0): En helt okej vecka. Varken upp eller ner, rutinerna rullade på.
+- Vecka 2 (snitthumör: 3.2): Lugn vecka igen. Lite regn och mysiga kvällar hemma.
+- Vecka 3 (snitthumör: 3.0): Ytterligare en stabil vecka utan större händelser.
+
+Sammanfattning:
+En lugn och stabil månad utan större dramatik. Vardagen rullade på med sina vanliga rutiner, och du verkade trivas i det lugnet.
+</example>
+
+Svara ENDAST med sammanfattningen, ingen inledning eller kommentar.`

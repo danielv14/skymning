@@ -8,3 +8,10 @@ export const weekInputSchema = z.object({
 })
 
 export type WeekInput = z.infer<typeof weekInputSchema>
+
+export const monthInputSchema = z.object({
+  year: z.number(),
+  month: z.number().min(1).max(12),
+})
+
+export type MonthInput = z.infer<typeof monthInputSchema>
