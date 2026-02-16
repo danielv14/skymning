@@ -189,6 +189,28 @@ export const updateEntry = createServerFn({ method: 'POST' })
     return updated ?? null
   })
 
+const deleteEntrySchema = z.object({
+  id: z.number(),
+})
+
+export const deleteEntry = createServerFn({ method: 'POST' })
+  .middleware([authMiddleware])
+  .inputValidator((data: unknown) => deleteEntrySchema.parse(data))
+  .handler(async ({ data }) => {
+    const db = getDb()
+
+    const entry = await db.query.entries.findFirst({
+      where: eq(entries.id, data.id),
+    })
+
+    if (!entry) return null
+
+    await db.delete(chatMessages).where(eq(chatMessages.date, entry.date))
+    await db.delete(entries).where(eq(entries.id, data.id))
+
+    return { success: true }
+  })
+
 const moodInsightSchema = z.object({
   entryCount: z.number().min(4).max(30).optional().default(MOOD_INSIGHT_DAYS),
 })
