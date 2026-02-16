@@ -81,17 +81,9 @@ Let users mark certain entries as important - moments they want to revisit. Show
 
 ---
 
-### 9. Dark/light theme toggle
-
-The app is permanently dark. Some users prefer light mode, especially during daytime. The aurora aesthetic could work beautifully in light mode with softer gradients.
-
-**Implementation:** CSS custom properties already in use - add a light theme variant. Toggle in `/about-me` or header. Store preference in `userContext`.
-
----
-
 ## Ambitious Features (Multi-day effort, high impact)
 
-### 10. Sleep & energy tracking
+### 9. Sleep & energy tracking
 
 Add optional daily metrics: sleep hours (slider 0-12) and energy level (1-5). These are the strongest predictors of mood and would make insights dramatically more useful.
 
@@ -104,7 +96,7 @@ Add optional daily metrics: sleep hours (slider 0-12) and energy level (1-5). Th
 
 ---
 
-### 11. Time capsule reflections
+### 10. Time capsule reflections
 
 Write a reflection addressed to your future self. Set a date (1 month, 3 months, 1 year) when it unlocks. "Öppna om 3 månader."
 
@@ -117,7 +109,7 @@ Write a reflection addressed to your future self. Set a date (1 month, 3 months,
 
 ---
 
-### 12. AI-suggested activities
+### 11. AI-suggested activities
 
 When mood dips, suggest activities that have historically correlated with better mood. "Förra gången du kände så här hjälpte det att träna" - based on patterns in actual reflections.
 
@@ -130,7 +122,7 @@ When mood dips, suggest activities that have historically correlated with better
 
 ---
 
-### 13. Multi-dimensional mood tracking
+### 12. Multi-dimensional mood tracking
 
 Instead of a single 1-5 scale, track multiple dimensions: energy (low-high), pleasantness (unpleasant-pleasant), stress (calm-stressed). This maps to the circumplex model of affect used in psychology.
 
@@ -145,7 +137,7 @@ Instead of a single 1-5 scale, track multiple dimensions: energy (low-high), ple
 
 ## UX & Polish
 
-### 14. Richer empty states
+### 13. Richer empty states
 
 Empty states currently show generic text. Each empty state could have unique, encouraging copy and a relevant illustration or animation.
 
@@ -153,7 +145,7 @@ Empty states currently show generic text. Each empty state could have unique, en
 
 ---
 
-### 15. Haptic feedback on mobile
+### 14. Haptic feedback on mobile
 
 Add subtle vibration feedback when selecting mood, saving entries, hitting streaks. Small detail that makes the app feel premium on mobile.
 
@@ -161,7 +153,7 @@ Add subtle vibration feedback when selecting mood, saving entries, hitting strea
 
 ---
 
-### 16. Animated mood transitions
+### 15. Animated mood transitions
 
 When navigating between days in timeline, animate the mood emoji transitioning from one state to another. Subtle morphing animation.
 
@@ -169,7 +161,7 @@ When navigating between days in timeline, animate the mood emoji transitioning f
 
 ---
 
-### 17. "On this day" memories
+### 16. "On this day" memories
 
 Show what you reflected on exactly 1 week, 1 month, or 1 year ago. Nostalgia is a powerful engagement driver.
 
@@ -179,7 +171,7 @@ Show what you reflected on exactly 1 week, 1 month, or 1 year ago. Nostalgia is 
 
 ## Technical Improvements
 
-### 18. Better error boundaries
+### 17. Better error boundaries
 
 Add React error boundaries around each major section (dashboard cards, timeline, etc.) so a single component failure doesn't crash the whole page.
 
@@ -187,7 +179,7 @@ Add React error boundaries around each major section (dashboard cards, timeline,
 
 ---
 
-### 19. Database indexes for performance
+### 18. Database indexes for performance
 
 As entries grow into hundreds/thousands, queries like streak calculation and mood trends could slow down. Add indexes on commonly queried columns.
 
@@ -195,7 +187,7 @@ As entries grow into hundreds/thousands, queries like streak calculation and moo
 
 ---
 
-### 20. Rate limit persistence
+### 19. Rate limit persistence
 
 Current rate limiting is in-memory and resets on Worker cold-start. Use D1 or KV for persistent rate limiting.
 
@@ -203,7 +195,7 @@ Current rate limiting is in-memory and resets on Worker cold-start. Use D1 or KV
 
 ---
 
-### 21. E2E tests
+### 20. E2E tests
 
 No end-to-end tests exist. Playwright tests for critical flows (login, create entry, view timeline) would catch regressions.
 
@@ -213,25 +205,25 @@ No end-to-end tests exist. Playwright tests for critical flows (login, create en
 
 ## Wild Ideas
 
-### 22. Mood music
+### 21. Mood music
 
 Generate or suggest a Spotify playlist based on your current mood. "Din dag låter som..." with a curated mix.
 
 ---
 
-### 23. AI art for your day
+### 22. AI art for your day
 
 Generate a small abstract image that represents your day's reflection. Use DALL-E or Stable Diffusion. Each day gets a unique visual.
 
 ---
 
-### 24. Physical journal export
+### 23. Physical journal export
 
 Generate a beautifully formatted PDF of a month/year's reflections, designed for printing and binding as a physical journal.
 
 ---
 
-### 25. AI therapist mode
+### 24. AI therapist mode
 
 A deeper, more structured conversation mode based on CBT (cognitive behavioral therapy) principles. Identify cognitive distortions, challenge negative thinking patterns, guided exercises.
 
