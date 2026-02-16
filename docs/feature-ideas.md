@@ -315,51 +315,44 @@ Show what you reflected on exactly 1 week, 1 month, or 1 year ago. Nostalgia is 
 
 ---
 
-### 37. Improved AI conversation starters
-The AI starts every conversation with a generic opener. It could reference the user's recent patterns: "Jag ser att veckan har varit lite tuff - hur mår du idag?" or "Grattis till 30 dagars streak! Berätta om din dag."
-
-**Implementation:** Feed recent mood data + streak + day context into the system prompt's opening message generation.
-
----
-
 ## Technical Improvements
 
-### 38. Optimistic UI updates
+### 37. Optimistic UI updates
 Entry creation and edits could use optimistic updates - show the result immediately while the server processes in the background. Makes the app feel instant.
 
 **Implementation:** TanStack's mutation API with optimistic updates. Rollback on failure.
 
 ---
 
-### 39. Better error boundaries
+### 38. Better error boundaries
 Add React error boundaries around each major section (dashboard cards, timeline, etc.) so a single component failure doesn't crash the whole page.
 
 **Implementation:** `ErrorBoundary` components with friendly fallback UI per section.
 
 ---
 
-### 40. Database indexes for performance
+### 39. Database indexes for performance
 As entries grow into hundreds/thousands, queries like streak calculation and mood trends could slow down. Add indexes on commonly queried columns.
 
 **Implementation:** Add indexes on `entries.date`, `chatMessages.date`, `weeklySummaries(year, week)` in schema.
 
 ---
 
-### 41. Rate limit persistence
+### 40. Rate limit persistence
 Current rate limiting is in-memory and resets on Worker cold-start. Use D1 or KV for persistent rate limiting.
 
 **Implementation:** Store rate limit data in D1 or Cloudflare KV. More robust against cold starts.
 
 ---
 
-### 42. E2E tests
+### 41. E2E tests
 No end-to-end tests exist. Playwright tests for critical flows (login, create entry, view timeline) would catch regressions.
 
 **Implementation:** Add Playwright setup, write tests for: login flow, chat reflection, quick entry, timeline navigation, monthly view.
 
 ---
 
-### 43. Accessibility audit
+### 42. Accessibility audit
 The app uses semantic HTML and focus styles, but a proper screen reader audit would likely reveal gaps. ARIA labels on mood selectors, chart descriptions, etc.
 
 **Implementation:** Audit with axe-core, fix issues. Add `aria-label` to icon-only buttons, mood color descriptions for screen readers.
@@ -368,32 +361,32 @@ The app uses semantic HTML and focus styles, but a proper screen reader audit wo
 
 ## Wild Ideas
 
-### 44. Mood music
+### 43. Mood music
 Generate or suggest a Spotify playlist based on your current mood. "Din dag låter som..." with a curated mix.
 
 ---
 
-### 45. AI art for your day
+### 44. AI art for your day
 Generate a small abstract image that represents your day's reflection. Use DALL-E or Stable Diffusion. Each day gets a unique visual.
 
 ---
 
-### 46. Collaborative journaling
+### 45. Collaborative journaling
 Invite a partner or close friend to share selective insights (not full entries). See mood trends together. "Ni mår bättre samma dagar."
 
 ---
 
-### 47. Physical journal export
+### 46. Physical journal export
 Generate a beautifully formatted PDF of a month/year's reflections, designed for printing and binding as a physical journal.
 
 ---
 
-### 48. Mood map
+### 47. Mood map
 If location data is available, show a map of where you tend to be happiest. Heatmap overlay on a city map.
 
 ---
 
-### 49. AI therapist mode
+### 48. AI therapist mode
 A deeper, more structured conversation mode based on CBT (cognitive behavioral therapy) principles. Identify cognitive distortions, challenge negative thinking patterns, guided exercises.
 
 > **Note:** This needs careful ethical consideration and clear disclaimers that it's not a replacement for professional help.

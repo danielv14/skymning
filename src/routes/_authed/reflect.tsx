@@ -37,6 +37,8 @@ const dbMessagesToUIMessages = (messages: DbChatMessage[]): UIMessage[] =>
     createdAt: new Date(message.createdAt),
   }));
 
+const GREETING_TRIGGER = '[GREETING]';
+
 const ReflectPage = () => {
   const router = useRouter();
   const { existingChat, incompletePastChat } = Route.useLoaderData();
@@ -51,6 +53,7 @@ const ReflectPage = () => {
     new Set(existingChat.map((message) => `db-${message.id}`))
   );
   const hasMounted = useRef(false);
+  const greetingSent = useRef(false);
 
   const initialMessages = dbMessagesToUIMessages(existingChat);
 
@@ -99,6 +102,16 @@ const ReflectPage = () => {
       scrollToBottom(true);
     }
   }, [messages]);
+
+  // Auto-trigger personalized greeting when starting a fresh conversation
+  useEffect(() => {
+    if (greetingSent.current) return;
+    if (existingChat.length > 0) return;
+    if (incompletePastChat) return;
+
+    greetingSent.current = true;
+    sendMessage(GREETING_TRIGGER);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (isLoading || messages.length === 0) return;
@@ -173,6 +186,11 @@ const ReflectPage = () => {
     setMessages([]);
     savedMessageIds.current.clear();
     setRestartDialogOpen(false);
+
+    // Re-trigger greeting after clearing chat
+    greetingSent.current = false;
+    sendMessage(GREETING_TRIGGER);
+    greetingSent.current = true;
   };
 
   const handleRecoveryContinue = async () => {
@@ -198,7 +216,12 @@ const ReflectPage = () => {
     setRecoveryModalOpen(false);
   };
 
-  const chatMessages = messages.map((message) => ({
+  const isGreetingTrigger = (message: UIMessage) =>
+    message.role === 'user' && getMessageText(message.parts) === GREETING_TRIGGER;
+
+  const visibleMessages = messages.filter((m) => !isGreetingTrigger(m));
+
+  const chatMessages = visibleMessages.map((message) => ({
     role: message.role as "user" | "assistant",
     content: getMessageText(message.parts),
   }));
@@ -236,7 +259,7 @@ const ReflectPage = () => {
           title="Dagens reflektion"
           subtitle="Ta en stund att reflektera"
           rightContent={
-            messages.length > 0 && (
+            visibleMessages.length > 0 && (
               <Button
                 variant="secondary"
                 size="sm"
@@ -252,7 +275,7 @@ const ReflectPage = () => {
 
         <div ref={scrollContainerRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
           <div className="max-w-2xl mx-auto px-4 sm:px-8 py-6 space-y-4">
-            {messages.length === 0 && !isLoading && (
+            {visibleMessages.length === 0 && !isLoading && (
               <div className="text-center py-16 sm:py-20">
                 <div className="relative inline-block mb-8">
                   <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/20 to-violet-400/20 rounded-full blur-2xl scale-150" />
@@ -269,7 +292,11 @@ const ReflectPage = () => {
               </div>
             )}
 
-            {messages.map((message) => (
+            {visibleMessages.length === 0 && isLoading && (
+              <ChatMessage role="assistant" text="" isStreaming />
+            )}
+
+            {visibleMessages.map((message) => (
               <ChatMessage
                 key={message.id}
                 role={message.role as "user" | "assistant"}
@@ -291,7 +318,7 @@ const ReflectPage = () => {
           onSend={handleSendMessage}
           onComplete={handleOpenModal}
           isLoading={isLoading}
-          canComplete={messages.length >= 2}
+          canComplete={visibleMessages.length >= 2}
         />
       </div>
     </>
