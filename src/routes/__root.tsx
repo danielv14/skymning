@@ -14,7 +14,7 @@ const RootComponent = () => {
       <head>
         <HeadContent />
       </head>
-      <body className="min-h-screen bg-slate-950 text-stone-100 font-sans">
+      <body className="min-h-screen text-stone-100 font-sans">
         <Outlet />
         <Toaster
           position="bottom-right"

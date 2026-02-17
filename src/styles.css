@@ -22,6 +22,18 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ===== APP BAKGRUND ===== */
+/* Subtle aurora-tinted gradient that adds depth to the flat slate-950 base */
+body {
+  background-color: #020617;
+  background-image:
+    radial-gradient(ellipse 120% 60% at 15% -10%, rgba(16, 185, 129, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 50% at 85% 110%, rgba(6, 182, 212, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 50% 50%, rgba(139, 92, 246, 0.02) 0%, transparent 40%),
+    linear-gradient(170deg, #020617 0%, #060d1a 30%, #0a1220 55%, #070e1c 75%, #020617 100%);
+  background-attachment: fixed;
+}
+
 /* ===== KOMPLEXA BAKGRUNDER (kan inte göras med Tailwind) ===== */
 
 /* Aurora natthimmel - Welcome-sida */

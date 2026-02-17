@@ -42,6 +42,7 @@ export const userContext = sqliteTable("user_context", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   content: text("content").notNull().default(""),
   historyCount: integer("history_count").notNull().default(10), // Antal tidigare reflektioner att inkludera i chatten (0, 5, 10, 20)
+  dismissedAt: text("dismissed_at"),
   updatedAt: text("updated_at")
     .notNull()
     .$defaultFn(() => new Date().toISOString()),

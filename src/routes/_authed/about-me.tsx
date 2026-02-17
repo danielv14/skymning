@@ -7,7 +7,9 @@ import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { Textarea } from '../../components/ui/Textarea'
 import { PageHeader } from '../../components/ui/PageHeader'
-import { Check, LogOut } from 'lucide-react'
+import { format, parseISO } from 'date-fns'
+import { sv } from 'date-fns/locale'
+import { Check, Info, LogOut } from 'lucide-react'
 
 const HISTORY_OPTIONS = [
   { value: 0, label: 'Ingen historik' },
@@ -36,6 +38,7 @@ const AboutMePage = () => {
     setIsSaving(true)
     try {
       await updateUserContext({ data: { content, historyCount } })
+      await router.invalidate()
       setShowSaved(true)
       setHasChanges(false)
       setTimeout(() => setShowSaved(false), 2000)
@@ -74,26 +77,38 @@ const AboutMePage = () => {
               <h2 className="text-lg font-semibold text-white mb-2">
                 Berätta om dig själv
               </h2>
-              <p className="text-slate-400 text-sm">
-                Skriv information som du vill att AI:n ska känna till när ni pratar. 
-                Till exempel vilka dina barn heter, vad du jobbar med, eller andra saker 
+              <p className="text-slate-400 text-sm sm:text-base">
+                Skriv information som du vill att AI:n ska känna till när ni pratar.
+                Till exempel vilka dina barn heter, vad du jobbar med, eller andra saker
                 som ger kontext till dina reflektioner.
               </p>
             </div>
 
-            <Textarea
-              value={content}
-              onChange={setContent}
-              placeholder="T.ex. Jag heter Anna och bor i Stockholm. Jag har två barn, Gustav (8 år) och Oscar (5 år). Jag jobbar som lärare på en grundskola..."
-              rows={8}
-              maxLength={2000}
-            />
+            <div>
+              <Textarea
+                value={content}
+                onChange={setContent}
+                placeholder="T.ex. Jag heter Anna och bor i Stockholm. Jag har två barn, Gustav (8 år) och Oscar (5 år). Jag jobbar som lärare på en grundskola..."
+                rows={8}
+                maxLength={2000}
+              />
+              <div className="flex items-baseline justify-between mt-2">
+                <p className="text-sm text-slate-500">
+                  {content.length > 0 ? `${content.length}/2000 tecken` : 'Inga ändringar'}
+                </p>
+                {userContext.updatedAt && (
+                  <p className="text-sm text-slate-500">
+                    Senast uppdaterad {format(parseISO(userContext.updatedAt), 'd MMMM yyyy', { locale: sv })}
+                  </p>
+                )}
+              </div>
+            </div>
 
             <div className="pt-4 border-t border-slate-700">
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm sm:text-base font-medium text-slate-300 mb-2">
                 Historik i chatten
               </label>
-              <p className="text-slate-400 text-sm mb-3">
+              <p className="text-slate-400 text-sm sm:text-base mb-3">
                 Välj hur många tidigare reflektioner AI:n ska ha tillgång till för att ge bättre kontext.
               </p>
               <div className="relative">
@@ -116,10 +131,7 @@ const AboutMePage = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-slate-500">
-                {content.length > 0 ? `${content.length}/2000 tecken` : 'Inga ändringar'}
-              </p>
+            <div className="flex items-center justify-end">
               <div className="flex items-center gap-3">
                 {showSaved && (
                   <span className="flex items-center gap-1 text-green-400 text-sm">
@@ -138,14 +150,19 @@ const AboutMePage = () => {
           </div>
         </Card>
 
-        <Card className="bg-slate-800/40">
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium text-slate-300">Hur används detta?</h3>
-            <p className="text-sm text-slate-400">
-              Informationen du skriver här inkluderas automatiskt i alla dina samtal med AI:n. 
-              Det hjälper AI:n att förstå din situation bättre och ge mer relevanta svar utan 
-              att du behöver upprepa samma kontext varje gång.
-            </p>
+        <Card className="bg-gradient-to-br from-slate-800/60 to-slate-700/30 border-slate-700/40">
+          <div className="flex items-start gap-3 sm:gap-4">
+            <div className="shrink-0 p-2 rounded-xl bg-cyan-500/15">
+              <Info className="w-4 h-4 text-cyan-400" />
+            </div>
+            <div>
+              <h3 className="text-sm sm:text-base font-medium text-slate-300 mb-1">Hur används detta?</h3>
+              <p className="text-sm sm:text-base text-slate-400">
+                Informationen du skriver här inkluderas automatiskt i alla dina samtal med AI:n.
+                Det hjälper AI:n att förstå din situation bättre och ge mer relevanta svar utan
+                att du behöver upprepa samma kontext varje gång.
+              </p>
+            </div>
           </div>
         </Card>
 

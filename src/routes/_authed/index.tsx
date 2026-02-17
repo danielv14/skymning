@@ -8,6 +8,7 @@ import {
   Sparkles,
   User,
 } from "lucide-react";
+import { ContextStalenessCard } from "../../components/dashboard/ContextStalenessCard";
 import { MissedYesterdayCard } from "../../components/dashboard/MissedYesterdayCard";
 import { MoodInsightCard } from "../../components/dashboard/MoodInsightCard";
 import { StreakCard } from "../../components/dashboard/StreakCard";
@@ -32,6 +33,7 @@ import {
   getWeekdayPatterns,
   hasAnyEntries,
 } from "../../server/functions/entries";
+import { getUserContextStaleness } from "../../server/functions/userContext";
 import { getLastWeekSummary } from "../../server/functions/weeklySummaries";
 import {
   formatRelativeDay,
@@ -55,6 +57,7 @@ const HomePage = () => {
     weekdayPatterns,
     yesterdayDate,
     yesterdayEntry,
+    contextStaleness,
   } = Route.useLoaderData();
 
   if (!hasEntries) {
@@ -201,6 +204,8 @@ const HomePage = () => {
           <MissedYesterdayCard yesterdayDate={yesterdayDate} />
         )}
 
+        {contextStaleness.isStale && <ContextStalenessCard />}
+
         <div className="bento-grid">
           <div className="bento-half">
             <StreakCard streak={streak} />
@@ -274,6 +279,7 @@ export const Route = createFileRoute("/_authed/")({
       incompletePastChat,
       weekdayPatterns,
       yesterdayEntry,
+      contextStaleness,
     ] = await Promise.all([
       hasAnyEntries(),
       getTodayEntry(),
@@ -285,6 +291,7 @@ export const Route = createFileRoute("/_authed/")({
       getIncompletePastChat(),
       getWeekdayPatterns(),
       getEntryForDate({ data: { date: yesterdayDate } }),
+      getUserContextStaleness(),
     ]);
 
     let validPastChat = incompletePastChat;
@@ -310,6 +317,7 @@ export const Route = createFileRoute("/_authed/")({
       weekdayPatterns,
       yesterdayDate,
       yesterdayEntry,
+      contextStaleness,
     };
   },
   component: HomePage,
