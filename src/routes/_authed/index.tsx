@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { getISOWeek, getISOWeekYear } from "date-fns";
 import {
   BarChart3,
   Calendar,
@@ -78,6 +79,7 @@ const HomePage = () => {
             </div>
             <Link
               to="/about-me"
+              viewTransition
               className="p-2 rounded-full hover:bg-white/10 active:bg-white/15 transition-all duration-200 text-slate-500 hover:text-slate-300 self-start mt-0.5"
               title="Om mig"
             >
@@ -85,7 +87,16 @@ const HomePage = () => {
             </Link>
           </div>
           <nav className="flex gap-2 sm:gap-3">
-            <Link to="/timeline" className={navLinkClass} title="Tidslinje">
+            <Link
+              to="/timeline/$year/$week"
+              params={{
+                year: String(getISOWeekYear(new Date())),
+                week: String(getISOWeek(new Date())),
+              }}
+              viewTransition
+              className={navLinkClass}
+              title="Tidslinje"
+            >
               <Calendar className="w-5 h-5 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline text-sm font-medium">
                 Tidslinje
@@ -97,6 +108,7 @@ const HomePage = () => {
                 year: String(new Date().getFullYear()),
                 month: String(new Date().getMonth() + 1),
               }}
+              viewTransition
               className={navLinkClass}
               title="Månader"
             >
@@ -105,7 +117,7 @@ const HomePage = () => {
                 Månader
               </span>
             </Link>
-            <Link to="/insights" className={navLinkClass} title="Insikter">
+            <Link to="/insights" viewTransition className={navLinkClass} title="Insikter">
               <Sparkles className="w-5 h-5 sm:w-4 sm:h-4" />
               <span className="hidden sm:inline text-sm font-medium">
                 Insikter
@@ -141,7 +153,7 @@ const HomePage = () => {
                     {truncateText(chatPreview.lastMessage.content, 120)}
                   </p>
                 )}
-                <Link to="/reflect">
+                <Link to="/reflect" viewTransition>
                   <Button size="sm" className="w-full sm:w-auto">
                     Fortsätt chatta
                   </Button>
@@ -169,7 +181,7 @@ const HomePage = () => {
                 <p className="text-sm text-slate-300 mb-3">
                   Du har en ofullständig reflektion som aldrig sparades.
                 </p>
-                <Link to="/reflect">
+                <Link to="/reflect" viewTransition>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -209,6 +221,7 @@ const HomePage = () => {
                   </h3>
                   <Link
                     to="/timeline/$year/$week"
+                    viewTransition
                     params={{
                       year: String(lastWeekSummary.year),
                       week: String(lastWeekSummary.week),

@@ -168,39 +168,79 @@ body {
   navigation: auto;
 }
 
+/* Header: captured separately so it morphs smoothly between pages */
+::view-transition-group(app-header) {
+  animation-duration: 300ms;
+  animation-timing-function: ease-in-out;
+}
+
+::view-transition-old(app-header) {
+  animation: 250ms ease-out both vt-header-out;
+}
+
+::view-transition-new(app-header) {
+  animation: 300ms ease-out both vt-header-in;
+}
+
+/* Content (root = everything not captured by a named transition) */
 ::view-transition-old(root) {
-  animation: 280ms ease-out both fade-out;
+  animation: 200ms cubic-bezier(0.4, 0, 1, 1) both vt-content-exit;
 }
 
 ::view-transition-new(root) {
-  animation: 280ms ease-out both fade-in;
+  animation: 350ms cubic-bezier(0, 0, 0.2, 1) 50ms both vt-content-enter;
 }
 
-@keyframes fade-out {
-  to { opacity: 0; transform: scale(0.98); }
+@keyframes vt-header-out {
+  to { opacity: 0; }
 }
 
-@keyframes fade-in {
-  from { opacity: 0; transform: scale(1.02); }
+@keyframes vt-header-in {
+  from { opacity: 0; }
+}
+
+@keyframes vt-content-exit {
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+}
+
+@keyframes vt-content-enter {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
 }
 
 /* ===== SCROLLBAR ===== */
 
-.overflow-y-auto::-webkit-scrollbar {
+.overflow-y-auto::-webkit-scrollbar,
+textarea::-webkit-scrollbar {
   width: 6px;
 }
 
-.overflow-y-auto::-webkit-scrollbar-track {
+.overflow-y-auto::-webkit-scrollbar-track,
+textarea::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background: rgba(100, 200, 180, 0.25);
+.overflow-y-auto::-webkit-scrollbar-thumb,
+textarea::-webkit-scrollbar-thumb {
+  background: rgba(100, 200, 180, 0.2);
   border-radius: 3px;
 }
 
-.overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background: rgba(100, 200, 180, 0.4);
+.overflow-y-auto::-webkit-scrollbar-thumb:hover,
+textarea::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 200, 180, 0.35);
+}
+
+/* Firefox */
+.overflow-y-auto,
+textarea {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 200, 180, 0.2) transparent;
 }
 
 /* ===== BENTO GRID ===== */

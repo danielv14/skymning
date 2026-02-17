@@ -80,12 +80,12 @@ export const TodayEntryCard = ({ entry, hasChatPreview }: TodayEntryCardProps) =
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3">
-              <Link to="/reflect" className="flex-1">
+              <Link to="/reflect" viewTransition className="flex-1">
                 <Button className="w-full" glow>
                   {hasChatPreview ? 'Fortsätt chatta' : 'Prata med AI'}
                 </Button>
               </Link>
-              <Link to="/quick" className="flex-1">
+              <Link to="/quick" viewTransition className="flex-1">
                 <Button variant="secondary" className="w-full">Skriv själv</Button>
               </Link>
             </div>

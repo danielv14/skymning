@@ -173,7 +173,7 @@ const ReflectPage = () => {
     }
 
     setModalOpen(false);
-    router.navigate({ to: "/" });
+    router.navigate({ to: "/", viewTransition: true });
   };
 
   const handleRestartChat = async () => {
@@ -207,7 +207,7 @@ const ReflectPage = () => {
 
   const handleRecoveryWriteManually = () => {
     if (incompletePastChat) {
-      router.navigate({ to: '/quick', search: { date: incompletePastChat.date } });
+      router.navigate({ to: '/quick', search: { date: incompletePastChat.date }, viewTransition: true });
     }
   };
 

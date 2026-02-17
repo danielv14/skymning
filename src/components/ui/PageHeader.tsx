@@ -20,7 +20,7 @@ export const PageHeader = ({
   return (
     <AppHeader>
       <div className="flex items-center gap-4">
-        <Link to={backTo}>
+        <Link to={backTo} viewTransition>
           <button className="p-2.5 -ml-2 rounded-full hover:bg-white/10 active:bg-white/15 transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95">
             {backIcon || <ArrowLeft className="w-5 h-5 text-slate-300" />}
           </button>

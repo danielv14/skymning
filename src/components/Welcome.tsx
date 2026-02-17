@@ -49,7 +49,7 @@ export const Welcome = () => {
           </div>
         </div>
 
-        <Link to="/reflect">
+        <Link to="/reflect" viewTransition>
           <Button size="lg" glow className="text-lg px-10">
             Börja din första reflektion
           </Button>

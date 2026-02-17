@@ -19,7 +19,7 @@ export const MissedYesterdayCard = ({ yesterdayDate }: MissedYesterdayCardProps)
             Du glömde logga igår
           </p>
         </div>
-        <Link to="/quick" search={{ date: yesterdayDate }} className="shrink-0">
+        <Link to="/quick" viewTransition search={{ date: yesterdayDate }} className="shrink-0">
           <Button variant="ghost" size="sm" className="text-violet-300 hover:text-violet-200 hover:bg-violet-500/15">
             Fyll i →
           </Button>

@@ -40,7 +40,7 @@ const QuickPage = () => {
         },
       })
       await clearPastChats()
-      router.navigate({ to: '/' })
+      router.navigate({ to: '/', viewTransition: true })
     } catch (error) {
       console.error('Failed to save entry:', error)
       toast.error('Kunde inte spara reflektionen')
@@ -106,7 +106,7 @@ const QuickPage = () => {
         <div className="flex flex-wrap gap-3">
           <Button
             variant="secondary"
-            onClick={() => router.navigate({ to: '/reflect' })}
+            onClick={() => router.navigate({ to: '/reflect', viewTransition: true })}
             className="w-full sm:w-auto"
           >
             Chatta istället

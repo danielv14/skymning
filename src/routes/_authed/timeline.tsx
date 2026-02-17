@@ -1,20 +1,7 @@
-import { createFileRoute, Outlet, useRouter } from '@tanstack/react-router'
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { getCurrentWeek } from '../../server/functions/weeklySummaries'
-import { useEffect } from 'react'
 
 const TimelineLayout = () => {
-  const router = useRouter()
-  const { year, week, shouldRedirect } = Route.useLoaderData()
-
-  useEffect(() => {
-    if (shouldRedirect) {
-      router.navigate({
-        to: '/timeline/$year/$week',
-        params: { year: String(year), week: String(week) },
-      })
-    }
-  }, [router, year, week, shouldRedirect])
-
   return <Outlet />
 }
 
@@ -24,8 +11,15 @@ export const Route = createFileRoute('/_authed/timeline')({
   }),
   loader: ({ location }) => {
     const { year, week } = getCurrentWeek()
-    const shouldRedirect = location.pathname === '/timeline'
-    return { year, week, shouldRedirect }
+
+    if (location.pathname === '/timeline') {
+      throw redirect({
+        to: '/timeline/$year/$week',
+        params: { year: String(year), week: String(week) },
+      })
+    }
+
+    return { year, week }
   },
   component: TimelineLayout,
 })

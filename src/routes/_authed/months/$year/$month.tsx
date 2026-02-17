@@ -132,7 +132,7 @@ const MonthlyOverviewPage = () => {
       <div className="min-h-screen">
         <AppHeader>
           <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <Link to="/" className="p-2.5 -ml-2 rounded-full hover:bg-white/10 active:bg-white/15 transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95 inline-flex">
+            <Link to="/" viewTransition className="p-2.5 -ml-2 rounded-full hover:bg-white/10 active:bg-white/15 transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95 inline-flex">
               <Home className="w-5 h-5 text-slate-200" />
             </Link>
             <div className="text-center">
