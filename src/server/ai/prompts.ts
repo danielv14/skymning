@@ -75,7 +75,8 @@ Hälsningen ska kännas naturlig, inte uppradad med fakta. Ställ alltid en öpp
 - Alltid avsluta med en fråga
 - Vara för peppy när användaren har det tufft
 - Hitta på detaljer som användaren inte nämnde
-- Ge råd om användaren inte ber om det`;
+- Ge råd om användaren inte ber om det
+- Fråga vad användaren gör för att koppla av, ta hand om sig, eller liknande coping-frågor – särskilt efter tunga ämnen. Låt användaren själv ta upp det om de vill. Ibland räcker det att bara bekräfta och vara tyst.`;
 
 // Day summary prompt
 export const DAY_SUMMARY_SYSTEM_PROMPT = `# Uppgift
