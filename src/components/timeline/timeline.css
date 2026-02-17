@@ -74,17 +74,19 @@
 @keyframes timeline-slide-in {
   from {
     opacity: 0;
-    transform: translateX(-10px);
+    transform: translate3d(-10px, 0, 0);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
 .timeline-item {
   animation: timeline-slide-in 0.4s ease-out forwards;
   opacity: 0;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 .timeline-item:nth-child(1) { animation-delay: 0ms; }

@@ -114,23 +114,26 @@ body {
 
 /* Chat message appear */
 @keyframes message-appear {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translate3d(0, 10px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 .chat-message {
   animation: message-appear 0.3s ease-out;
+  backface-visibility: hidden;
 }
 
 /* Stagger children - dashboard cards */
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translate3d(0, 20px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 .stagger-children > * {
   animation: fade-in-up 0.4s ease-out forwards;
   opacity: 0;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 .stagger-children > *:nth-child(1) { animation-delay: 0ms; }
@@ -138,6 +141,11 @@ body {
 .stagger-children > *:nth-child(3) { animation-delay: 160ms; }
 .stagger-children > *:nth-child(4) { animation-delay: 240ms; }
 .stagger-children > *:nth-child(5) { animation-delay: 320ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 400ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 480ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 560ms; }
+.stagger-children > *:nth-child(9) { animation-delay: 640ms; }
+.stagger-children > *:nth-child(10) { animation-delay: 720ms; }
 
 /* Flame flicker - streak */
 @keyframes flame-flicker {
@@ -202,14 +210,14 @@ body {
 @keyframes vt-content-exit {
   to {
     opacity: 0;
-    transform: translateY(-10px) scale(0.98);
+    transform: translate3d(0, -10px, 0);
   }
 }
 
 @keyframes vt-content-enter {
   from {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translate3d(0, 24px, 0);
   }
 }
 
