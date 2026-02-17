@@ -161,7 +161,21 @@ When navigating between days in timeline, animate the mood emoji transitioning f
 
 ---
 
-### 16. "On this day" memories
+### 16. User context staleness reminder
+
+Add an `updatedAt` timestamp to the `userContext` table. If it's been more than ~30 days since the user last updated their personal context ("Om mig"), show a gentle reminder card on the dashboard encouraging them to review it. Life changes and the AI context should keep up.
+
+**Implementation:**
+
+- Add `updatedAt` TEXT column to `userContext` (set on save)
+- New server function to check staleness (e.g. > 30 days since last update)
+- Dashboard card: "Det var ett tag sedan du uppdaterade din beskrivning — stämmer den fortfarande?"
+- Card links to the user context settings page
+- Dismiss option so it doesn't nag
+
+---
+
+### 17. "On this day" memories
 
 Show what you reflected on exactly 1 week, 1 month, or 1 year ago. Nostalgia is a powerful engagement driver.
 
@@ -171,7 +185,7 @@ Show what you reflected on exactly 1 week, 1 month, or 1 year ago. Nostalgia is 
 
 ## Technical Improvements
 
-### 17. Better error boundaries
+### 18. Better error boundaries
 
 Add React error boundaries around each major section (dashboard cards, timeline, etc.) so a single component failure doesn't crash the whole page.
 
@@ -179,7 +193,7 @@ Add React error boundaries around each major section (dashboard cards, timeline,
 
 ---
 
-### 18. Database indexes for performance
+### 19. Database indexes for performance
 
 As entries grow into hundreds/thousands, queries like streak calculation and mood trends could slow down. Add indexes on commonly queried columns.
 
@@ -187,7 +201,7 @@ As entries grow into hundreds/thousands, queries like streak calculation and moo
 
 ---
 
-### 19. Rate limit persistence
+### 20. Rate limit persistence
 
 Current rate limiting is in-memory and resets on Worker cold-start. Use D1 or KV for persistent rate limiting.
 
@@ -195,7 +209,7 @@ Current rate limiting is in-memory and resets on Worker cold-start. Use D1 or KV
 
 ---
 
-### 20. E2E tests
+### 21. E2E tests
 
 No end-to-end tests exist. Playwright tests for critical flows (login, create entry, view timeline) would catch regressions.
 
@@ -205,25 +219,25 @@ No end-to-end tests exist. Playwright tests for critical flows (login, create en
 
 ## Wild Ideas
 
-### 21. Mood music
+### 22. Mood music
 
 Generate or suggest a Spotify playlist based on your current mood. "Din dag låter som..." with a curated mix.
 
 ---
 
-### 22. AI art for your day
+### 23. AI art for your day
 
 Generate a small abstract image that represents your day's reflection. Use DALL-E or Stable Diffusion. Each day gets a unique visual.
 
 ---
 
-### 23. Physical journal export
+### 24. Physical journal export
 
 Generate a beautifully formatted PDF of a month/year's reflections, designed for printing and binding as a physical journal.
 
 ---
 
-### 24. AI therapist mode
+### 25. AI therapist mode
 
 A deeper, more structured conversation mode based on CBT (cognitive behavioral therapy) principles. Identify cognitive distortions, challenge negative thinking patterns, guided exercises.
 
