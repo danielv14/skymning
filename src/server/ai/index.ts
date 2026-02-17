@@ -14,6 +14,7 @@ import {
   QUICK_POLISH_SYSTEM_PROMPT,
   WEEK_SUMMARY_SYSTEM_PROMPT,
 } from "./prompts";
+import { getUserContextPrompt } from "./userContext";
 
 const formatWeekday = (dateString: string): string => {
   const date = parseISO(dateString);
@@ -38,9 +39,13 @@ export const generateDaySummary = createServerFn({ method: "POST" })
       .map((m) => `${m.role === "user" ? "Användare" : "AI"}: ${m.content}`)
       .join("\n\n");
 
+    const systemPrompts = [DAY_SUMMARY_SYSTEM_PROMPT];
+    const userContextPrompt = await getUserContextPrompt();
+    if (userContextPrompt) systemPrompts.push(userContextPrompt);
+
     const response = await chat({
       adapter: openai,
-      systemPrompts: [DAY_SUMMARY_SYSTEM_PROMPT],
+      systemPrompts,
       messages: [
         {
           role: "user",
@@ -74,9 +79,13 @@ export const generateWeeklySummary = createServerFn({ method: "POST" })
       )
       .join("\n\n---\n\n");
 
+    const systemPrompts = [WEEK_SUMMARY_SYSTEM_PROMPT];
+    const userContextPrompt = await getUserContextPrompt();
+    if (userContextPrompt) systemPrompts.push(userContextPrompt);
+
     const response = await chat({
       adapter: openai,
-      systemPrompts: [WEEK_SUMMARY_SYSTEM_PROMPT],
+      systemPrompts,
       messages: [
         {
           role: "user",
@@ -143,9 +152,13 @@ export const generateMonthlySummary = createServerFn({ method: "POST" })
       entriesText,
     ].join("\n\n");
 
+    const systemPrompts = [MONTH_SUMMARY_SYSTEM_PROMPT];
+    const userContextPrompt = await getUserContextPrompt();
+    if (userContextPrompt) systemPrompts.push(userContextPrompt);
+
     const response = await chat({
       adapter: openai,
-      systemPrompts: [MONTH_SUMMARY_SYSTEM_PROMPT],
+      systemPrompts,
       messages: [
         {
           role: "user",
@@ -224,9 +237,13 @@ export const generateInsights = createServerFn({ method: "POST" })
       "\n",
     );
 
+    const systemPrompts = [INSIGHTS_SYSTEM_PROMPT];
+    const userContextPrompt = await getUserContextPrompt();
+    if (userContextPrompt) systemPrompts.push(userContextPrompt);
+
     const response = await chat({
       adapter: openai,
-      systemPrompts: [INSIGHTS_SYSTEM_PROMPT],
+      systemPrompts,
       messages: [
         {
           role: "user",

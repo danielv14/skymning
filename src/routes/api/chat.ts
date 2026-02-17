@@ -6,6 +6,7 @@ import { format } from 'date-fns'
 import { sv } from 'date-fns/locale'
 import { REFLECTION_SYSTEM_PROMPT } from '../../server/ai/prompts'
 import { openai } from '../../server/ai/client'
+import { getUserContextPrompt } from '../../server/ai/userContext'
 import { getDb } from '../../server/db'
 import { entries } from '../../server/db/schema'
 import { getMoodLabel } from '../../constants'
@@ -51,8 +52,8 @@ export const Route = createFileRoute('/api/chat')({
         const { messages } = parsed.data
 
         const db = getDb()
-        const [userContext, recentEntriesResult] = await Promise.all([
-          db.query.userContext.findFirst(),
+        const [userContextPrompt, recentEntriesResult, userContextRecord] = await Promise.all([
+          getUserContextPrompt(),
           db.query.entries.findMany({
             columns: {
               date: true,
@@ -62,10 +63,10 @@ export const Route = createFileRoute('/api/chat')({
             orderBy: [desc(entries.date)],
             limit: 20,
           }),
+          db.query.userContext.findFirst(),
         ])
 
-        const userContextContent = userContext?.content?.trim()
-        const historyCount = userContext?.historyCount ?? 10
+        const historyCount = userContextRecord?.historyCount ?? 10
 
         let previousEntriesPrompt = ''
         if (historyCount > 0 && recentEntriesResult.length > 0) {
@@ -116,10 +117,8 @@ export const Route = createFileRoute('/api/chat')({
 
         systemPrompts.push(`## Aktuell kontext\n${contextLines.join('\n')}`)
 
-        if (userContextContent) {
-          systemPrompts.push(
-            `## Om användaren\nHär är information om användaren som du ska ha i åtanke under samtalet:\n\n${userContextContent}`
-          )
+        if (userContextPrompt) {
+          systemPrompts.push(userContextPrompt)
         }
 
         if (previousEntriesPrompt) {
