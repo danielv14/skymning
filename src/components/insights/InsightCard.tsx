@@ -98,7 +98,7 @@ export const InsightCard = ({ insight }: InsightCardProps) => {
           <h3 className="font-semibold text-white text-sm sm:text-base">
             {insight.title}
           </h3>
-          <p className="text-slate-300 text-sm mt-1 leading-relaxed">
+          <p className="text-slate-300 text-sm sm:text-base mt-1 leading-relaxed">
             {insight.description}
           </p>
           {insight.frequency && (

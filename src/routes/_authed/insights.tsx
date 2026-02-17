@@ -156,10 +156,10 @@ const InsightsPage = () => {
                   <Icon className={`w-4 h-4 ${config.color}`} />
                 </div>
                 <div>
-                  <p className={`text-sm font-medium ${config.color}`}>
+                  <p className={`text-sm sm:text-base font-medium ${config.color}`}>
                     {config.label}
                   </p>
-                  <p className="text-sm text-slate-400">{config.description}</p>
+                  <p className="text-sm sm:text-base text-slate-400">{config.description}</p>
                 </div>
               </div>
             );
@@ -183,7 +183,7 @@ const InsightsPage = () => {
                 <h3 className="font-semibold text-white">
                   Behöver fler reflektioner
                 </h3>
-                <p className="text-sm text-slate-400 mt-1">
+                <p className="text-sm sm:text-base text-slate-400 mt-1">
                   Det behövs minst {INSIGHTS_MIN_ENTRIES} reflektioner under de
                   senaste 90 dagarna för att generera insikter. Du har{" "}
                   {currentEntryCount} just nu.
@@ -199,10 +199,10 @@ const InsightsPage = () => {
               <div className="flex items-center gap-3">
                 <Sparkles className="w-5 h-5 text-emerald-400 animate-pulse" />
                 <div>
-                  <p className="text-sm font-medium text-white">
+                  <p className="text-sm sm:text-base font-medium text-white">
                     Analyserar dina reflektioner...
                   </p>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
                     Det här kan ta några sekunder
                   </p>
                 </div>
@@ -220,7 +220,7 @@ const InsightsPage = () => {
           <>
             <Card className="border-slate-700/30 bg-slate-800/30">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="text-sm text-slate-400">
+                <p className="text-sm sm:text-base text-slate-400">
                   Baserat på {cachedInsights!.analyzedEntryCount} reflektioner ·
                   Genererades {formatRelativeTime(cachedInsights!.createdAt)}
                   {isStale && (
