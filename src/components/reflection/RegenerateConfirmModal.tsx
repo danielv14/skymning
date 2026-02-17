@@ -6,6 +6,7 @@ type RegenerateConfirmModalProps = {
   onOpenChange: (open: boolean) => void
   onConfirm: () => void
   isLoading: boolean
+  label?: string
 }
 
 export const RegenerateConfirmModal = ({
@@ -13,13 +14,14 @@ export const RegenerateConfirmModal = ({
   onOpenChange,
   onConfirm,
   isLoading,
+  label = 'veckosummering',
 }: RegenerateConfirmModalProps) => {
   return (
     <Modal
       open={open}
       onOpenChange={onOpenChange}
-      title="Skapa om veckosummering?"
-      description="Är du säker på att du vill skapa en ny veckosummering? Den nuvarande texten kommer att ersättas."
+      title={`Skapa om ${label}?`}
+      description={`Är du säker på att du vill skapa en ny ${label}? Den nuvarande texten kommer att ersättas.`}
     >
       <div className="flex gap-3 justify-end">
         <Button

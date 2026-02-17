@@ -119,6 +119,7 @@ const MonthlyOverviewPage = () => {
         onOpenChange={setConfirmModalOpen}
         onConfirm={handleRegenerateSummary}
         isLoading={isRegenerating}
+        label="månadssummering"
       />
       {overview.monthlySummary?.summary && (
         <EditMonthlySummaryModal
