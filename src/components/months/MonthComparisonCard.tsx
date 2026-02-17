@@ -46,7 +46,7 @@ export const MonthComparisonCard = ({
               {trend && <TrendIcon className={`w-4 h-4 ${trendColor}`} />}
               <h3 className="text-xs font-medium uppercase tracking-wider">Jämförelse</h3>
             </div>
-            <p className="text-xs text-slate-600 mt-0.5">Mot förra månaden</p>
+            <p className="text-xs text-slate-500 mt-0.5">Mot förra månaden</p>
           </div>
           {currentAverage !== null && (
             <MoodEmoji mood={Math.round(currentAverage)} size="sm" showLabel={false} />

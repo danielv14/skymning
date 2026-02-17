@@ -43,7 +43,7 @@ export const WeekdayPatternCard = ({ data }: WeekdayPatternCardProps) => {
             <CalendarDays className="w-4 h-4" />
             <h3 className="text-xs font-medium uppercase tracking-wider">Veckodagsmönster</h3>
           </div>
-          <span className="text-xs text-slate-600">Senaste {WEEKDAY_PATTERN_DAYS} dagarna</span>
+          <span className="text-xs text-slate-500">Senaste {WEEKDAY_PATTERN_DAYS} dagarna</span>
         </div>
 
         {/* Bar chart */}
@@ -56,7 +56,7 @@ export const WeekdayPatternCard = ({ data }: WeekdayPatternCardProps) => {
                   <div className="w-full h-16 flex items-end">
                     <div className="w-full rounded-t-md bg-slate-700/20 h-1" />
                   </div>
-                  <span className="text-[10px] text-slate-600">{SHORT_NAMES[dayIndex]}</span>
+                  <span className="text-[10px] text-slate-500">{SHORT_NAMES[dayIndex]}</span>
                 </div>
               )
             }

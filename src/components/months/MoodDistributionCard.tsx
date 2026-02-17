@@ -55,7 +55,7 @@ export const MoodDistributionCard = ({ entries }: MoodDistributionCardProps) => 
           })}
         </div>
 
-        <p className="text-xs text-slate-600 pt-1">
+        <p className="text-xs text-slate-500 pt-1">
           {entries.length} {entries.length === 1 ? 'reflektion' : 'reflektioner'} totalt
         </p>
       </div>

@@ -80,9 +80,9 @@ export const TimelineDayItem = ({ date, entry, useRelativeDates }: TimelineDayIt
       </div>
       <div className="py-3 px-4 rounded-2xl border border-dashed border-slate-700/50 bg-slate-800/20">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-slate-600 capitalize">{formattedDate}</p>
+          <p className="text-sm text-slate-500 capitalize">{formattedDate}</p>
           {isFutureDay ? (
-            <span className="text-xs text-slate-600">Kommande</span>
+            <span className="text-xs text-slate-500">Kommande</span>
           ) : canFillIn ? (
             <Link
               to="/quick"
