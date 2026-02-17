@@ -74,7 +74,7 @@ const HomePage = () => {
                 Skymning
               </h1>
               <p className="text-slate-400 mt-1 text-sm sm:text-base">
-                {getTimeOfDayGreeting()}
+                {getTimeOfDayGreeting(yesterdayEntry?.mood)}
               </p>
             </div>
             <Link

@@ -51,8 +51,18 @@ export const subtractDays = (dateStr: string, days: number): string => {
   return format(subDays(new Date(dateStr), days), 'yyyy-MM-dd')
 }
 
-export const getTimeOfDayGreeting = (): string => {
+export const getTimeOfDayGreeting = (yesterdayMood?: number | null): string => {
   const hour = new Date().getHours()
+
+  if (yesterdayMood && yesterdayMood <= 2) {
+    if (hour < 5) return 'Vila gott'
+    if (hour < 10) return 'Hoppas idag blir bättre'
+    if (hour < 13) return 'En ny dag, en ny chans'
+    if (hour < 17) return 'Hoppas dagen har varit snällare'
+    if (hour < 22) return 'Ta hand om dig ikväll'
+    return 'Vila gott'
+  }
+
   if (hour < 5) return 'God natt'
   if (hour < 10) return 'God morgon'
   if (hour < 13) return 'God förmiddag'

@@ -22,14 +22,6 @@ Show a celebratory card on the dashboard every 10th reflection (10, 20, 30, ...)
 
 ---
 
-### 3. Improved time-of-day greeting
-
-`getTimeOfDayGreeting()` already exists but could include mood-aware greetings. If yesterday was a rough day, a gentler "Hoppas idag blir bättre" touch.
-
-**Implementation:** Pass yesterday's mood into the greeting function. Small but thoughtful UX improvement.
-
----
-
 ## Medium Features (A few hours to a day)
 
 ### 4. Yearly review ("Wrapped")
@@ -62,14 +54,6 @@ Instead of the same open-ended AI conversation, offer themed prompts: "Vad är d
 - Array of prompt templates in constants
 - Pass selected prompt as system context to reflection chat
 - Option to "Byt fråga" before starting
-
----
-
-### 7. AI follow-up questions
-
-After saving an entry, the AI could suggest a follow-up question for tomorrow based on what was discussed. "Imorgon kanske du vill reflektera över hur mötet gick?"
-
-**Implementation:** Generate follow-up in `generateDaySummary`, store in a new `followUp` column on entries, show as a gentle nudge next day.
 
 ---
 
