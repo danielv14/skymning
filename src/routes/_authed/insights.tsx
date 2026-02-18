@@ -145,7 +145,13 @@ const InsightsPage = () => {
         open={legendOpen}
         onOpenChange={setLegendOpen}
         title="Insiktskategorier"
-        description="Varje insikt tillhör en kategori som beskriver vilken typ av mönster som hittats."
+        footer={
+          <div className="mt-6">
+            <ModalCloseButton variant="secondary" size="sm">
+              Stäng
+            </ModalCloseButton>
+          </div>
+        }
       >
         <div className="space-y-4">
           {Object.values(CATEGORY_CONFIG).map((config) => {
@@ -164,11 +170,6 @@ const InsightsPage = () => {
               </div>
             );
           })}
-        </div>
-        <div className="mt-6">
-          <ModalCloseButton variant="secondary" size="sm">
-            Stäng
-          </ModalCloseButton>
         </div>
       </Modal>
 
