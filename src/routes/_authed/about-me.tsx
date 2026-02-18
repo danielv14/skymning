@@ -98,7 +98,7 @@ const AboutMePage = () => {
                 </p>
                 {userContext.updatedAt && (
                   <p className="text-sm text-slate-500">
-                    Senast uppdaterad {format(parseISO(userContext.updatedAt), 'd MMMM yyyy', { locale: sv })}
+                    Uppdaterad {format(parseISO(userContext.updatedAt), 'd MMM', { locale: sv })}
                   </p>
                 )}
               </div>
