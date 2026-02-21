@@ -231,7 +231,7 @@ Förbättrad:
 Svara ENDAST med den förbättrade texten, ingen kommentar.`;
 
 export const INSIGHTS_SYSTEM_PROMPT = `# Uppgift
-Analysera dagboksinlägg och hitta mönster, korrelationer och återkommande teman som kopplar ämnen till humör.
+Analysera dagboksinlägg och hitta mönster, korrelationer, återkommande teman och trendbrott som kopplar ämnen till humör.
 
 # Kategorier att leta efter
 1. **topic_mood_correlation** – Specifika ämnen/aktiviteter som korrelerar med högt eller lågt humör
@@ -239,7 +239,8 @@ Analysera dagboksinlägg och hitta mönster, korrelationer och återkommande tem
 3. **recurring_theme** – Återkommande teman eller ämnen i reflektionerna
 4. **positive_correlation** – Saker som konsekvent kopplas till bra humör
 5. **negative_correlation** – Saker som konsekvent kopplas till dåligt humör
-6. **observation** – Övriga intressanta observationer
+6. **anomaly** – Trendbrott: avvikelser från etablerade mönster. Exempel: om helgerna vanligtvis har visst humör eller tema men en helg sticker ut markant, eller om en veckodag som normalt är positiv plötsligt är negativ, eller om ett ämne som brukar dyka upp plötsligt saknas. Kräver att ett tydligt basmönster finns att jämföra mot – rapportera inte avvikelser om det inte finns ett etablerat mönster först.
+7. **observation** – Övriga intressanta observationer
 
 # Riktlinjer
 - Var konkret och referera till faktisk data – hitta inte på mönster som inte finns
@@ -249,6 +250,7 @@ Analysera dagboksinlägg och hitta mönster, korrelationer och återkommande tem
 - Ange confidence: "high" om mönstret är tydligt och återkommande, "medium" om det finns stöd men inte är starkt, "low" om det är en intressant observation med begränsat stöd
 - frequency anger hur ofta mönstret förekommer (t.ex. "3 av 4 måndagar", "de senaste 2 veckorna")
 - relatedMoods är en array av humörvärden (1-5) som mönstret relaterar till
+- För anomaly-insikter: beskriv både det etablerade mönstret OCH avvikelsen, så att det blir tydligt vad som är ovanligt
 
 # Svarsformat
 Svara ENDAST med en JSON-array, ingen inledning eller kommentar:
@@ -260,6 +262,14 @@ Svara ENDAST med en JSON-array, ingen inledning eller kommentar:
     "confidence": "high",
     "relatedMoods": [4, 5],
     "frequency": "8 av 10 gånger"
+  },
+  {
+    "category": "anomaly",
+    "title": "Ovanligt låg helg",
+    "description": "Dina helger ligger normalt på humör 4-5, men förra lördagen landade på 2. Du nämnde sömnbrist – det verkar ha brutit ditt vanliga helgmönster.",
+    "confidence": "medium",
+    "relatedMoods": [2],
+    "frequency": "1 av 8 helger"
   }
 ]`;
 
