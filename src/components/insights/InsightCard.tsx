@@ -1,4 +1,5 @@
 import {
+  Activity,
   Clock,
   Lightbulb,
   Link2,
@@ -14,6 +15,7 @@ type InsightCategory =
   | "recurring_theme"
   | "positive_correlation"
   | "negative_correlation"
+  | "anomaly"
   | "observation";
 
 export type InsightItem = {
@@ -69,6 +71,13 @@ export const CATEGORY_CONFIG: Record<
     description: "Saker som konsekvent kopplas till dåligt humör",
     color: "text-rose-400",
     bgColor: "bg-rose-500/20",
+  },
+  anomaly: {
+    icon: Activity,
+    label: "Trendbrott",
+    description: "Avvikelser från etablerade mönster",
+    color: "text-orange-400",
+    bgColor: "bg-orange-500/20",
   },
   observation: {
     icon: Lightbulb,
