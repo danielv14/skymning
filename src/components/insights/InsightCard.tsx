@@ -9,23 +9,9 @@ import {
 } from "lucide-react";
 import { Card } from "../ui/Card";
 
-type InsightCategory =
-  | "topic_mood_correlation"
-  | "temporal_pattern"
-  | "recurring_theme"
-  | "positive_correlation"
-  | "negative_correlation"
-  | "anomaly"
-  | "observation";
+import { type InsightCategory, type InsightItem } from "../../constants/insights";
 
-export type InsightItem = {
-  category: InsightCategory;
-  title: string;
-  description: string;
-  confidence: "high" | "medium" | "low";
-  relatedMoods?: number[];
-  frequency?: string;
-};
+export type { InsightItem };
 
 export const CATEGORY_CONFIG: Record<
   InsightCategory,

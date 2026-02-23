@@ -1,11 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { chat, toServerSentEventsResponse } from '@tanstack/ai'
+import { chat, convertMessagesToModelMessages, toServerSentEventsResponse } from '@tanstack/ai'
+import type { ModelMessage, UIMessage } from '@tanstack/ai'
 import { desc } from 'drizzle-orm'
 import { z } from 'zod'
 import { format } from 'date-fns'
 import { sv } from 'date-fns/locale'
 import { REFLECTION_SYSTEM_PROMPT } from '../../server/ai/prompts'
 import { openai } from '../../server/ai/client'
+import { chatTools } from '../../server/ai/tools'
 import { getUserContextPrompt } from '../../server/ai/userContext'
 import { getDb } from '../../server/db'
 import { entries } from '../../server/db/schema'
@@ -15,12 +17,7 @@ import { chatLimiter } from '../../server/auth/rateLimit'
 import { getTodayDateString, subtractDays } from '../../utils/date'
 
 const chatRequestSchema = z.object({
-  messages: z.array(
-    z.object({
-      role: z.enum(['user', 'assistant']),
-      content: z.string().min(1).max(10000),
-    })
-  ).min(1).max(100),
+  messages: z.array(z.any()).min(1).max(100),
 })
 
 export const Route = createFileRoute('/api/chat')({
@@ -49,10 +46,12 @@ export const Route = createFileRoute('/api/chat')({
           )
         }
 
-        const { messages } = parsed.data
+        const modelMessages = convertMessagesToModelMessages(
+          parsed.data.messages as Array<UIMessage>
+        ) as Array<ModelMessage<string>>
 
         const db = getDb()
-        const [userContextPrompt, recentEntriesResult, userContextRecord] = await Promise.all([
+        const [userContextPrompt, recentEntriesResult] = await Promise.all([
           getUserContextPrompt(),
           db.query.entries.findMany({
             columns: {
@@ -61,24 +60,20 @@ export const Route = createFileRoute('/api/chat')({
               summary: true,
             },
             orderBy: [desc(entries.date)],
-            limit: 20,
+            limit: 5,
           }),
-          db.query.userContext.findFirst(),
         ])
 
-        const historyCount = userContextRecord?.historyCount ?? 10
-
         let previousEntriesPrompt = ''
-        if (historyCount > 0 && recentEntriesResult.length > 0) {
-          const limitedEntries = recentEntriesResult.slice(0, historyCount)
-          const entriesText = limitedEntries
+        if (recentEntriesResult.length > 0) {
+          const entriesText = [...recentEntriesResult]
             .reverse()
             .map(
               (e) => `[${e.date}] Humör: ${getMoodLabel(e.mood)}\n${e.summary}`
             )
             .join('\n\n')
 
-          previousEntriesPrompt = `## Användarens tidigare reflektioner\nHär är användarens senaste reflektioner för att ge dig kontext om vad som hänt i deras liv:\n\n${entriesText}`
+          previousEntriesPrompt = `## Användarens senaste reflektioner (urval)\nNedan visas de ${recentEntriesResult.length} senaste reflektionerna. Användaren kan ha fler -- använd dina verktyg om du behöver mer historik.\n\n${entriesText}`
         }
 
         // Build current context for greeting and conversation awareness
@@ -90,7 +85,6 @@ export const Route = createFileRoute('/api/chat')({
         const yesterdayStr = subtractDays(todayStr, 1)
         const yesterdayEntry = recentEntriesResult.find((e) => e.date === yesterdayStr)
 
-        // Compute streak from recent entries (already sorted desc)
         let streak = 0
         if (recentEntriesResult.length > 0) {
           const latestDate = recentEntriesResult[0].date
@@ -128,7 +122,8 @@ export const Route = createFileRoute('/api/chat')({
         const stream = chat({
           adapter: openai,
           systemPrompts,
-          messages,
+          messages: modelMessages,
+          tools: chatTools,
         })
 
         return toServerSentEventsResponse(stream)

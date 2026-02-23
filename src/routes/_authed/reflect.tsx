@@ -187,7 +187,6 @@ const ReflectPage = () => {
     savedMessageIds.current.clear();
     setRestartDialogOpen(false);
 
-    // Re-trigger greeting after clearing chat
     greetingSent.current = false;
     sendMessage(GREETING_TRIGGER);
     greetingSent.current = true;
