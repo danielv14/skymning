@@ -18,6 +18,11 @@ export {
   type MoodConfig,
 } from "./mood";
 export {
+  insightsOutputSchema,
+  type InsightCategory,
+  type InsightItem,
+} from "./insights";
+export {
   dateString,
   monthInputSchema,
   weekInputSchema,

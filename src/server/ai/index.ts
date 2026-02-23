@@ -4,6 +4,7 @@ import { format, getISOWeek, parseISO } from "date-fns";
 import { sv } from "date-fns/locale";
 import { z } from "zod";
 import { getMoodLabel } from "../../constants";
+import { insightsOutputSchema } from "../../constants/insights";
 import { capitalizeFirst } from "../../utils/string";
 import { authMiddleware } from "../middleware/auth";
 import { openai } from "./client";
@@ -250,12 +251,8 @@ export const generateInsights = createServerFn({ method: "POST" })
           content: fullPromptContent,
         },
       ],
-      stream: false,
+      outputSchema: insightsOutputSchema,
     });
 
-    const rawText = typeof response === "string" ? response : String(response);
-    const cleanedText = rawText
-      .replace(/^```(?:json)?\s*\n?/i, "")
-      .replace(/\n?```\s*$/i, "");
-    return JSON.parse(cleanedText);
+    return response;
   });
