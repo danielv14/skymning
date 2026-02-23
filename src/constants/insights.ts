@@ -19,7 +19,10 @@ export const insightItemSchema = z.object({
   frequency: z.string().optional(),
 })
 
-export const insightsOutputSchema = z.array(insightItemSchema)
+// OpenAI structured output requires top-level type: "object"
+export const insightsOutputSchema = z.object({
+  insights: z.array(insightItemSchema),
+})
 
 export type InsightCategory = z.infer<typeof insightCategorySchema>
 export type InsightItem = z.infer<typeof insightItemSchema>

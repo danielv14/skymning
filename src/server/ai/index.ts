@@ -254,5 +254,5 @@ export const generateInsights = createServerFn({ method: "POST" })
       outputSchema: insightsOutputSchema,
     });
 
-    return response;
+    return response.insights;
   });
