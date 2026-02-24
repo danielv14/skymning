@@ -13,9 +13,9 @@ import {
 import { generateWeeklySummary } from '../../../../server/ai'
 import { AppHeader } from '../../../../components/ui/AppHeader'
 import { RegenerateConfirmModal } from '../../../../components/reflection/RegenerateConfirmModal'
-import { EditWeeklySummaryModal } from '../../../../components/timeline/EditWeeklySummaryModal'
 import { TimelineDayItem } from '../../../../components/timeline/TimelineDayItem'
-import { WeeklySummarySection } from '../../../../components/timeline/WeeklySummarySection'
+import { EditSummaryModal } from '../../../../components/EditSummaryModal'
+import { SummarySection } from '../../../../components/SummarySection'
 import { getWeekMoodDescription } from '../../../../constants'
 import { getAdjacentWeek, getWeekDays } from '../../../../utils/isoWeek'
 import { getTodayDateString } from '../../../../utils/date'
@@ -96,12 +96,14 @@ const TimelineWeekPage = () => {
         isLoading={isRegenerating}
       />
       {weeklySummary?.summary && (
-        <EditWeeklySummaryModal
+        <EditSummaryModal
           open={editModalOpen}
           onOpenChange={setEditModalOpen}
-          year={year}
-          week={week}
+          title="Redigera veckosummering"
           summary={weeklySummary.summary}
+          onSave={(text) => updateWeeklySummary({ data: { year, week, summary: text } })}
+          successMessage="Veckosummeringen har uppdaterats"
+          errorMessage="Kunde inte uppdatera veckosummeringen"
         />
       )}
       <div className="min-h-screen">
@@ -148,7 +150,9 @@ const TimelineWeekPage = () => {
         </AppHeader>
 
       <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8">
-        <WeeklySummarySection
+        <SummarySection
+          title="Veckans summering"
+          emptyText="Ingen summering finns ännu för denna vecka."
           summary={weeklySummary?.summary ?? null}
           hasEntries={entries.length > 0}
           moodDescription={moodDescription}

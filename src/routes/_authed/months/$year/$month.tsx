@@ -14,8 +14,8 @@ import type { Entry } from '../../../../server/db/schema'
 import { generateMonthlySummary } from '../../../../server/ai'
 import { AppHeader } from '../../../../components/ui/AppHeader'
 import { RegenerateConfirmModal } from '../../../../components/reflection/RegenerateConfirmModal'
-import { MonthlySummarySection } from '../../../../components/months/MonthlySummarySection'
-import { EditMonthlySummaryModal } from '../../../../components/months/EditMonthlySummaryModal'
+import { SummarySection } from '../../../../components/SummarySection'
+import { EditSummaryModal } from '../../../../components/EditSummaryModal'
 import { MonthlyCalendarHeatmap } from '../../../../components/months/MonthlyCalendarHeatmap'
 import { MoodDistributionCard } from '../../../../components/months/MoodDistributionCard'
 import { MonthComparisonCard } from '../../../../components/months/MonthComparisonCard'
@@ -122,12 +122,14 @@ const MonthlyOverviewPage = () => {
         label="månadssummering"
       />
       {overview.monthlySummary?.summary && (
-        <EditMonthlySummaryModal
+        <EditSummaryModal
           open={editModalOpen}
           onOpenChange={setEditModalOpen}
-          year={year}
-          month={month}
+          title="Redigera månadssummering"
           summary={overview.monthlySummary.summary}
+          onSave={(text) => updateMonthlySummary({ data: { year, month, summary: text } })}
+          successMessage="Månadssummeringen har uppdaterats"
+          errorMessage="Kunde inte uppdatera månadssummeringen"
         />
       )}
       <div className="min-h-screen">
@@ -192,7 +194,9 @@ const MonthlyOverviewPage = () => {
             </div>
 
             <div className="bento-full">
-              <MonthlySummarySection
+              <SummarySection
+                title="Månadens summering"
+                emptyText="Ingen summering finns ännu för denna månad."
                 summary={overview.monthlySummary?.summary ?? null}
                 hasEntries={overview.totalEntries > 0}
                 moodDescription={moodDescription}

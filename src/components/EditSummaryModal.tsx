@@ -1,26 +1,29 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import { Modal, ModalCloseButton } from '../ui/Modal'
-import { Textarea } from '../ui/Textarea'
-import { Button } from '../ui/Button'
-import { updateWeeklySummary } from '../../server/functions/weeklySummaries'
+import { Modal, ModalCloseButton } from './ui/Modal'
+import { Textarea } from './ui/Textarea'
+import { Button } from './ui/Button'
 
-type EditWeeklySummaryModalProps = {
+type EditSummaryModalProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  year: number
-  week: number
+  title: string
   summary: string
+  onSave: (summary: string) => Promise<unknown>
+  successMessage: string
+  errorMessage: string
 }
 
-export const EditWeeklySummaryModal = ({
+export const EditSummaryModal = ({
   open,
   onOpenChange,
-  year,
-  week,
+  title,
   summary: initialSummary,
-}: EditWeeklySummaryModalProps) => {
+  onSave,
+  successMessage,
+  errorMessage,
+}: EditSummaryModalProps) => {
   const router = useRouter()
   const [summary, setSummary] = useState(initialSummary)
   const [isSaving, setIsSaving] = useState(false)
@@ -36,21 +39,15 @@ export const EditWeeklySummaryModal = ({
 
     setIsSaving(true)
     try {
-      const updated = await updateWeeklySummary({
-        data: {
-          year,
-          week,
-          summary: summary.trim(),
-        },
-      })
+      const updated = await onSave(summary.trim())
       if (updated) {
         onOpenChange(false)
-        toast.success('Veckosummeringen har uppdaterats')
+        toast.success(successMessage)
         router.invalidate()
       }
     } catch (error) {
-      console.error('Failed to update weekly summary:', error)
-      toast.error('Kunde inte uppdatera veckosummeringen')
+      console.error('Failed to update summary:', error)
+      toast.error(errorMessage)
     } finally {
       setIsSaving(false)
     }
@@ -59,11 +56,7 @@ export const EditWeeklySummaryModal = ({
   const hasChanges = summary.trim() !== initialSummary
 
   return (
-    <Modal
-      open={open}
-      onOpenChange={onOpenChange}
-      title="Redigera veckosummering"
-    >
+    <Modal open={open} onOpenChange={onOpenChange} title={title}>
       <div className="mb-6">
         <Textarea
           value={summary}
