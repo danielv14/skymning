@@ -1,5 +1,3 @@
-import type { UIMessage } from "@tanstack/ai-react";
-import { fetchServerSentEvents, useChat } from "@tanstack/ai-react";
 import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { RefreshCw } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
@@ -14,30 +12,13 @@ import { PageHeader } from "../../components/ui/PageHeader";
 import {
   clearTodayChat,
   getTodayChat,
-  saveChatMessage,
   getIncompletePastChat,
   clearPastChats,
   getChatForDate,
 } from "../../server/functions/chat";
 import { createEntry, getTodayEntry, getEntryForDate } from "../../server/functions/entries";
 import { formatTime, getTodayDateString } from "../../utils/date";
-import type { ChatMessage as DbChatMessage } from "../../server/db/schema";
-
-const getMessageText = (parts: UIMessage["parts"]) =>
-  parts
-    .filter((part) => part.type === "text")
-    .map((part) => part.content)
-    .join("");
-
-const dbMessagesToUIMessages = (messages: DbChatMessage[]): UIMessage[] =>
-  messages.map((message) => ({
-    id: `db-${message.id}`,
-    role: message.role as "user" | "assistant",
-    parts: [{ type: "text" as const, content: message.content }],
-    createdAt: new Date(message.createdAt),
-  }));
-
-const GREETING_TRIGGER = '[GREETING]';
+import { usePersistedChat, getMessageText } from "../../hooks/usePersistedChat";
 
 const ReflectPage = () => {
   const router = useRouter();
@@ -49,34 +30,13 @@ const ReflectPage = () => {
   const [input, setInput] = useState("");
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const hasScrolledOnMount = useRef(false);
-  const savedMessageIds = useRef<Set<string>>(
-    new Set(existingChat.map((message) => `db-${message.id}`))
-  );
-  const hasMounted = useRef(false);
-  const greetingSent = useRef(false);
 
-  const initialMessages = dbMessagesToUIMessages(existingChat);
-
-  const { messages: hookMessages, sendMessage, isLoading, setMessages } = useChat({
-    connection: fetchServerSentEvents("/api/chat"),
-    initialMessages: initialMessages.length > 0 ? initialMessages : undefined,
-  });
-
-  const messages = hookMessages.length > 0 ? hookMessages : initialMessages;
-
-  // Sync loader data to useChat on navigation (skip initial mount to avoid double render)
-  useEffect(() => {
-    if (!hasMounted.current) {
-      hasMounted.current = true;
-      return;
-    }
-    if (existingChat.length > 0 && hookMessages.length === 0) {
-      setMessages(dbMessagesToUIMessages(existingChat));
-      savedMessageIds.current = new Set(
-        existingChat.map((message) => `db-${message.id}`)
-      );
-    }
-  }, [existingChat, hookMessages.length, setMessages]);
+  const { messages, visibleMessages, isLoading, sendAndPersist, resetChat, loadMessages } =
+    usePersistedChat({
+      existingChat,
+      hasIncompletePastChat: incompletePastChat !== null,
+      reflectionDate,
+    });
 
   const scrollToBottom = (smooth = false) => {
     const container = scrollContainerRef.current;
@@ -103,52 +63,12 @@ const ReflectPage = () => {
     }
   }, [messages]);
 
-  // Auto-trigger personalized greeting when starting a fresh conversation
-  useEffect(() => {
-    if (greetingSent.current) return;
-    if (existingChat.length > 0) return;
-    if (incompletePastChat) return;
-
-    greetingSent.current = true;
-    sendMessage(GREETING_TRIGGER);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    if (isLoading || messages.length === 0) return;
-
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage.role !== "assistant") return;
-    if (savedMessageIds.current.has(lastMessage.id)) return;
-
-    const content = getMessageText(lastMessage.parts);
-    if (!content) return;
-
-    savedMessageIds.current.add(lastMessage.id);
-
-    saveChatMessage({
-      data: { role: "assistant", content, date: reflectionDate },
-    }).catch((error) => {
-      console.error("Failed to save assistant message:", error);
-      savedMessageIds.current.delete(lastMessage.id);
-      toast.error("Kunde inte spara meddelandet");
-    });
-  }, [messages, isLoading, reflectionDate]);
-
   const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return;
 
     const message = input.trim();
     setInput("");
-    sendMessage(message);
-
-    try {
-      await saveChatMessage({
-        data: { role: "user", content: message, date: reflectionDate },
-      });
-    } catch (error) {
-      console.error("Failed to save user message:", error);
-      toast.error("Kunde inte spara meddelandet");
-    }
+    await sendAndPersist(message);
   };
 
   const handleOpenModal = () => {
@@ -183,24 +103,16 @@ const ReflectPage = () => {
       await clearPastChats();
       setReflectionDate(getTodayDateString());
     }
-    setMessages([]);
-    savedMessageIds.current.clear();
+    resetChat();
     setRestartDialogOpen(false);
-
-    greetingSent.current = false;
-    sendMessage(GREETING_TRIGGER);
-    greetingSent.current = true;
   };
 
   const handleRecoveryContinue = async () => {
     if (!incompletePastChat) return;
 
     setReflectionDate(incompletePastChat.date);
-
     const pastChatMessages = await getChatForDate({ data: { date: incompletePastChat.date } });
-
-    setMessages(dbMessagesToUIMessages(pastChatMessages));
-    savedMessageIds.current = new Set(pastChatMessages.map((m) => `db-${m.id}`));
+    loadMessages(pastChatMessages);
     setRecoveryModalOpen(false);
   };
 
@@ -214,11 +126,6 @@ const ReflectPage = () => {
     await clearPastChats();
     setRecoveryModalOpen(false);
   };
-
-  const isGreetingTrigger = (message: UIMessage) =>
-    message.role === 'user' && getMessageText(message.parts) === GREETING_TRIGGER;
-
-  const visibleMessages = messages.filter((m) => !isGreetingTrigger(m));
 
   const chatMessages = visibleMessages.map((message) => ({
     role: message.role as "user" | "assistant",

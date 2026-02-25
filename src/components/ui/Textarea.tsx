@@ -41,7 +41,7 @@ export const Textarea = ({
   }, [value, autoResize, maxHeight, textareaRef])
 
   const baseStyles =
-    'w-full px-4 py-3 rounded-xl border border-slate-600 bg-slate-700/50 text-slate-100 placeholder-slate-500 focus:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors resize-none'
+    'w-full px-4 py-3 rounded-xl border border-slate-600 bg-slate-700/50 text-slate-100 placeholder-slate-500 focus:bg-slate-700 focus:outline-2 focus:-outline-offset-2 focus:outline-emerald-500 focus:border-transparent transition-colors resize-none'
 
   return (
     <textarea
