@@ -13,16 +13,15 @@ type Milestone = {
 }
 
 const MILESTONES: Milestone[] = [
-  { threshold: 365, label: 'Ett helt år! Legendariskt!', gradient: 'bg-gradient-to-br from-amber-500/20 via-yellow-500/15 to-orange-500/20', border: 'border-amber-400/40' },
-  { threshold: 200, label: '200 dagar! Fenomenalt!', gradient: 'bg-gradient-to-br from-amber-500/15 via-yellow-500/10 to-orange-500/15', border: 'border-amber-400/30' },
-  { threshold: 100, label: '100 dagar! Imponerande!', gradient: 'bg-gradient-to-br from-rose-500/15 via-pink-500/10 to-fuchsia-500/15', border: 'border-rose-400/30' },
-  { threshold: 90, label: 'Tre månader!', gradient: 'bg-gradient-to-br from-rose-500/12 via-pink-500/8 to-fuchsia-500/12', border: 'border-rose-400/25' },
-  { threshold: 60, label: 'Två månader!', gradient: 'bg-gradient-to-br from-violet-500/15 via-purple-500/10 to-indigo-500/15', border: 'border-violet-400/30' },
-  { threshold: 45, label: '45 dagar!', gradient: 'bg-gradient-to-br from-violet-500/12 via-purple-500/8 to-indigo-500/12', border: 'border-violet-400/25' },
-  { threshold: 30, label: 'En hel månad!', gradient: 'bg-gradient-to-br from-blue-500/12 via-indigo-500/8 to-violet-500/12', border: 'border-blue-400/25' },
-  { threshold: 21, label: 'Tre veckor!', gradient: 'bg-gradient-to-br from-cyan-500/12 via-sky-500/8 to-blue-500/12', border: 'border-cyan-400/25' },
-  { threshold: 14, label: 'Två veckor!', gradient: 'bg-gradient-to-br from-teal-500/12 via-cyan-500/8 to-sky-500/12', border: 'border-teal-400/25' },
-  { threshold: 7, label: 'En hel vecka!', gradient: 'bg-gradient-to-br from-emerald-500/12 via-teal-500/8 to-green-500/12', border: 'border-emerald-400/25' },
+  { threshold: 365, label: 'Helt oslagbart!', gradient: 'bg-gradient-to-br from-amber-500/20 via-yellow-500/15 to-orange-500/20', border: 'border-amber-400/40' },
+  { threshold: 200, label: 'Fenomenalt!', gradient: 'bg-gradient-to-br from-amber-500/15 via-yellow-500/10 to-orange-500/15', border: 'border-amber-400/30' },
+  { threshold: 100, label: 'Legendariskt!', gradient: 'bg-gradient-to-br from-rose-500/15 via-pink-500/10 to-fuchsia-500/15', border: 'border-rose-400/30' },
+  { threshold: 75, label: 'Enastående!', gradient: 'bg-gradient-to-br from-rose-500/12 via-pink-500/8 to-fuchsia-500/12', border: 'border-rose-400/25' },
+  { threshold: 50, label: 'Ostoppbar!', gradient: 'bg-gradient-to-br from-violet-500/15 via-purple-500/10 to-indigo-500/15', border: 'border-violet-400/30' },
+  { threshold: 25, label: 'Riktigt starkt!', gradient: 'bg-gradient-to-br from-blue-500/12 via-indigo-500/8 to-violet-500/12', border: 'border-blue-400/25' },
+  { threshold: 14, label: 'Imponerande!', gradient: 'bg-gradient-to-br from-cyan-500/12 via-sky-500/8 to-blue-500/12', border: 'border-cyan-400/25' },
+  { threshold: 7, label: 'Stark streak!', gradient: 'bg-gradient-to-br from-teal-500/12 via-cyan-500/8 to-sky-500/12', border: 'border-teal-400/25' },
+  { threshold: 3, label: 'Bra start!', gradient: 'bg-gradient-to-br from-emerald-500/12 via-teal-500/8 to-green-500/12', border: 'border-emerald-400/25' },
 ]
 
 const getActiveMilestone = (streak: number): Milestone | null => {
