@@ -283,7 +283,7 @@ export const Route = createFileRoute("/_authed/")({
     ] = await Promise.all([
       hasAnyEntries(),
       getTodayEntry(),
-      getMoodTrend({ data: { limit: 30 } }),
+      getMoodTrend(),
       getStreak(),
       getMoodInsight({ data: {} }),
       getLastWeekSummary(),

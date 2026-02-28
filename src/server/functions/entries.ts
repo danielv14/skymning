@@ -99,14 +99,9 @@ export const createEntry = createServerFn({ method: 'POST' })
     return entry
   })
 
-const trendInputSchema = z.object({
-  limit: z.number().min(1).max(100).optional().default(50),
-})
-
 export const getMoodTrend = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
-  .inputValidator((data: unknown) => trendInputSchema.parse(data))
-  .handler(async ({ data }) => {
+  .handler(async () => {
     const db = getDb()
     const trendEntries = await db.query.entries.findMany({
       columns: {
@@ -114,7 +109,6 @@ export const getMoodTrend = createServerFn({ method: 'GET' })
         mood: true,
       },
       orderBy: [desc(entries.date)],
-      limit: data.limit,
     })
 
     return trendEntries.reverse()
