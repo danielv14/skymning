@@ -1,8 +1,8 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { getDb } from '../db'
-import { chatMessages } from '../db/schema'
-import { eq, lt, asc, desc } from 'drizzle-orm'
+import { chatMessages, entries } from '../db/schema'
+import { eq, lt, asc, desc, count } from 'drizzle-orm'
 import { dateString } from '../../constants'
 import { getTodayDateString } from '../../utils/date'
 import { authMiddleware } from '../middleware/auth'
@@ -19,34 +19,6 @@ export const getTodayChat = createServerFn({ method: 'GET' })
     })
 
     return messages
-  })
-
-export const getIncompletePastChat = createServerFn({ method: 'GET' })
-  .middleware([authMiddleware])
-  .handler(async () => {
-    const db = getDb()
-    const today = getTodayDateString()
-
-    const pastMessages = await db.query.chatMessages.findMany({
-      where: lt(chatMessages.date, today),
-      orderBy: [desc(chatMessages.date), asc(chatMessages.orderIndex)],
-    })
-
-    if (pastMessages.length === 0) {
-      return null
-    }
-
-    const date = pastMessages[0].date
-    const messagesForDate = pastMessages.filter((m) => m.date === date)
-
-    return {
-      date,
-      messages: messagesForDate.map((m) => ({
-        role: m.role as 'user' | 'assistant',
-        content: m.content,
-      })),
-      messageCount: messagesForDate.length,
-    }
   })
 
 export const clearPastChats = createServerFn({ method: 'POST' })
@@ -118,11 +90,11 @@ export const saveChatMessage = createServerFn({ method: 'POST' })
     const db = getDb()
     const messageDate = data.date ?? getTodayDateString()
 
-    const existingMessages = await db.query.chatMessages.findMany({
-      where: eq(chatMessages.date, messageDate),
-      columns: { id: true },
-    })
-    const orderIndex = existingMessages.length
+    const [{ messageCount }] = await db
+      .select({ messageCount: count() })
+      .from(chatMessages)
+      .where(eq(chatMessages.date, messageDate))
+    const orderIndex = messageCount
 
     const [message] = await db
       .insert(chatMessages)
@@ -135,6 +107,41 @@ export const saveChatMessage = createServerFn({ method: 'POST' })
       .returning()
 
     return message
+  })
+
+export const getValidIncompletePastChat = createServerFn({ method: 'GET' })
+  .middleware([authMiddleware])
+  .handler(async () => {
+    const db = getDb()
+    const today = getTodayDateString()
+
+    const pastMessages = await db.query.chatMessages.findMany({
+      where: lt(chatMessages.date, today),
+      orderBy: [desc(chatMessages.date), asc(chatMessages.orderIndex)],
+    })
+
+    if (pastMessages.length === 0) return null
+
+    const date = pastMessages[0].date
+    const messagesForDate = pastMessages.filter((m) => m.date === date)
+
+    const existingEntry = await db.query.entries.findFirst({
+      where: eq(entries.date, date),
+    })
+
+    if (existingEntry) {
+      await db.delete(chatMessages).where(lt(chatMessages.date, today))
+      return null
+    }
+
+    return {
+      date,
+      messages: messagesForDate.map((m) => ({
+        role: m.role as 'user' | 'assistant',
+        content: m.content,
+      })),
+      messageCount: messagesForDate.length,
+    }
   })
 
 export const clearTodayChat = createServerFn({ method: 'POST' })

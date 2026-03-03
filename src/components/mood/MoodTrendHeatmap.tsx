@@ -16,7 +16,10 @@ import { sv } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { MOOD_COLORS, MOODS, getMoodLabel, getPeriodMoodDescription } from '../../constants'
 import { MoodEmoji } from './MoodEmoji'
-import type { TrendData } from './MoodTrend'
+export type TrendData = {
+  date: string
+  mood: number
+}
 
 type MoodTrendHeatmapProps = {
   data: TrendData[]

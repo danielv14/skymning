@@ -12,11 +12,11 @@ import { PageHeader } from "../../components/ui/PageHeader";
 import {
   clearTodayChat,
   getTodayChat,
-  getIncompletePastChat,
+  getValidIncompletePastChat,
   clearPastChats,
   getChatForDate,
 } from "../../server/functions/chat";
-import { createEntry, getTodayEntry, getEntryForDate } from "../../server/functions/entries";
+import { createEntry, getTodayEntry } from "../../server/functions/entries";
 import { formatTime, getTodayDateString } from "../../utils/date";
 import { usePersistedChat, getMessageText } from "../../hooks/usePersistedChat";
 
@@ -239,7 +239,7 @@ export const Route = createFileRoute("/_authed/reflect")({
     const [todayEntry, existingChat, incompletePastChat] = await Promise.all([
       getTodayEntry(),
       getTodayChat(),
-      getIncompletePastChat(),
+      getValidIncompletePastChat(),
     ]);
 
     if (todayEntry) {
@@ -249,20 +249,11 @@ export const Route = createFileRoute("/_authed/reflect")({
       throw redirect({ to: "/" });
     }
 
-    let validPastChat = incompletePastChat;
-    if (incompletePastChat) {
-      const pastDateEntry = await getEntryForDate({ data: { date: incompletePastChat.date } });
-      if (pastDateEntry) {
-        await clearPastChats();
-        validPastChat = null;
-      }
-    }
-
-    const showRecovery = existingChat.length === 0 && validPastChat !== null;
+    const showRecovery = existingChat.length === 0 && incompletePastChat !== null;
 
     return {
       existingChat,
-      incompletePastChat: showRecovery ? validPastChat : null,
+      incompletePastChat: showRecovery ? incompletePastChat : null,
     };
   },
   component: ReflectPage,

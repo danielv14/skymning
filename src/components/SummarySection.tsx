@@ -16,7 +16,6 @@ type SummarySectionProps = {
   onOpenRegenerateModal: () => void
   onEdit: () => void
   isGenerating: boolean
-  isRegenerating: boolean
 }
 
 export const SummarySection = ({
@@ -31,7 +30,6 @@ export const SummarySection = ({
   onOpenRegenerateModal,
   onEdit,
   isGenerating,
-  isRegenerating,
 }: SummarySectionProps) => {
   const roundedMood = averageMood !== null ? Math.round(averageMood) : null
   const reflectionText = entryCount === 1 ? '1 reflektion' : `${entryCount} reflektioner`
@@ -52,11 +50,10 @@ export const SummarySection = ({
               </button>
               <button
                 onClick={onOpenRegenerateModal}
-                disabled={isRegenerating}
-                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700/50 active:bg-slate-700/70 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-700/50 active:bg-slate-700/70 transition-all duration-200"
                 aria-label="Regenerera summering"
               >
-                <RotateCw className={`w-4 h-4 ${isRegenerating ? 'animate-spin' : ''}`} />
+                <RotateCw className="w-4 h-4" />
               </button>
             </div>
           </div>

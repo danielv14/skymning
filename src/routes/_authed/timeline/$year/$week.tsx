@@ -12,7 +12,7 @@ import {
 } from '../../../../server/functions/weeklySummaries'
 import { generateWeeklySummary } from '../../../../server/ai'
 import { AppHeader } from '../../../../components/ui/AppHeader'
-import { RegenerateConfirmModal } from '../../../../components/reflection/RegenerateConfirmModal'
+import { AlertDialog } from '../../../../components/ui/AlertDialog'
 import { TimelineDayItem } from '../../../../components/timeline/TimelineDayItem'
 import { EditSummaryModal } from '../../../../components/EditSummaryModal'
 import { SummarySection } from '../../../../components/SummarySection'
@@ -25,54 +25,53 @@ const TimelineWeekPage = () => {
   const { year, week, entries, weeklySummary, averageMood, weekDays } = Route.useLoaderData()
   const router = useRouter()
   const [isGenerating, setIsGenerating] = useState(false)
-  const [isRegenerating, setIsRegenerating] = useState(false)
   const [confirmModalOpen, setConfirmModalOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
 
   const currentWeek = getCurrentWeek()
   const isCurrentWeek = year === currentWeek.year && week === currentWeek.week
 
-  // Create a map of date -> entry for quick lookup
   const entryMap = new Map(entries.map(e => [e.date, e]))
 
-  const handleSummaryGeneration = async (isRegenerate: boolean) => {
+  const generateAndSaveSummary = async (saveFn: typeof createWeeklySummary) => {
+    const summaryText = await generateWeeklySummary({
+      data: {
+        entries: entries.map((e) => ({
+          date: e.date,
+          mood: e.mood,
+          summary: e.summary,
+        })),
+      },
+    })
+
+    await saveFn({
+      data: {
+        year,
+        week,
+        summary: typeof summaryText === 'string' ? summaryText : String(summaryText),
+      },
+    })
+
+    router.invalidate()
+  }
+
+  const handleGenerateSummary = async () => {
     if (entries.length === 0) return
-
-    const setLoading = isRegenerate ? setIsRegenerating : setIsGenerating
-    if (isRegenerate) setConfirmModalOpen(false)
-
-    setLoading(true)
+    setIsGenerating(true)
     try {
-      const summaryText = await generateWeeklySummary({
-        data: {
-          entries: entries.map((e) => ({
-            date: e.date,
-            mood: e.mood,
-            summary: e.summary,
-          })),
-        },
-      })
-
-      const saveFn = isRegenerate ? updateWeeklySummary : createWeeklySummary
-      await saveFn({
-        data: {
-          year,
-          week,
-          summary: typeof summaryText === 'string' ? summaryText : String(summaryText),
-        },
-      })
-
-      router.invalidate()
+      await generateAndSaveSummary(createWeeklySummary)
     } catch (error) {
       console.error('Failed to generate summary:', error)
       toast.error('Kunde inte generera veckosummering')
     } finally {
-      setLoading(false)
+      setIsGenerating(false)
     }
   }
 
-  const handleGenerateSummary = () => handleSummaryGeneration(false)
-  const handleRegenerateSummary = () => handleSummaryGeneration(true)
+  const handleRegenerateSummary = async () => {
+    await generateAndSaveSummary(updateWeeklySummary)
+    setConfirmModalOpen(false)
+  }
 
   const prevWeek = getAdjacentWeek(year, week, 'prev')
   const nextWeek = getAdjacentWeek(year, week, 'next')
@@ -89,11 +88,13 @@ const TimelineWeekPage = () => {
 
   return (
     <>
-      <RegenerateConfirmModal
+      <AlertDialog
         open={confirmModalOpen}
         onOpenChange={setConfirmModalOpen}
+        title="Skapa om veckosummering?"
+        description="Är du säker på att du vill skapa en ny veckosummering? Den nuvarande texten kommer att ersättas."
+        confirmText="Gör om"
         onConfirm={handleRegenerateSummary}
-        isLoading={isRegenerating}
       />
       {weeklySummary?.summary && (
         <EditSummaryModal
@@ -162,7 +163,6 @@ const TimelineWeekPage = () => {
           onOpenRegenerateModal={() => setConfirmModalOpen(true)}
           onEdit={() => setEditModalOpen(true)}
           isGenerating={isGenerating}
-          isRegenerating={isRegenerating}
         />
 
         <div className="space-y-4">

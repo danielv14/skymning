@@ -13,7 +13,7 @@ import type { WeekOverview } from '../../../../server/functions/monthlySummaries
 import type { Entry } from '../../../../server/db/schema'
 import { generateMonthlySummary } from '../../../../server/ai'
 import { AppHeader } from '../../../../components/ui/AppHeader'
-import { RegenerateConfirmModal } from '../../../../components/reflection/RegenerateConfirmModal'
+import { AlertDialog } from '../../../../components/ui/AlertDialog'
 import { SummarySection } from '../../../../components/SummarySection'
 import { EditSummaryModal } from '../../../../components/EditSummaryModal'
 import { MonthlyCalendarHeatmap } from '../../../../components/months/MonthlyCalendarHeatmap'
@@ -21,6 +21,7 @@ import { MoodDistributionCard } from '../../../../components/months/MoodDistribu
 import { MonthComparisonCard } from '../../../../components/months/MonthComparisonCard'
 import { BestWorstWeekCard } from '../../../../components/months/BestWorstWeekCard'
 import { getPeriodMoodDescription } from '../../../../constants'
+import { capitalizeFirst } from '../../../../utils/string'
 
 const getAdjacentMonth = (year: number, month: number, direction: 'prev' | 'next') => {
   if (direction === 'prev') {
@@ -42,7 +43,6 @@ const MonthlyOverviewPage = () => {
   const { year, month, overview } = Route.useLoaderData()
   const router = useRouter()
   const [isGenerating, setIsGenerating] = useState(false)
-  const [isRegenerating, setIsRegenerating] = useState(false)
   const [confirmModalOpen, setConfirmModalOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
 
@@ -51,7 +51,7 @@ const MonthlyOverviewPage = () => {
 
   const monthDate = new Date(year, month - 1, 1)
   const monthLabel = format(monthDate, 'LLLL yyyy', { locale: sv })
-  const capitalizedMonthLabel = monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1)
+  const capitalizedMonthLabel = capitalizeFirst(monthLabel)
 
   const prevMonth = getAdjacentMonth(year, month, 'prev')
   const nextMonth = getAdjacentMonth(year, month, 'next')
@@ -62,64 +62,66 @@ const MonthlyOverviewPage = () => {
 
   const previousMonthDate = new Date(year, month - 2, 1)
 
-  const handleSummaryGeneration = async (isRegenerate: boolean) => {
+  const generateAndSaveSummary = async (saveFn: typeof createMonthlySummary) => {
+    const allWeeklySummaries = overview.weeks
+      .filter((weekData: WeekOverview) => weekData.weeklySummary !== null)
+      .map((weekData: WeekOverview) => ({
+        year: weekData.year,
+        week: weekData.week,
+        summary: weekData.weeklySummary!.summary,
+      }))
+
+    const summaryText = await generateMonthlySummary({
+      data: {
+        entries: allEntries.map((entry: Entry) => ({
+          date: entry.date,
+          mood: entry.mood,
+          summary: entry.summary,
+        })),
+        weeklySummaries: allWeeklySummaries,
+      },
+    })
+
+    await saveFn({
+      data: {
+        year,
+        month,
+        summary: typeof summaryText === 'string' ? summaryText : String(summaryText),
+      },
+    })
+
+    router.invalidate()
+  }
+
+  const handleGenerateSummary = async () => {
     if (overview.totalEntries === 0) return
-
-    const setLoading = isRegenerate ? setIsRegenerating : setIsGenerating
-    if (isRegenerate) setConfirmModalOpen(false)
-
-    setLoading(true)
+    setIsGenerating(true)
     try {
-      const allWeeklySummaries = overview.weeks
-        .filter((weekData: WeekOverview) => weekData.weeklySummary !== null)
-        .map((weekData: WeekOverview) => ({
-          year: weekData.year,
-          week: weekData.week,
-          summary: weekData.weeklySummary!.summary,
-        }))
-
-      const summaryText = await generateMonthlySummary({
-        data: {
-          entries: allEntries.map((entry: Entry) => ({
-            date: entry.date,
-            mood: entry.mood,
-            summary: entry.summary,
-          })),
-          weeklySummaries: allWeeklySummaries,
-        },
-      })
-
-      const saveFn = isRegenerate ? updateMonthlySummary : createMonthlySummary
-      await saveFn({
-        data: {
-          year,
-          month,
-          summary: typeof summaryText === 'string' ? summaryText : String(summaryText),
-        },
-      })
-
-      router.invalidate()
+      await generateAndSaveSummary(createMonthlySummary)
     } catch (error) {
       console.error('Failed to generate monthly summary:', error)
       toast.error('Kunde inte generera månadssummering')
     } finally {
-      setLoading(false)
+      setIsGenerating(false)
     }
   }
 
-  const handleGenerateSummary = () => handleSummaryGeneration(false)
-  const handleRegenerateSummary = () => handleSummaryGeneration(true)
+  const handleRegenerateSummary = async () => {
+    await generateAndSaveSummary(updateMonthlySummary)
+    setConfirmModalOpen(false)
+  }
 
   const monthNavLinkClass = "flex items-center gap-1.5 px-3 py-2 rounded-full text-slate-300 hover:text-white hover:bg-white/10 active:bg-white/15 transition-all duration-200"
 
   return (
     <>
-      <RegenerateConfirmModal
+      <AlertDialog
         open={confirmModalOpen}
         onOpenChange={setConfirmModalOpen}
+        title="Skapa om månadssummering?"
+        description="Är du säker på att du vill skapa en ny månadssummering? Den nuvarande texten kommer att ersättas."
+        confirmText="Gör om"
         onConfirm={handleRegenerateSummary}
-        isLoading={isRegenerating}
-        label="månadssummering"
       />
       {overview.monthlySummary?.summary && (
         <EditSummaryModal
@@ -206,7 +208,6 @@ const MonthlyOverviewPage = () => {
                 onOpenRegenerateModal={() => setConfirmModalOpen(true)}
                 onEdit={() => setEditModalOpen(true)}
                 isGenerating={isGenerating}
-                isRegenerating={isRegenerating}
               />
             </div>
           </div>
@@ -236,7 +237,7 @@ export const Route = createFileRoute('/_authed/months/$year/$month')({
   head: ({ params }) => {
     const monthDate = new Date(parseInt(params.year, 10), parseInt(params.month, 10) - 1, 1)
     const monthName = format(monthDate, 'LLLL yyyy', { locale: sv })
-    const capitalizedName = monthName.charAt(0).toUpperCase() + monthName.slice(1)
+    const capitalizedName = capitalizeFirst(monthName)
     return {
       meta: [{ title: `${capitalizedName} - Skymning` }],
     }

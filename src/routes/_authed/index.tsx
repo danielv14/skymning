@@ -14,15 +14,14 @@ import { MoodInsightCard } from "../../components/dashboard/MoodInsightCard";
 import { StreakCard } from "../../components/dashboard/StreakCard";
 import { TodayEntryCard } from "../../components/dashboard/TodayEntryCard";
 import { WeekdayPatternCard } from "../../components/dashboard/WeekdayPatternCard";
-import { MoodTrend } from "../../components/mood/MoodTrend";
+import { MoodTrendHeatmap } from "../../components/mood/MoodTrendHeatmap";
 import { AppHeader } from "../../components/ui/AppHeader";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { Welcome } from "../../components/Welcome";
 import {
-  clearPastChats,
   getChatPreview,
-  getIncompletePastChat,
+  getValidIncompletePastChat,
 } from "../../server/functions/chat";
 import {
   getEntryForDate,
@@ -31,7 +30,6 @@ import {
   getStreak,
   getTodayEntry,
   getWeekdayPatterns,
-  hasAnyEntries,
 } from "../../server/functions/entries";
 import { getUserContextStaleness } from "../../server/functions/userContext";
 import { getLastWeekSummary } from "../../server/functions/weeklySummaries";
@@ -253,7 +251,7 @@ const HomePage = () => {
         {moodTrend.length > 0 && (
           <div className="sm:max-w-sm">
             <Card>
-              <MoodTrend data={moodTrend} />
+              <MoodTrendHeatmap data={moodTrend} />
             </Card>
           </div>
         )}
@@ -269,7 +267,6 @@ export const Route = createFileRoute("/_authed/")({
   loader: async () => {
     const yesterdayDate = subtractDays(getTodayDateString(), 1);
     const [
-      hasEntries,
       todayEntry,
       moodTrend,
       streak,
@@ -281,29 +278,19 @@ export const Route = createFileRoute("/_authed/")({
       yesterdayEntry,
       contextStaleness,
     ] = await Promise.all([
-      hasAnyEntries(),
       getTodayEntry(),
       getMoodTrend(),
       getStreak(),
       getMoodInsight({ data: {} }),
       getLastWeekSummary(),
       getChatPreview(),
-      getIncompletePastChat(),
+      getValidIncompletePastChat(),
       getWeekdayPatterns(),
       getEntryForDate({ data: { date: yesterdayDate } }),
       getUserContextStaleness(),
     ]);
 
-    let validPastChat = incompletePastChat;
-    if (incompletePastChat) {
-      const pastDateEntry = await getEntryForDate({
-        data: { date: incompletePastChat.date },
-      });
-      if (pastDateEntry || todayEntry) {
-        await clearPastChats();
-        validPastChat = null;
-      }
-    }
+    const hasEntries = moodTrend.length > 0;
 
     return {
       hasEntries,
@@ -313,7 +300,7 @@ export const Route = createFileRoute("/_authed/")({
       moodInsight,
       lastWeekSummary,
       chatPreview,
-      incompletePastChat: validPastChat,
+      incompletePastChat,
       weekdayPatterns,
       yesterdayDate,
       yesterdayEntry,

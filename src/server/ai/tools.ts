@@ -1,8 +1,9 @@
 import { toolDefinition } from '@tanstack/ai'
-import { desc, gte } from 'drizzle-orm'
+import { and, desc, gte, like } from 'drizzle-orm'
 import { z } from 'zod'
 import { getMoodLabel } from '../../constants'
 import { subtractDays, getTodayDateString } from '../../utils/date'
+import { truncateText } from '../../utils/string'
 import { getDb } from '../db'
 import { entries } from '../db/schema'
 
@@ -57,23 +58,18 @@ export const searchEntries = searchEntriesDefinition.server(
         summary: entries.summary,
       })
       .from(entries)
-      .where(gte(entries.date, ninetyDaysAgo))
+      .where(and(
+        gte(entries.date, ninetyDaysAgo),
+        like(entries.summary, `%${query}%`),
+      ))
       .orderBy(desc(entries.date))
+      .limit(5)
 
-    const filtered = results
-      .filter((entry) =>
-        entry.summary.toLowerCase().includes(query.toLowerCase()),
-      )
-      .slice(0, 5)
-
-    return filtered.map((entry) => ({
+    return results.map((entry) => ({
       date: entry.date,
       mood: entry.mood,
       moodLabel: getMoodLabel(entry.mood),
-      summaryExcerpt:
-        entry.summary.length > 150
-          ? `${entry.summary.slice(0, 150)}...`
-          : entry.summary,
+      summaryExcerpt: truncateText(entry.summary, 150),
     }))
   },
 )

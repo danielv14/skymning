@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { getDb } from '../db'
 import { entries, chatMessages } from '../db/schema'
-import { eq, desc, and, gte, lt, count } from 'drizzle-orm'
+import { eq, desc, and, gte, lt } from 'drizzle-orm'
 import { startOfISOWeek, addWeeks, format, getDay, parseISO } from 'date-fns'
 import { dateString, weekInputSchema, MAX_STREAK_ENTRIES, MOOD_INSIGHT_DAYS, WEEKDAY_PATTERN_DAYS } from '../../constants'
 import {
@@ -39,14 +39,6 @@ export const getEntryForDate = createServerFn({ method: 'GET' })
       where: eq(entries.date, data.date),
     })
     return entry ?? null
-  })
-
-export const hasAnyEntries = createServerFn({ method: 'GET' })
-  .middleware([authMiddleware])
-  .handler(async () => {
-    const db = getDb()
-    const entry = await db.query.entries.findFirst()
-    return entry !== undefined
   })
 
 export const getEntriesForWeek = createServerFn({ method: 'GET' })
@@ -215,18 +207,13 @@ export const getMoodInsight = createServerFn({ method: 'GET' })
   .handler(async ({ data }): Promise<MoodInsight | null> => {
     const db = getDb()
 
-    const totalEntries = await db
-      .select({ count: count() })
-      .from(entries)
-      .then((result) => result[0]?.count ?? 0)
-
-    if (totalEntries < data.entryCount) return null
-
     const recentEntries = await db.query.entries.findMany({
       columns: { mood: true },
       orderBy: [desc(entries.date)],
       limit: data.entryCount,
     })
+
+    if (recentEntries.length < data.entryCount) return null
 
     const moods = recentEntries.map((e) => e.mood)
     const halfIndex = Math.floor(moods.length / 2)
