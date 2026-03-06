@@ -59,6 +59,16 @@ export const chatMessages = sqliteTable("chat_messages", {
     .$defaultFn(() => new Date().toISOString()),
 });
 
+export const exploreChatMessages = sqliteTable("explore_chat_messages", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  role: text("role").notNull(), // 'user' | 'assistant'
+  content: text("content").notNull(),
+  orderIndex: integer("order_index").notNull(),
+  createdAt: text("created_at")
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
+});
+
 export const insights = sqliteTable("insights", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   insightsJson: text("insights_json").notNull(),
@@ -74,4 +84,5 @@ export type Entry = typeof entries.$inferSelect;
 export type WeeklySummary = typeof weeklySummaries.$inferSelect;
 export type MonthlySummary = typeof monthlySummaries.$inferSelect;
 export type ChatMessage = typeof chatMessages.$inferSelect;
+export type ExploreChatMessage = typeof exploreChatMessages.$inferSelect;
 export type Insight = typeof insights.$inferSelect;

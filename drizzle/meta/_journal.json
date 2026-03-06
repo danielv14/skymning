@@ -36,6 +36,13 @@
       "when": 1771357529199,
       "tag": "0004_sweet_johnny_blaze",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1772797236726,
+      "tag": "0005_flat_wendell_vaughn",
+      "breakpoints": true
     }
   ]
 }

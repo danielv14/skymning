@@ -1,3 +1,4 @@
+import { ChatMarkdown } from '../ui/ChatMarkdown'
 import { TypingIndicator } from '../ui/TypingIndicator'
 
 type ChatMessageProps = {
@@ -22,12 +23,12 @@ export const ChatMessage = ({ role, text, isStreaming = false, time }: ChatMessa
         {isStreaming && !text ? (
           <TypingIndicator />
         ) : (
-          <p className="whitespace-pre-wrap leading-relaxed">
-            {text}
+          <div className="chat-markdown-content space-y-2">
+            <ChatMarkdown variant={role}>{text}</ChatMarkdown>
             {isStreaming && text && (
               <span className="inline-block w-1.5 h-5 ml-1 bg-cyan-400 animate-pulse rounded-sm align-middle" />
             )}
-          </p>
+          </div>
         )}
       </div>
       {time && (

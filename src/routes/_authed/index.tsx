@@ -3,8 +3,10 @@ import { getISOWeek, getISOWeekYear } from "date-fns";
 import {
   BarChart3,
   Calendar,
+  ChevronRight,
   Clock,
   MessageCircle,
+  Search,
   Sparkles,
   User,
 } from "lucide-react";
@@ -23,6 +25,7 @@ import {
   getChatPreview,
   getValidIncompletePastChat,
 } from "../../server/functions/chat";
+import { getExploreChatPreview } from "../../server/functions/exploreChat";
 import {
   getEntryForDate,
   getMoodInsight,
@@ -56,6 +59,7 @@ const HomePage = () => {
     yesterdayDate,
     yesterdayEntry,
     contextStaleness,
+    exploreChatPreview,
   } = Route.useLoaderData();
 
   if (!hasEntries) {
@@ -128,7 +132,7 @@ const HomePage = () => {
         </div>
       </AppHeader>
 
-      <main className="max-w-2xl mx-auto p-4 sm:p-8 space-y-4 sm:space-y-5 stagger-children">
+      <main className="max-w-2xl mx-auto p-4 sm:p-8 flex flex-col gap-4 sm:gap-5 stagger-children">
         {chatPreview && !todayEntry && (
           <Card className="bg-gradient-to-r from-cyan-500/10 to-teal-500/10 border-cyan-500/30">
             <div className="flex items-start gap-3 sm:gap-4">
@@ -204,6 +208,38 @@ const HomePage = () => {
 
         {contextStaleness.isStale && <ContextStalenessCard />}
 
+        <Link to="/explore" viewTransition>
+          <Card
+            interactive
+            className="bg-gradient-to-r from-violet-500/10 to-indigo-500/10 border-violet-500/20 hover:border-violet-500/40"
+          >
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="shrink-0 p-2.5 rounded-2xl bg-violet-500/20">
+                <Search className="w-5 h-5 text-violet-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-white">
+                  Utforska din historik
+                </h3>
+                {exploreChatPreview ? (
+                  <p className="text-sm text-slate-400 mt-0.5 truncate">
+                    {exploreChatPreview.messageCount}{" "}
+                    {exploreChatPreview.messageCount === 1
+                      ? "meddelande"
+                      : "meddelanden"}{" "}
+                    · Fortsätt konversationen
+                  </p>
+                ) : (
+                  <p className="text-sm text-slate-400 mt-0.5">
+                    Hitta mönster, sök i reflektioner, utforska perioder
+                  </p>
+                )}
+              </div>
+              <ChevronRight className="w-5 h-5 shrink-0 text-slate-500" />
+            </div>
+          </Card>
+        </Link>
+
         <div className="bento-grid">
           <div className="bento-half">
             <StreakCard streak={streak} />
@@ -277,6 +313,7 @@ export const Route = createFileRoute("/_authed/")({
       weekdayPatterns,
       yesterdayEntry,
       contextStaleness,
+      exploreChatPreview,
     ] = await Promise.all([
       getTodayEntry(),
       getMoodTrend(),
@@ -288,6 +325,7 @@ export const Route = createFileRoute("/_authed/")({
       getWeekdayPatterns(),
       getEntryForDate({ data: { date: yesterdayDate } }),
       getUserContextStaleness(),
+      getExploreChatPreview(),
     ]);
 
     const hasEntries = moodTrend.length > 0;
@@ -305,6 +343,7 @@ export const Route = createFileRoute("/_authed/")({
       yesterdayDate,
       yesterdayEntry,
       contextStaleness,
+      exploreChatPreview,
     };
   },
   component: HomePage,

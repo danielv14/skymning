@@ -12,11 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
+import { Route as ApiExploreChatRouteImport } from './routes/api/explore-chat'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthedTimelineRouteImport } from './routes/_authed/timeline'
 import { Route as AuthedReflectRouteImport } from './routes/_authed/reflect'
 import { Route as AuthedQuickRouteImport } from './routes/_authed/quick'
 import { Route as AuthedInsightsRouteImport } from './routes/_authed/insights'
+import { Route as AuthedExploreRouteImport } from './routes/_authed/explore'
 import { Route as AuthedAboutMeRouteImport } from './routes/_authed/about-me'
 import { Route as AuthedTimelineYearWeekRouteImport } from './routes/_authed/timeline/$year/$week'
 import { Route as AuthedMonthsYearMonthRouteImport } from './routes/_authed/months/$year/$month'
@@ -34,6 +36,11 @@ const AuthedIndexRoute = AuthedIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthedRoute,
+} as any)
+const ApiExploreChatRoute = ApiExploreChatRouteImport.update({
+  id: '/api/explore-chat',
+  path: '/api/explore-chat',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
@@ -60,6 +67,11 @@ const AuthedInsightsRoute = AuthedInsightsRouteImport.update({
   path: '/insights',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedExploreRoute = AuthedExploreRouteImport.update({
+  id: '/explore',
+  path: '/explore',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedAboutMeRoute = AuthedAboutMeRouteImport.update({
   id: '/about-me',
   path: '/about-me',
@@ -80,22 +92,26 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthedIndexRoute
   '/login': typeof LoginRoute
   '/about-me': typeof AuthedAboutMeRoute
+  '/explore': typeof AuthedExploreRoute
   '/insights': typeof AuthedInsightsRoute
   '/quick': typeof AuthedQuickRoute
   '/reflect': typeof AuthedReflectRoute
   '/timeline': typeof AuthedTimelineRouteWithChildren
   '/api/chat': typeof ApiChatRoute
+  '/api/explore-chat': typeof ApiExploreChatRoute
   '/months/$year/$month': typeof AuthedMonthsYearMonthRoute
   '/timeline/$year/$week': typeof AuthedTimelineYearWeekRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/about-me': typeof AuthedAboutMeRoute
+  '/explore': typeof AuthedExploreRoute
   '/insights': typeof AuthedInsightsRoute
   '/quick': typeof AuthedQuickRoute
   '/reflect': typeof AuthedReflectRoute
   '/timeline': typeof AuthedTimelineRouteWithChildren
   '/api/chat': typeof ApiChatRoute
+  '/api/explore-chat': typeof ApiExploreChatRoute
   '/': typeof AuthedIndexRoute
   '/months/$year/$month': typeof AuthedMonthsYearMonthRoute
   '/timeline/$year/$week': typeof AuthedTimelineYearWeekRoute
@@ -105,11 +121,13 @@ export interface FileRoutesById {
   '/_authed': typeof AuthedRouteWithChildren
   '/login': typeof LoginRoute
   '/_authed/about-me': typeof AuthedAboutMeRoute
+  '/_authed/explore': typeof AuthedExploreRoute
   '/_authed/insights': typeof AuthedInsightsRoute
   '/_authed/quick': typeof AuthedQuickRoute
   '/_authed/reflect': typeof AuthedReflectRoute
   '/_authed/timeline': typeof AuthedTimelineRouteWithChildren
   '/api/chat': typeof ApiChatRoute
+  '/api/explore-chat': typeof ApiExploreChatRoute
   '/_authed/': typeof AuthedIndexRoute
   '/_authed/months/$year/$month': typeof AuthedMonthsYearMonthRoute
   '/_authed/timeline/$year/$week': typeof AuthedTimelineYearWeekRoute
@@ -120,22 +138,26 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/about-me'
+    | '/explore'
     | '/insights'
     | '/quick'
     | '/reflect'
     | '/timeline'
     | '/api/chat'
+    | '/api/explore-chat'
     | '/months/$year/$month'
     | '/timeline/$year/$week'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
     | '/about-me'
+    | '/explore'
     | '/insights'
     | '/quick'
     | '/reflect'
     | '/timeline'
     | '/api/chat'
+    | '/api/explore-chat'
     | '/'
     | '/months/$year/$month'
     | '/timeline/$year/$week'
@@ -144,11 +166,13 @@ export interface FileRouteTypes {
     | '/_authed'
     | '/login'
     | '/_authed/about-me'
+    | '/_authed/explore'
     | '/_authed/insights'
     | '/_authed/quick'
     | '/_authed/reflect'
     | '/_authed/timeline'
     | '/api/chat'
+    | '/api/explore-chat'
     | '/_authed/'
     | '/_authed/months/$year/$month'
     | '/_authed/timeline/$year/$week'
@@ -158,6 +182,7 @@ export interface RootRouteChildren {
   AuthedRoute: typeof AuthedRouteWithChildren
   LoginRoute: typeof LoginRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiExploreChatRoute: typeof ApiExploreChatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -182,6 +207,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthedIndexRouteImport
       parentRoute: typeof AuthedRoute
+    }
+    '/api/explore-chat': {
+      id: '/api/explore-chat'
+      path: '/api/explore-chat'
+      fullPath: '/api/explore-chat'
+      preLoaderRoute: typeof ApiExploreChatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/chat': {
       id: '/api/chat'
@@ -216,6 +248,13 @@ declare module '@tanstack/react-router' {
       path: '/insights'
       fullPath: '/insights'
       preLoaderRoute: typeof AuthedInsightsRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/explore': {
+      id: '/_authed/explore'
+      path: '/explore'
+      fullPath: '/explore'
+      preLoaderRoute: typeof AuthedExploreRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/about-me': {
@@ -256,6 +295,7 @@ const AuthedTimelineRouteWithChildren = AuthedTimelineRoute._addFileChildren(
 
 interface AuthedRouteChildren {
   AuthedAboutMeRoute: typeof AuthedAboutMeRoute
+  AuthedExploreRoute: typeof AuthedExploreRoute
   AuthedInsightsRoute: typeof AuthedInsightsRoute
   AuthedQuickRoute: typeof AuthedQuickRoute
   AuthedReflectRoute: typeof AuthedReflectRoute
@@ -266,6 +306,7 @@ interface AuthedRouteChildren {
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedAboutMeRoute: AuthedAboutMeRoute,
+  AuthedExploreRoute: AuthedExploreRoute,
   AuthedInsightsRoute: AuthedInsightsRoute,
   AuthedQuickRoute: AuthedQuickRoute,
   AuthedReflectRoute: AuthedReflectRoute,
@@ -281,6 +322,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthedRoute: AuthedRouteWithChildren,
   LoginRoute: LoginRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiExploreChatRoute: ApiExploreChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
