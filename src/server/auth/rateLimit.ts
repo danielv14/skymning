@@ -43,6 +43,9 @@ export const loginLimiter = createRateLimiter(5, 15 * 60 * 1000)
 // Chat API: 30 requests per 5 minutes (LLM calls are expensive)
 export const chatLimiter = createRateLimiter(30, 5 * 60 * 1000)
 
+// Explore chat: separate limiter (same limits)
+export const exploreChatLimiter = createRateLimiter(30, 5 * 60 * 1000)
+
 // Keep old exports for backwards compatibility with auth.ts
 export const isRateLimited = loginLimiter.isRateLimited
 export const recordFailedAttempt = loginLimiter.recordAttempt

@@ -19,6 +19,7 @@
         "date-fns": "^4.1.0",
         "drizzle-orm": "^0.45.1",
         "lucide-react": "^0.561.0",
+        "markdown-to-jsx": "^9.7.8",
         "react": "^19.2.4",
         "react-dom": "^19.2.4",
         "recharts": "^3.7.0",
@@ -798,6 +799,8 @@
     "lz-string": ["lz-string@1.5.0", "", { "bin": { "lz-string": "bin/bin.js" } }, "sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ=="],
 
     "magic-string": ["magic-string@0.30.21", "", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.5.5" } }, "sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ=="],
+
+    "markdown-to-jsx": ["markdown-to-jsx@9.7.8", "", { "peerDependencies": { "react": ">= 16.0.0", "solid-js": ">=1.0.0", "vue": ">=3.0.0" }, "optionalPeers": ["react", "solid-js", "vue"] }, "sha512-S6psodNI4wS0zkbGQyfxHvrgYgtuiZD0AZinNeNltAgwkUtAaWV/SYzDwdtEVN1yov0CKXYkmBnuxc9s1kkY5Q=="],
 
     "mdn-data": ["mdn-data@2.12.2", "", {}, "sha512-IEn+pegP1aManZuckezWCO+XZQDplx1366JoVhTpMpBB1sPey/SbveZQUosKiKiGYjg1wH4pMlNgXbCiYgihQA=="],
 
