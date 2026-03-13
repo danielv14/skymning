@@ -1,20 +1,9 @@
-import type { UIMessage } from '@tanstack/ai-react'
 import { fetchServerSentEvents, useChat } from '@tanstack/ai-react'
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { toast } from 'sonner'
 import { saveExploreChatMessage } from '../server/functions/exploreChat'
 import type { ExploreChatMessage } from '../server/db/schema'
-import { getMessageText } from './usePersistedChat'
-
-const dbMessagesToUIMessages = (
-  messages: ExploreChatMessage[],
-): UIMessage[] =>
-  messages.map((message) => ({
-    id: `db-${message.id}`,
-    role: message.role as 'user' | 'assistant',
-    parts: [{ type: 'text' as const, content: message.content }],
-    createdAt: new Date(message.createdAt),
-  }))
+import { dbMessagesToUIMessages, getMessageText } from '../utils/messages'
 
 type UseExploreChatOptions = {
   existingMessages: ExploreChatMessage[]
@@ -29,7 +18,10 @@ export const useExploreChat = ({
   const hasMounted = useRef(false)
   const wasCleared = useRef(false)
 
-  const initialMessages = dbMessagesToUIMessages(existingMessages)
+  const initialMessages = useMemo(
+    () => dbMessagesToUIMessages(existingMessages),
+    [existingMessages],
+  )
 
   const {
     messages: hookMessages,

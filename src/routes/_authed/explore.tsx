@@ -11,7 +11,7 @@ import {
   clearExploreChat,
   getExploreChatMessages,
 } from '../../server/functions/exploreChat'
-import { getMessageText } from '../../hooks/usePersistedChat'
+import { getMessageText } from '../../utils/messages'
 import { useExploreChat } from '../../hooks/useExploreChat'
 import { formatTime } from '../../utils/date'
 
@@ -176,7 +176,7 @@ const ExplorePage = () => {
           </div>
         </div>
 
-        <div className="shrink-0 px-4 sm:px-6 pt-2 pb-4 pb-[max(1rem,env(safe-area-inset-bottom))] bg-slate-950/80 backdrop-blur-xl">
+        <div className="shrink-0 px-4 sm:px-6 pt-2 pb-[max(1rem,env(safe-area-inset-bottom))] bg-slate-950/80 backdrop-blur-xl">
           <div className="max-w-2xl mx-auto bg-slate-800/50 border border-slate-700/50 rounded-2xl px-4 sm:px-5 py-4 shadow-xl shadow-black/20">
             <div className="relative">
               <Textarea

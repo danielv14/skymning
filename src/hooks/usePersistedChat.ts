@@ -4,22 +4,9 @@ import { useEffect, useRef } from "react"
 import { toast } from "sonner"
 import { saveChatMessage } from "../server/functions/chat"
 import type { ChatMessage as DbChatMessage } from "../server/db/schema"
+import { dbMessagesToUIMessages, getMessageText } from "../utils/messages"
 
 const GREETING_TRIGGER = '[GREETING]'
-
-export const getMessageText = (parts: UIMessage["parts"]) =>
-  parts
-    .filter((part) => part.type === "text")
-    .map((part) => part.content)
-    .join("")
-
-const dbMessagesToUIMessages = (messages: DbChatMessage[]): UIMessage[] =>
-  messages.map((message) => ({
-    id: `db-${message.id}`,
-    role: message.role as "user" | "assistant",
-    parts: [{ type: "text" as const, content: message.content }],
-    createdAt: new Date(message.createdAt),
-  }))
 
 type UsePersistedChatOptions = {
   existingChat: DbChatMessage[]

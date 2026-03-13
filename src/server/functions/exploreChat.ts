@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { asc, count, desc, sql } from 'drizzle-orm'
+import { asc, sql } from 'drizzle-orm'
 import { getDb } from '../db'
 import { exploreChatMessages } from '../db/schema'
 import { authMiddleware } from '../middleware/auth'
@@ -22,21 +22,23 @@ export const getExploreChatPreview = createServerFn({ method: 'GET' })
   .handler(async () => {
     const db = getDb()
 
-    const [countResult, lastMessageResult] = await Promise.all([
-      db.select({ messageCount: count() }).from(exploreChatMessages),
-      db.query.exploreChatMessages.findFirst({
-        orderBy: [desc(exploreChatMessages.orderIndex)],
-      }),
-    ])
+    const [result] = await db
+      .select({
+        messageCount: sql<number>`count(*)`,
+        lastRole: sql<string | null>`(SELECT role FROM explore_chat_messages ORDER BY order_index DESC LIMIT 1)`,
+        lastContent: sql<string | null>`(SELECT content FROM explore_chat_messages ORDER BY order_index DESC LIMIT 1)`,
+        lastCreatedAt: sql<string | null>`(SELECT created_at FROM explore_chat_messages ORDER BY order_index DESC LIMIT 1)`,
+      })
+      .from(exploreChatMessages)
 
-    if (!lastMessageResult) return null
+    if (result.messageCount === 0 || !result.lastRole) return null
 
     return {
-      messageCount: countResult[0].messageCount,
+      messageCount: result.messageCount,
       lastMessage: {
-        role: lastMessageResult.role,
-        content: lastMessageResult.content,
-        createdAt: lastMessageResult.createdAt,
+        role: result.lastRole,
+        content: result.lastContent!,
+        createdAt: result.lastCreatedAt!,
       },
     }
   })

@@ -18,7 +18,8 @@ import {
 } from "../../server/functions/chat";
 import { createEntry, getTodayEntry } from "../../server/functions/entries";
 import { formatTime, getTodayDateString } from "../../utils/date";
-import { usePersistedChat, getMessageText } from "../../hooks/usePersistedChat";
+import { usePersistedChat } from "../../hooks/usePersistedChat";
+import { getMessageText } from "../../utils/messages";
 
 const ReflectPage = () => {
   const router = useRouter();
