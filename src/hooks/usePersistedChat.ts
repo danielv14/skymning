@@ -1,6 +1,6 @@
 import type { UIMessage } from "@tanstack/ai-react"
 import { fetchServerSentEvents, useChat } from "@tanstack/ai-react"
-import { useEffect, useRef } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import { toast } from "sonner"
 import { saveChatMessage } from "../server/functions/chat"
 import type { ChatMessage as DbChatMessage } from "../server/db/schema"
@@ -25,7 +25,10 @@ export const usePersistedChat = ({
   const hasMounted = useRef(false)
   const greetingSent = useRef(false)
 
-  const initialMessages = dbMessagesToUIMessages(existingChat)
+  const initialMessages = useMemo(
+    () => dbMessagesToUIMessages(existingChat),
+    [existingChat],
+  )
 
   const { messages: hookMessages, sendMessage, isLoading, setMessages } = useChat({
     connection: fetchServerSentEvents("/api/chat"),
