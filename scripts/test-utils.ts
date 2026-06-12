@@ -203,12 +203,21 @@ const execSql = async (sql: string) => {
 
 // -- Commands --
 
+const APP_TABLES = [
+  'entries',
+  'weekly_summaries',
+  'monthly_summaries',
+  'user_context',
+  'chat_messages',
+  'explore_chat_messages',
+  'insights',
+]
+
 const reset = async () => {
   console.log('Clearing tables...')
-  await execSql('DELETE FROM entries')
-  await execSql('DELETE FROM weekly_summaries')
-  await execSql('DELETE FROM monthly_summaries')
-  await execSql('DELETE FROM user_context')
+  for (const table of APP_TABLES) {
+    await execSql(`DELETE FROM ${table}`)
+  }
   console.log('Tables cleared!')
 }
 
@@ -367,16 +376,17 @@ const syncProd = async () => {
   }
 
   const sqlContent = await file(tempFile).text()
-  const rowCounts = {
-    entries: (sqlContent.match(/INSERT INTO "entries"/g) || []).length,
-    weeklySummaries: (sqlContent.match(/INSERT INTO "weekly_summaries"/g) || []).length,
-    userContext: (sqlContent.match(/INSERT INTO "user_context"/g) || []).length,
-    chatMessages: (sqlContent.match(/INSERT INTO "chat_messages"/g) || []).length,
-  }
+  const rowCounts = Object.fromEntries(
+    APP_TABLES.map((table) => [
+      table,
+      (sqlContent.match(new RegExp(`INSERT INTO "${table}"`, 'g')) || []).length,
+    ])
+  )
 
   // Use grep to filter - keep only INSERT statements for app tables
   // grep returns exit code 1 if no matches, so we use || true to handle empty results
-  await $`grep -E "INSERT INTO \"(entries|weekly_summaries|user_context|chat_messages)\"" ${tempFile} > ${filteredFile} || true`
+  const tablePattern = APP_TABLES.join('|')
+  await $`grep -E "INSERT INTO \"(${tablePattern})\"" ${tempFile} > ${filteredFile} || true`
 
   console.log('Clearing local database...')
   await reset()
@@ -384,14 +394,13 @@ const syncProd = async () => {
   console.log('Importing to local database...')
   await $`bunx wrangler d1 execute skymning-db --local --file=${filteredFile}`.quiet()
 
-  unlinkSync(tempFile)
   unlinkSync(filteredFile)
 
   console.log('Sync complete!')
-  console.log(`   ${rowCounts.entries} entries`)
-  console.log(`   ${rowCounts.weeklySummaries} weekly summaries`)
-  console.log(`   ${rowCounts.userContext} user context rows`)
-  console.log(`   ${rowCounts.chatMessages} chat messages`)
+  for (const [table, count] of Object.entries(rowCounts)) {
+    console.log(`   ${count} ${table}`)
+  }
+  console.log(`\nFull backup kept at ${tempFile} (gitignored)`)
 }
 
 // Main
