@@ -1,12 +1,15 @@
-import type { UIMessage } from "@tanstack/ai-react"
-import { fetchServerSentEvents, useChat } from "@tanstack/ai-react"
-import { useEffect, useMemo, useRef } from "react"
-import { toast } from "sonner"
-import { saveChatMessage } from "../server/functions/chat"
-import type { ChatMessage as DbChatMessage } from "../server/db/schema"
-import { dbMessagesToUIMessages, getMessageText } from "../utils/messages"
+import type { UIMessage } from '@tanstack/ai-react'
+import { fetchServerSentEvents, useChat } from '@tanstack/ai-react'
+import { useEffect, useMemo, useRef } from 'react'
+import { toast } from 'sonner'
+import { saveChatMessage } from '@/server/functions/chat'
+import type { ChatMessage as DbChatMessage } from '@/server/db/schema'
+import { dbMessagesToUIMessages, getMessageText } from '@/utils/messages'
 
 const GREETING_TRIGGER = '[GREETING]'
+
+const isGreetingTrigger = (message: UIMessage) =>
+  message.role === 'user' && getMessageText(message.parts) === GREETING_TRIGGER
 
 type UsePersistedChatOptions = {
   existingChat: DbChatMessage[]
@@ -20,18 +23,20 @@ export const usePersistedChat = ({
   reflectionDate,
 }: UsePersistedChatOptions) => {
   const savedMessageIds = useRef<Set<string>>(
-    new Set(existingChat.map((message) => `db-${message.id}`))
+    new Set(existingChat.map((message) => `db-${message.id}`)),
   )
   const hasMounted = useRef(false)
   const greetingSent = useRef(false)
 
-  const initialMessages = useMemo(
-    () => dbMessagesToUIMessages(existingChat),
-    [existingChat],
-  )
+  const initialMessages = useMemo(() => dbMessagesToUIMessages(existingChat), [existingChat])
 
-  const { messages: hookMessages, sendMessage, isLoading, setMessages } = useChat({
-    connection: fetchServerSentEvents("/api/chat"),
+  const {
+    messages: hookMessages,
+    sendMessage,
+    isLoading,
+    setMessages,
+  } = useChat({
+    connection: fetchServerSentEvents('/api/chat'),
     initialMessages: initialMessages.length > 0 ? initialMessages : undefined,
   })
 
@@ -45,9 +50,7 @@ export const usePersistedChat = ({
     }
     if (existingChat.length > 0 && hookMessages.length === 0) {
       setMessages(dbMessagesToUIMessages(existingChat))
-      savedMessageIds.current = new Set(
-        existingChat.map((message) => `db-${message.id}`)
-      )
+      savedMessageIds.current = new Set(existingChat.map((message) => `db-${message.id}`))
     }
   }, [existingChat, hookMessages.length, setMessages])
 
@@ -66,7 +69,7 @@ export const usePersistedChat = ({
     if (isLoading || messages.length === 0) return
 
     const lastMessage = messages[messages.length - 1]
-    if (lastMessage.role !== "assistant") return
+    if (lastMessage.role !== 'assistant') return
     if (savedMessageIds.current.has(lastMessage.id)) return
 
     const content = getMessageText(lastMessage.parts)
@@ -75,16 +78,13 @@ export const usePersistedChat = ({
     savedMessageIds.current.add(lastMessage.id)
 
     saveChatMessage({
-      data: { role: "assistant", content, date: reflectionDate },
+      data: { role: 'assistant', content, date: reflectionDate },
     }).catch((error) => {
-      console.error("Failed to save assistant message:", error)
+      console.error('Failed to save assistant message:', error)
       savedMessageIds.current.delete(lastMessage.id)
-      toast.error("Kunde inte spara meddelandet")
+      toast.error('Kunde inte spara meddelandet')
     })
   }, [messages, isLoading, reflectionDate])
-
-  const isGreetingTrigger = (message: UIMessage) =>
-    message.role === 'user' && getMessageText(message.parts) === GREETING_TRIGGER
 
   const visibleMessages = messages.filter((m) => !isGreetingTrigger(m))
 
@@ -92,11 +92,11 @@ export const usePersistedChat = ({
     sendMessage(text)
     try {
       await saveChatMessage({
-        data: { role: "user", content: text, date: reflectionDate },
+        data: { role: 'user', content: text, date: reflectionDate },
       })
     } catch (error) {
-      console.error("Failed to save user message:", error)
-      toast.error("Kunde inte spara meddelandet")
+      console.error('Failed to save user message:', error)
+      toast.error('Kunde inte spara meddelandet')
     }
   }
 

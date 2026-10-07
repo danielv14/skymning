@@ -1,11 +1,12 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { getDb } from '../db'
-import { weeklySummaries } from '../db/schema'
+import { getDb } from '@/server/db'
+import { weeklySummaries } from '@/server/db/schema'
 import { and, eq } from 'drizzle-orm'
-import { getISOWeek, getISOWeekYear, subWeeks } from 'date-fns'
-import { weekInputSchema } from '../../constants'
-import { authMiddleware } from '../middleware/auth'
+import { getISOWeek, getISOWeekYear } from 'date-fns'
+import { getTodayDate } from '@/utils/date'
+import { weekInputSchema } from '@/constants'
+import { authMiddleware } from '@/server/middleware/auth'
 
 export const getWeeklySummary = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
@@ -13,10 +14,7 @@ export const getWeeklySummary = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     const db = getDb()
     const summary = await db.query.weeklySummaries.findFirst({
-      where: and(
-        eq(weeklySummaries.year, data.year),
-        eq(weeklySummaries.week, data.week)
-      ),
+      where: and(eq(weeklySummaries.year, data.year), eq(weeklySummaries.week, data.week)),
     })
     return summary ?? null
   })
@@ -45,32 +43,12 @@ export const createWeeklySummary = createServerFn({ method: 'POST' })
   })
 
 export const getCurrentWeek = (): { year: number; week: number } => {
-  const now = new Date()
+  const now = getTodayDate()
   return {
     year: getISOWeekYear(now),
     week: getISOWeek(now),
   }
 }
-
-export const getLastWeekSummary = createServerFn({ method: 'GET' })
-  .middleware([authMiddleware])
-  .handler(async () => {
-    const db = getDb()
-    const oneWeekAgo = subWeeks(new Date(), 1)
-    const lastWeek = {
-      year: getISOWeekYear(oneWeekAgo),
-      week: getISOWeek(oneWeekAgo),
-    }
-
-    const summary = await db.query.weeklySummaries.findFirst({
-      where: and(
-        eq(weeklySummaries.year, lastWeek.year),
-        eq(weeklySummaries.week, lastWeek.week)
-      ),
-    })
-
-    return summary ? { ...summary, ...lastWeek } : null
-  })
 
 export const updateWeeklySummary = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
@@ -82,12 +60,7 @@ export const updateWeeklySummary = createServerFn({ method: 'POST' })
       .set({
         summary: data.summary,
       })
-      .where(
-        and(
-          eq(weeklySummaries.year, data.year),
-          eq(weeklySummaries.week, data.week)
-        )
-      )
+      .where(and(eq(weeklySummaries.year, data.year), eq(weeklySummaries.week, data.week)))
       .returning()
 
     return updated

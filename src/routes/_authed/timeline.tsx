@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
-import { getCurrentWeek } from '../../server/functions/weeklySummaries'
+import { getCurrentWeek } from '@/server/functions/weeklySummaries'
 
 const TimelineLayout = () => {
   return <Outlet />

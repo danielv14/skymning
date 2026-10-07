@@ -1,8 +1,8 @@
 import { format } from 'date-fns'
 import { sv } from 'date-fns/locale'
 import { Minus, TrendingDown, TrendingUp } from 'lucide-react'
-import { MoodEmoji } from '../mood/MoodEmoji'
-import { Card } from '../ui/Card'
+import { MoodEmoji } from '@/components/mood/MoodEmoji'
+import { Card } from '@/components/ui/Card'
 
 type MonthComparisonCardProps = {
   currentAverage: number | null
@@ -19,21 +19,25 @@ export const MonthComparisonCard = ({
 
   const hasBothAverages = currentAverage !== null && previousAverage !== null
   const delta = hasBothAverages ? currentAverage - previousAverage : null
-  const trend = delta !== null
-    ? delta > 0.15 ? 'improving' : delta < -0.15 ? 'declining' : 'stable'
-    : null
+  const trend =
+    delta !== null ? (delta > 0.15 ? 'improving' : delta < -0.15 ? 'declining' : 'stable') : null
 
-  const TrendIcon = trend === 'improving' ? TrendingUp : trend === 'declining' ? TrendingDown : Minus
-  const trendColor = trend === 'improving' ? 'text-emerald-400' : trend === 'declining' ? 'text-violet-400' : 'text-cyan-400'
-  const gradientClass = trend === 'improving'
-    ? 'bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-cyan-500/10 border-emerald-500/20'
-    : trend === 'declining'
-      ? 'bg-gradient-to-br from-violet-500/10 via-purple-500/5 to-slate-500/10 border-violet-500/20'
-      : 'bg-gradient-to-br from-cyan-500/10 via-sky-500/5 to-slate-500/10 border-cyan-500/20'
+  const TrendIcon =
+    trend === 'improving' ? TrendingUp : trend === 'declining' ? TrendingDown : Minus
+  const trendColor =
+    trend === 'improving'
+      ? 'text-emerald-400'
+      : trend === 'declining'
+        ? 'text-violet-400'
+        : 'text-cyan-400'
+  const gradientClass =
+    trend === 'improving'
+      ? 'bg-gradient-to-br from-emerald-500/10 via-teal-500/5 to-cyan-500/10 border-emerald-500/20'
+      : trend === 'declining'
+        ? 'bg-gradient-to-br from-violet-500/10 via-purple-500/5 to-slate-500/10 border-violet-500/20'
+        : 'bg-gradient-to-br from-cyan-500/10 via-sky-500/5 to-slate-500/10 border-cyan-500/20'
 
-  const deltaDisplay = delta !== null
-    ? `${delta > 0 ? '+' : ''}${delta.toFixed(1)}`
-    : null
+  const deltaDisplay = delta !== null ? `${delta > 0 ? '+' : ''}${delta.toFixed(1)}` : null
 
   const trendLabel = trend === 'improving' ? 'Uppåt' : trend === 'declining' ? 'Nedåt' : 'Stabilt'
 
@@ -58,9 +62,7 @@ export const MonthComparisonCard = ({
             <div className="flex items-baseline gap-2">
               <span className="text-2xl font-bold text-white">{currentAverage.toFixed(1)}</span>
               {deltaDisplay && (
-                <span className={`text-sm font-semibold ${trendColor}`}>
-                  {deltaDisplay}
-                </span>
+                <span className={`text-sm font-semibold ${trendColor}`}>{deltaDisplay}</span>
               )}
             </div>
             <div className="space-y-1">

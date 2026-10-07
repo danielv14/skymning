@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { Pencil, Sparkles } from 'lucide-react'
-import type { Entry } from '../../server/db/schema'
-import { getMoodColor } from '../../constants'
-import { MoodEmoji } from '../mood/MoodEmoji'
-import { Button } from '../ui/Button'
-import { Card } from '../ui/Card'
-import { EditReflectionModal } from '../reflection/EditReflectionModal'
+import type { Entry } from '@/server/db/schema'
+import { getMoodColor } from '@/constants'
+import { MoodEmoji } from '@/components/mood/MoodEmoji'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { EditReflectionModal } from '@/components/reflection/EditReflectionModal'
 
 type TodayEntryCardProps = {
   entry: Entry | null
@@ -48,9 +48,12 @@ export const TodayEntryCard = ({ entry, hasChatPreview }: TodayEntryCardProps) =
                 >
                   <Pencil className="w-4 h-4" />
                 </button>
-                <div className="p-3 rounded-2xl" style={{
-                  backgroundColor: `color-mix(in srgb, ${getMoodColor(entry.mood)} 15%, transparent)`,
-                }}>
+                <div
+                  className="p-3 rounded-2xl"
+                  style={{
+                    backgroundColor: `color-mix(in srgb, ${getMoodColor(entry.mood)} 15%, transparent)`,
+                  }}
+                >
                   <MoodEmoji mood={entry.mood} size="lg" />
                 </div>
               </div>
@@ -60,9 +63,7 @@ export const TodayEntryCard = ({ entry, hasChatPreview }: TodayEntryCardProps) =
 
             <div className="flex items-center gap-2 pt-2">
               <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <p className="text-sm text-slate-400">
-                Reflektion sparad
-              </p>
+              <p className="text-sm text-slate-400">Reflektion sparad</p>
             </div>
           </div>
         </Card>
@@ -86,7 +87,9 @@ export const TodayEntryCard = ({ entry, hasChatPreview }: TodayEntryCardProps) =
                 </Button>
               </Link>
               <Link to="/quick" viewTransition className="flex-1">
-                <Button variant="secondary" className="w-full">Skriv själv</Button>
+                <Button variant="secondary" className="w-full">
+                  Skriv själv
+                </Button>
               </Link>
             </div>
           </div>

@@ -1,5 +1,5 @@
-import { StreakFlame } from '../mood/MoodIcons'
-import { Card } from '../ui/Card'
+import { StreakFlame } from '@/components/mood/MoodIcons'
+import { Card } from '@/components/ui/Card'
 
 type StreakCardProps = {
   streak: number
@@ -13,15 +13,60 @@ type Milestone = {
 }
 
 const MILESTONES: Milestone[] = [
-  { threshold: 365, label: 'Helt oslagbart!', gradient: 'bg-gradient-to-br from-amber-500/20 via-yellow-500/15 to-orange-500/20', border: 'border-amber-400/40' },
-  { threshold: 200, label: 'Fenomenalt!', gradient: 'bg-gradient-to-br from-amber-500/15 via-yellow-500/10 to-orange-500/15', border: 'border-amber-400/30' },
-  { threshold: 100, label: 'Legendariskt!', gradient: 'bg-gradient-to-br from-rose-500/15 via-pink-500/10 to-fuchsia-500/15', border: 'border-rose-400/30' },
-  { threshold: 75, label: 'Enastående!', gradient: 'bg-gradient-to-br from-rose-500/12 via-pink-500/8 to-fuchsia-500/12', border: 'border-rose-400/25' },
-  { threshold: 50, label: 'Ostoppbar!', gradient: 'bg-gradient-to-br from-violet-500/15 via-purple-500/10 to-indigo-500/15', border: 'border-violet-400/30' },
-  { threshold: 25, label: 'Riktigt starkt!', gradient: 'bg-gradient-to-br from-blue-500/12 via-indigo-500/8 to-violet-500/12', border: 'border-blue-400/25' },
-  { threshold: 14, label: 'Imponerande!', gradient: 'bg-gradient-to-br from-cyan-500/12 via-sky-500/8 to-blue-500/12', border: 'border-cyan-400/25' },
-  { threshold: 7, label: 'Stark streak!', gradient: 'bg-gradient-to-br from-teal-500/12 via-cyan-500/8 to-sky-500/12', border: 'border-teal-400/25' },
-  { threshold: 3, label: 'Bra start!', gradient: 'bg-gradient-to-br from-emerald-500/12 via-teal-500/8 to-green-500/12', border: 'border-emerald-400/25' },
+  {
+    threshold: 365,
+    label: 'Helt oslagbart!',
+    gradient: 'bg-gradient-to-br from-amber-500/20 via-yellow-500/15 to-orange-500/20',
+    border: 'border-amber-400/40',
+  },
+  {
+    threshold: 200,
+    label: 'Fenomenalt!',
+    gradient: 'bg-gradient-to-br from-amber-500/15 via-yellow-500/10 to-orange-500/15',
+    border: 'border-amber-400/30',
+  },
+  {
+    threshold: 100,
+    label: 'Legendariskt!',
+    gradient: 'bg-gradient-to-br from-rose-500/15 via-pink-500/10 to-fuchsia-500/15',
+    border: 'border-rose-400/30',
+  },
+  {
+    threshold: 75,
+    label: 'Enastående!',
+    gradient: 'bg-gradient-to-br from-rose-500/12 via-pink-500/8 to-fuchsia-500/12',
+    border: 'border-rose-400/25',
+  },
+  {
+    threshold: 50,
+    label: 'Ostoppbar!',
+    gradient: 'bg-gradient-to-br from-violet-500/15 via-purple-500/10 to-indigo-500/15',
+    border: 'border-violet-400/30',
+  },
+  {
+    threshold: 25,
+    label: 'Riktigt starkt!',
+    gradient: 'bg-gradient-to-br from-blue-500/12 via-indigo-500/8 to-violet-500/12',
+    border: 'border-blue-400/25',
+  },
+  {
+    threshold: 14,
+    label: 'Imponerande!',
+    gradient: 'bg-gradient-to-br from-cyan-500/12 via-sky-500/8 to-blue-500/12',
+    border: 'border-cyan-400/25',
+  },
+  {
+    threshold: 7,
+    label: 'Stark streak!',
+    gradient: 'bg-gradient-to-br from-teal-500/12 via-cyan-500/8 to-sky-500/12',
+    border: 'border-teal-400/25',
+  },
+  {
+    threshold: 3,
+    label: 'Bra start!',
+    gradient: 'bg-gradient-to-br from-emerald-500/12 via-teal-500/8 to-green-500/12',
+    border: 'border-emerald-400/25',
+  },
 ]
 
 const getActiveMilestone = (streak: number): Milestone | null => {
@@ -72,10 +117,7 @@ export const StreakCard = ({ streak }: StreakCardProps) => {
     <Card className={`h-full ${cardGradient}`}>
       <div className="flex items-center gap-4">
         <div className={`relative ${hasStreak ? 'flame-animate' : ''}`}>
-          <StreakFlame
-            size={44}
-            className={hasStreak ? 'text-orange-400' : 'text-slate-500'}
-          />
+          <StreakFlame size={44} className={hasStreak ? 'text-orange-400' : 'text-slate-500'} />
           {hasStreak && (
             <div
               className="absolute inset-0 blur-lg opacity-50"

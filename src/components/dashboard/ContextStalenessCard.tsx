@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { UserPen } from 'lucide-react'
-import { Card } from '../ui/Card'
-import { Button } from '../ui/Button'
-import { dismissContextReminder } from '../../server/functions/userContext'
+import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { dismissContextReminder } from '@/server/functions/userContext'
 
 export const ContextStalenessCard = () => {
   const [dismissed, setDismissed] = useState(false)
@@ -34,7 +34,11 @@ export const ContextStalenessCard = () => {
             Avfärda
           </button>
           <Link to="/about-me" viewTransition>
-            <Button variant="ghost" size="sm" className="text-amber-300 hover:text-amber-200 hover:bg-amber-500/15">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-amber-300 hover:text-amber-200 hover:bg-amber-500/15"
+            >
               Uppdatera →
             </Button>
           </Link>

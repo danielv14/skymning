@@ -1,9 +1,9 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
 import { asc, sql } from 'drizzle-orm'
-import { getDb } from '../db'
-import { exploreChatMessages } from '../db/schema'
-import { authMiddleware } from '../middleware/auth'
+import { getDb } from '@/server/db'
+import { exploreChatMessages } from '@/server/db/schema'
+import { authMiddleware } from '@/server/middleware/auth'
 
 export const getExploreChatMessages = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
@@ -15,32 +15,6 @@ export const getExploreChatMessages = createServerFn({ method: 'GET' })
     })
 
     return messages
-  })
-
-export const getExploreChatPreview = createServerFn({ method: 'GET' })
-  .middleware([authMiddleware])
-  .handler(async () => {
-    const db = getDb()
-
-    const [result] = await db
-      .select({
-        messageCount: sql<number>`count(*)`,
-        lastRole: sql<string | null>`(SELECT role FROM explore_chat_messages ORDER BY order_index DESC LIMIT 1)`,
-        lastContent: sql<string | null>`(SELECT content FROM explore_chat_messages ORDER BY order_index DESC LIMIT 1)`,
-        lastCreatedAt: sql<string | null>`(SELECT created_at FROM explore_chat_messages ORDER BY order_index DESC LIMIT 1)`,
-      })
-      .from(exploreChatMessages)
-
-    if (result.messageCount === 0 || !result.lastRole) return null
-
-    return {
-      messageCount: result.messageCount,
-      lastMessage: {
-        role: result.lastRole,
-        content: result.lastContent!,
-        createdAt: result.lastCreatedAt!,
-      },
-    }
   })
 
 const saveExploreChatMessageSchema = z.object({

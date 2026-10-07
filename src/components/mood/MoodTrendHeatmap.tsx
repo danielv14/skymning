@@ -9,13 +9,15 @@ import {
   addMonths,
   subMonths,
   isSameMonth,
-  isToday,
-  isFuture,
+  isSameDay,
+  isAfter,
+  parseISO,
 } from 'date-fns'
 import { sv } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { MOOD_COLORS, MOODS, getMoodLabel, getPeriodMoodDescription } from '../../constants'
+import { MOOD_COLORS, MOODS, getMoodLabel, getPeriodMoodDescription } from '@/constants'
 import { MoodEmoji } from './MoodEmoji'
+import { getTodayDate } from '@/utils/date'
 export type TrendData = {
   date: string
   mood: number
@@ -27,7 +29,7 @@ type MoodTrendHeatmapProps = {
 
 const calculateMonthStats = (data: TrendData[], month: Date) => {
   const monthEntries = data.filter((d) => {
-    const entryDate = new Date(d.date)
+    const entryDate = parseISO(d.date)
     return isSameMonth(entryDate, month)
   })
 
@@ -47,7 +49,8 @@ const calculateMonthStats = (data: TrendData[], month: Date) => {
 }
 
 export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
-  const [currentMonth, setCurrentMonth] = useState(new Date())
+  const today = getTodayDate()
+  const [currentMonth, setCurrentMonth] = useState(today)
   const dataByDate = new Map(data.map((d) => [d.date, d.mood]))
 
   const monthStart = startOfMonth(currentMonth)
@@ -69,9 +72,9 @@ export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
 
   const goToPreviousMonth = () => setCurrentMonth(subMonths(currentMonth, 1))
   const goToNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1))
-  const goToToday = () => setCurrentMonth(new Date())
+  const goToToday = () => setCurrentMonth(today)
 
-  const canGoNext = !isSameMonth(currentMonth, new Date())
+  const canGoNext = !isSameMonth(currentMonth, today)
 
   const dayLabels = ['Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör', 'Sön']
 
@@ -116,8 +119,12 @@ export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
           <div className="flex items-center gap-3">
             <MoodEmoji mood={Math.round(stats.average)} size="md" showLabel={false} />
             <div>
-              <p className="text-white font-medium text-sm">{getPeriodMoodDescription(stats.average)}</p>
-              <p className="text-slate-500 text-xs">{stats.totalDays} {stats.totalDays === 1 ? 'dag loggad' : 'dagar loggade'}</p>
+              <p className="text-white font-medium text-sm">
+                {getPeriodMoodDescription(stats.average)}
+              </p>
+              <p className="text-slate-500 text-xs">
+                {stats.totalDays} {stats.totalDays === 1 ? 'dag loggad' : 'dagar loggade'}
+              </p>
             </div>
           </div>
 
@@ -140,10 +147,7 @@ export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
         {/* Day labels */}
         <div className="grid grid-cols-7 mb-2">
           {dayLabels.map((day) => (
-            <div
-              key={day}
-              className="text-xs text-slate-500 text-center font-medium py-1"
-            >
+            <div key={day} className="text-xs text-slate-500 text-center font-medium py-1">
               {day}
             </div>
           ))}
@@ -157,8 +161,8 @@ export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
                 const dateStr = format(day, 'yyyy-MM-dd')
                 const mood = dataByDate.get(dateStr)
                 const isInCurrentMonth = isSameMonth(day, currentMonth)
-                const isDayToday = isToday(day)
-                const isDayFuture = isFuture(day)
+                const isDayToday = isSameDay(day, today)
+                const isDayFuture = isAfter(day, today)
 
                 return (
                   <div
@@ -174,9 +178,7 @@ export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
                             ? 'rgba(51, 65, 85, 0.3)'
                             : 'transparent',
                       boxShadow:
-                        mood && isInCurrentMonth
-                          ? `0 2px 8px -2px ${MOOD_COLORS[mood]}40`
-                          : 'none',
+                        mood && isInCurrentMonth ? `0 2px 8px -2px ${MOOD_COLORS[mood]}40` : 'none',
                     }}
                   >
                     <span
@@ -199,9 +201,7 @@ export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
                         <p className="text-slate-400 mb-0.5">
                           {format(day, 'd MMMM', { locale: sv })}
                         </p>
-                        <p className="text-white font-medium">
-                          {getMoodLabel(mood)}
-                        </p>
+                        <p className="text-white font-medium">{getMoodLabel(mood)}</p>
                         <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px">
                           <div className="w-2 h-2 bg-slate-900/95 border-r border-b border-slate-700/50 rotate-45" />
                         </div>
@@ -221,12 +221,14 @@ export const MoodTrendHeatmap = ({ data }: MoodTrendHeatmapProps) => {
           <div className="flex items-center gap-4">
             {stats.goodDays > 0 && (
               <span className="text-slate-400">
-                <span className="text-emerald-400 font-medium">{stats.goodDays}</span> bra {stats.goodDays === 1 ? 'dag' : 'dagar'}
+                <span className="text-emerald-400 font-medium">{stats.goodDays}</span> bra{' '}
+                {stats.goodDays === 1 ? 'dag' : 'dagar'}
               </span>
             )}
             {stats.toughDays > 0 && (
               <span className="text-slate-400">
-                <span className="text-violet-400 font-medium">{stats.toughDays}</span> {stats.toughDays === 1 ? 'tuff dag' : 'tuffa dagar'}
+                <span className="text-violet-400 font-medium">{stats.toughDays}</span>{' '}
+                {stats.toughDays === 1 ? 'tuff dag' : 'tuffa dagar'}
               </span>
             )}
           </div>

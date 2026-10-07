@@ -8,35 +8,32 @@ import {
   getMonthlyOverview,
   createMonthlySummary,
   updateMonthlySummary,
-} from '../../../../server/functions/monthlySummaries'
-import type { WeekOverview } from '../../../../server/functions/monthlySummaries'
-import type { Entry } from '../../../../server/db/schema'
-import { generateMonthlySummary } from '../../../../server/ai'
-import { AppHeader } from '../../../../components/ui/AppHeader'
-import { AlertDialog } from '../../../../components/ui/AlertDialog'
-import { SummarySection } from '../../../../components/SummarySection'
-import { EditSummaryModal } from '../../../../components/EditSummaryModal'
-import { MonthlyCalendarHeatmap } from '../../../../components/months/MonthlyCalendarHeatmap'
-import { MoodDistributionCard } from '../../../../components/months/MoodDistributionCard'
-import { MonthComparisonCard } from '../../../../components/months/MonthComparisonCard'
-import { BestWorstWeekCard } from '../../../../components/months/BestWorstWeekCard'
-import { getPeriodMoodDescription } from '../../../../constants'
-import { capitalizeFirst } from '../../../../utils/string'
+} from '@/server/functions/monthlySummaries'
+import type { WeekOverview } from '@/server/functions/monthlySummaries'
+import type { Entry } from '@/server/db/schema'
+import { generateMonthlySummary } from '@/server/ai'
+import { AppHeader } from '@/components/ui/AppHeader'
+import { AlertDialog } from '@/components/ui/AlertDialog'
+import { SummarySection } from '@/components/SummarySection'
+import { EditSummaryModal } from '@/components/EditSummaryModal'
+import { MonthlyCalendarHeatmap } from '@/components/months/MonthlyCalendarHeatmap'
+import { MoodDistributionCard } from '@/components/months/MoodDistributionCard'
+import { MonthComparisonCard } from '@/components/months/MonthComparisonCard'
+import { BestWorstWeekCard } from '@/components/months/BestWorstWeekCard'
+import { getPeriodMoodDescription } from '@/constants'
+import { capitalizeFirst } from '@/utils/string'
+import { getTodayDate } from '@/utils/date'
 
 const getAdjacentMonth = (year: number, month: number, direction: 'prev' | 'next') => {
   if (direction === 'prev') {
-    return month === 1
-      ? { year: year - 1, month: 12 }
-      : { year, month: month - 1 }
+    return month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 }
   }
-  return month === 12
-    ? { year: year + 1, month: 1 }
-    : { year, month: month + 1 }
+  return month === 12 ? { year: year + 1, month: 1 } : { year, month: month + 1 }
 }
 
 const getCurrentMonth = () => {
-  const now = new Date()
-  return { year: now.getFullYear(), month: now.getMonth() + 1 }
+  const today = getTodayDate()
+  return { year: today.getFullYear(), month: today.getMonth() + 1 }
 }
 
 const MonthlyOverviewPage = () => {
@@ -111,7 +108,8 @@ const MonthlyOverviewPage = () => {
     setConfirmModalOpen(false)
   }
 
-  const monthNavLinkClass = "flex items-center gap-1.5 px-3 py-2 rounded-full text-slate-300 hover:text-white hover:bg-white/10 active:bg-white/15 transition-all duration-200"
+  const monthNavLinkClass =
+    'flex items-center gap-1.5 px-3 py-2 rounded-full text-slate-300 hover:text-white hover:bg-white/10 active:bg-white/15 transition-all duration-200'
 
   return (
     <>
@@ -137,7 +135,11 @@ const MonthlyOverviewPage = () => {
       <div className="min-h-screen">
         <AppHeader>
           <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <Link to="/" viewTransition className="p-2.5 -ml-2 rounded-full hover:bg-white/10 active:bg-white/15 transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95 inline-flex">
+            <Link
+              to="/"
+              viewTransition
+              className="p-2.5 -ml-2 rounded-full hover:bg-white/10 active:bg-white/15 transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95 inline-flex"
+            >
               <Home className="w-5 h-5 text-slate-200" />
             </Link>
             <div className="text-center">

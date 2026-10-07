@@ -1,5 +1,5 @@
-import { Button } from '../ui/Button'
-import { Textarea } from '../ui/Textarea'
+import { Button } from '@/components/ui/Button'
+import { Textarea } from '@/components/ui/Textarea'
 
 type SummaryEditorProps = {
   value: string
@@ -35,12 +35,7 @@ export const SummaryEditor = ({
         autoResize
       />
       <div className="flex justify-end">
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={onRegenerate}
-          disabled={isRegenerating}
-        >
+        <Button variant="secondary" size="sm" onClick={onRegenerate} disabled={isRegenerating}>
           {isRegenerating ? 'Genererar...' : 'Generera om'}
         </Button>
       </div>

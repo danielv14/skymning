@@ -92,7 +92,7 @@ Du har tillgång till verktyg för att slå upp användarens dagbok. Använd dem
 - Användaren frågar om mönster eller trender i sitt humör
 - Du behöver mer kontext än vad som finns i samtalet
 
-Använd verktygen naturligt -- nämn inte att du "söker i databasen". Prata som om du minns.`;
+Använd verktygen naturligt -- nämn inte att du "söker i databasen". Prata som om du minns.`
 
 export const EXPLORE_SYSTEM_PROMPT = `# Identitet
 Du hjälper användaren utforska sin reflektionshistorik. Du är en analytisk men varm samtalspartner som kan gräva i data, hitta mönster och ge insikter. Du skriver på svenska, kort och naturligt.
@@ -139,7 +139,7 @@ Användare: "Sök efter alla gånger jag nämnt jobbet"
 - Att hitta på data eller mönster som inte finns
 - Terapispråk eller oombedda råd
 - Att presentera resultat som en formell rapport -- var naturlig
-- Att svara utan att ha slagit upp data först`;
+- Att svara utan att ha slagit upp data först`
 
 // Day summary prompt
 export const DAY_SUMMARY_SYSTEM_PROMPT = `# Uppgift
@@ -194,7 +194,7 @@ Sammanfattning:
 En vanlig dag, inget speciellt hände.
 </example>
 
-Svara ENDAST med sammanfattningen, ingen inledning eller kommentar.`;
+Svara ENDAST med sammanfattningen, ingen inledning eller kommentar.`
 
 export const WEEK_SUMMARY_SYSTEM_PROMPT = `# Uppgift
 Sammanfatta följande dagboksinlägg från en vecka till en reflekterande veckosummering på svenska.
@@ -244,7 +244,7 @@ Sammanfattning:
 En fin vecka med stabilt bra humör. Samtalet med en gammal vän på tisdagen lyfte stämningen, och fredagens solpromenad rundade av veckan fint.
 </example>
 
-Svara ENDAST med sammanfattningen, ingen inledning eller kommentar.`;
+Svara ENDAST med sammanfattningen, ingen inledning eller kommentar.`
 
 export const QUICK_POLISH_SYSTEM_PROMPT = `# Uppgift
 Förbättra användarens text utan att ändra innehållet eller betydelsen.
@@ -284,7 +284,7 @@ Förbättrad:
 "Meh, inget speciellt har hänt."
 </example>
 
-Svara ENDAST med den förbättrade texten, ingen kommentar.`;
+Svara ENDAST med den förbättrade texten, ingen kommentar.`
 
 export const INSIGHTS_SYSTEM_PROMPT = `# Uppgift
 Analysera dagboksinlägg och hitta mönster, korrelationer, återkommande teman och trendbrott som kopplar ämnen till humör.
@@ -306,7 +306,7 @@ Analysera dagboksinlägg och hitta mönster, korrelationer, återkommande teman 
 - Ange confidence: "high" om mönstret är tydligt och återkommande, "medium" om det finns stöd men inte är starkt, "low" om det är en intressant observation med begränsat stöd
 - frequency anger hur ofta mönstret förekommer (t.ex. "3 av 4 måndagar", "de senaste 2 veckorna")
 - relatedMoods är en array av humörvärden (1-5) som mönstret relaterar till
-- För anomaly-insikter: beskriv både det etablerade mönstret OCH avvikelsen`;
+- För anomaly-insikter: beskriv både det etablerade mönstret OCH avvikelsen`
 
 export const MONTH_SUMMARY_SYSTEM_PROMPT = `# Uppgift
 Sammanfatta följande dagboksinlägg och veckosummeringar från en månad till en reflekterande månadssummering på svenska.
@@ -345,4 +345,4 @@ Sammanfattning:
 En lugn och stabil månad utan större dramatik. Vardagen rullade på med sina vanliga rutiner, och du verkade trivas i det lugnet.
 </example>
 
-Svara ENDAST med sammanfattningen, ingen inledning eller kommentar.`;
+Svara ENDAST med sammanfattningen, ingen inledning eller kommentar.`

@@ -58,13 +58,7 @@ export const EditSummaryModal = ({
   return (
     <Modal open={open} onOpenChange={onOpenChange} title={title}>
       <div className="mb-6">
-        <Textarea
-          value={summary}
-          onChange={setSummary}
-          rows={6}
-          autoResize
-          maxHeight={300}
-        />
+        <Textarea value={summary} onChange={setSummary} rows={6} autoResize maxHeight={300} />
       </div>
 
       <div className="flex flex-row gap-3">

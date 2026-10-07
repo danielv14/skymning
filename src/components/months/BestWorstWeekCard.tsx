@@ -1,8 +1,8 @@
 import { Link } from '@tanstack/react-router'
 import { Trophy, ChevronRight } from 'lucide-react'
-import { MoodEmoji } from '../mood/MoodEmoji'
-import { Card } from '../ui/Card'
-import type { WeekOverview } from '../../server/functions/monthlySummaries'
+import { MoodEmoji } from '@/components/mood/MoodEmoji'
+import { Card } from '@/components/ui/Card'
+import type { WeekOverview } from '@/server/functions/monthlySummaries'
 
 type BestWorstWeekCardProps = {
   weeks: WeekOverview[]
@@ -60,11 +60,11 @@ export const BestWorstWeekCard = ({ weeks }: BestWorstWeekCardProps) => {
   if (weeksWithEntries.length < 2) return null
 
   const bestWeek = weeksWithEntries.reduce((best, week) =>
-    week.averageMood! > best.averageMood! ? week : best
+    week.averageMood! > best.averageMood! ? week : best,
   )
 
   const worstWeek = weeksWithEntries.reduce((worst, week) =>
-    week.averageMood! < worst.averageMood! ? week : worst
+    week.averageMood! < worst.averageMood! ? week : worst,
   )
 
   if (bestWeek.week === worstWeek.week && bestWeek.year === worstWeek.year) return null

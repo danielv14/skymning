@@ -89,10 +89,24 @@
   backface-visibility: hidden;
 }
 
-.timeline-item:nth-child(1) { animation-delay: 0ms; }
-.timeline-item:nth-child(2) { animation-delay: 60ms; }
-.timeline-item:nth-child(3) { animation-delay: 120ms; }
-.timeline-item:nth-child(4) { animation-delay: 180ms; }
-.timeline-item:nth-child(5) { animation-delay: 240ms; }
-.timeline-item:nth-child(6) { animation-delay: 300ms; }
-.timeline-item:nth-child(7) { animation-delay: 360ms; }
+.timeline-item:nth-child(1) {
+  animation-delay: 0ms;
+}
+.timeline-item:nth-child(2) {
+  animation-delay: 60ms;
+}
+.timeline-item:nth-child(3) {
+  animation-delay: 120ms;
+}
+.timeline-item:nth-child(4) {
+  animation-delay: 180ms;
+}
+.timeline-item:nth-child(5) {
+  animation-delay: 240ms;
+}
+.timeline-item:nth-child(6) {
+  animation-delay: 300ms;
+}
+.timeline-item:nth-child(7) {
+  animation-delay: 360ms;
+}

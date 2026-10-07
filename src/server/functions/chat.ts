@@ -1,36 +1,22 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { getDb } from '../db'
-import { chatMessages, entries } from '../db/schema'
-import { eq, lt, asc, desc, count } from 'drizzle-orm'
-import { dateString } from '../../constants'
-import { getTodayDateString } from '../../utils/date'
-import { authMiddleware } from '../middleware/auth'
+import { asc, eq, lt, sql } from 'drizzle-orm'
+import { dateString } from '@/constants'
+import { getDb } from '@/server/db'
+import { chatMessages } from '@/server/db/schema'
+import { authMiddleware } from '@/server/middleware/auth'
+import { findIncompletePastChat } from '@/server/queries/chat'
+import { getTodayDateString } from '@/utils/date'
+
+const findChatForDate = (date: string) =>
+  getDb().query.chatMessages.findMany({
+    where: eq(chatMessages.date, date),
+    orderBy: [asc(chatMessages.orderIndex)],
+  })
 
 export const getTodayChat = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
-  .handler(async () => {
-    const db = getDb()
-    const today = getTodayDateString()
-
-    const messages = await db.query.chatMessages.findMany({
-      where: eq(chatMessages.date, today),
-      orderBy: [asc(chatMessages.orderIndex)],
-    })
-
-    return messages
-  })
-
-export const clearPastChats = createServerFn({ method: 'POST' })
-  .middleware([authMiddleware])
-  .handler(async () => {
-    const db = getDb()
-    const today = getTodayDateString()
-
-    await db.delete(chatMessages).where(lt(chatMessages.date, today))
-
-    return { success: true }
-  })
+  .handler(() => findChatForDate(getTodayDateString()))
 
 const getChatForDateSchema = z.object({
   date: dateString,
@@ -39,47 +25,15 @@ const getChatForDateSchema = z.object({
 export const getChatForDate = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
   .inputValidator((data: unknown) => getChatForDateSchema.parse(data))
-  .handler(async ({ data }) => {
-    const db = getDb()
+  .handler(({ data }) => findChatForDate(data.date))
 
-    const messages = await db.query.chatMessages.findMany({
-      where: eq(chatMessages.date, data.date),
-      orderBy: [asc(chatMessages.orderIndex)],
-    })
-
-    return messages
-  })
-
-export const getChatPreview = createServerFn({ method: 'GET' })
+export const getValidIncompletePastChat = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
-  .handler(async () => {
-    const db = getDb()
-    const today = getTodayDateString()
-
-    const messages = await db.query.chatMessages.findMany({
-      where: eq(chatMessages.date, today),
-      orderBy: [desc(chatMessages.orderIndex)],
-    })
-
-    if (messages.length === 0) {
-      return null
-    }
-
-    const lastMessage = messages[0]
-
-    return {
-      messageCount: messages.length,
-      lastMessage: {
-        role: lastMessage.role,
-        content: lastMessage.content,
-        createdAt: lastMessage.createdAt,
-      },
-    }
-  })
+  .handler(() => findIncompletePastChat())
 
 const saveChatMessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
-  content: z.string().min(1).max(10000),
+  content: z.string().min(1).max(10_000),
   date: dateString.optional(),
 })
 
@@ -87,70 +41,33 @@ export const saveChatMessage = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
   .inputValidator((data: unknown) => saveChatMessageSchema.parse(data))
   .handler(async ({ data }) => {
-    const db = getDb()
     const messageDate = data.date ?? getTodayDateString()
 
-    const [{ messageCount }] = await db
-      .select({ messageCount: count() })
-      .from(chatMessages)
-      .where(eq(chatMessages.date, messageDate))
-    const orderIndex = messageCount
-
-    const [message] = await db
+    // Computing the next index inside the INSERT keeps it atomic, so two messages
+    // saved at the same time can't end up with the same order_index.
+    const [message] = await getDb()
       .insert(chatMessages)
       .values({
         date: messageDate,
         role: data.role,
         content: data.content,
-        orderIndex,
+        orderIndex: sql`(SELECT COALESCE(MAX(${chatMessages.orderIndex}), -1) + 1 FROM ${chatMessages} WHERE ${chatMessages.date} = ${messageDate})`,
       })
       .returning()
 
     return message
   })
 
-export const getValidIncompletePastChat = createServerFn({ method: 'GET' })
+export const clearPastChats = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
   .handler(async () => {
-    const db = getDb()
-    const today = getTodayDateString()
-
-    const pastMessages = await db.query.chatMessages.findMany({
-      where: lt(chatMessages.date, today),
-      orderBy: [desc(chatMessages.date), asc(chatMessages.orderIndex)],
-    })
-
-    if (pastMessages.length === 0) return null
-
-    const date = pastMessages[0].date
-    const messagesForDate = pastMessages.filter((m) => m.date === date)
-
-    const existingEntry = await db.query.entries.findFirst({
-      where: eq(entries.date, date),
-    })
-
-    if (existingEntry) {
-      await db.delete(chatMessages).where(lt(chatMessages.date, today))
-      return null
-    }
-
-    return {
-      date,
-      messages: messagesForDate.map((m) => ({
-        role: m.role as 'user' | 'assistant',
-        content: m.content,
-      })),
-      messageCount: messagesForDate.length,
-    }
+    await getDb().delete(chatMessages).where(lt(chatMessages.date, getTodayDateString()))
+    return { success: true }
   })
 
 export const clearTodayChat = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
   .handler(async () => {
-    const db = getDb()
-    const today = getTodayDateString()
-
-    await db.delete(chatMessages).where(eq(chatMessages.date, today))
-
+    await getDb().delete(chatMessages).where(eq(chatMessages.date, getTodayDateString()))
     return { success: true }
   })

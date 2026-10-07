@@ -5,11 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 Skymning is a Swedish personal reflection/journaling app built with:
+
 - **Framework**: TanStack Start (React + SSR)
 - **Database**: Cloudflare D1 (SQLite-compatible) with Drizzle ORM
 - **Hosting**: Cloudflare Workers
 - **Styling**: Tailwind CSS v4
-- **AI**: TanStack AI with OpenAI (gpt-4o)
+- **AI**: TanStack AI with OpenAI (gpt-5.2)
 - **Auth**: TanStack Start sessions with encrypted httpOnly cookies
 - **Language**: TypeScript (strict mode)
 
@@ -25,13 +26,17 @@ bun run build              # Production build
 bun run preview            # Preview production build
 bun run deploy             # Build and deploy to Cloudflare Workers
 
-# Type Checking
-npx tsc --noEmit           # Check TypeScript errors
+# Quality checks
+bun run check              # Lint + format check + typecheck + tests (same as CI)
+bun run lint               # oxlint
+bun run format             # Format all files with oxfmt
+bun run format:check       # Verify formatting
+bun run typecheck          # tsc --noEmit
 
-# Testing
-bun test                   # Run all tests (vitest)
-bun test <path>            # Run single test file
-bun test --watch           # Watch mode
+# Testing (vitest, runs in UTC like the Worker)
+bun run test               # Run all tests
+bun run test <path>        # Run single test file
+bun run test:watch         # Watch mode
 
 # Database (local D1)
 bun db:push                # Sync schema to local D1 (no migration tracking)
@@ -54,17 +59,24 @@ bun d1:studio              # Open D1 database studio
 The app is deployed to Cloudflare Workers with D1 database.
 
 ### Configuration Files
+
 - `wrangler.toml` - Cloudflare Workers configuration
 - `src/env.d.ts` - TypeScript types for Cloudflare environment bindings
 
 ### Environment Variables (set in Cloudflare Dashboard)
-| Variable | Purpose |
-|----------|---------|
-| `AUTH_SECRET` | Login password |
+
+| Variable         | Purpose                                 |
+| ---------------- | --------------------------------------- |
+| `AUTH_SECRET`    | Login password                          |
 | `SESSION_SECRET` | Encrypts session cookies (min 32 chars) |
-| `OPENAI_API_KEY` | OpenAI API key for AI features |
+| `OPENAI_API_KEY` | OpenAI API key for AI features          |
+
+### Rate Limiting
+
+Login and chat endpoints use Cloudflare's built-in Rate Limiting binding (`[[ratelimits]]` in `wrangler.toml`), which is shared across all Worker isolates. Use `isRateLimited(limiterName, key)` from `src/server/auth/rateLimit.ts`. Periods must be 10 or 60 seconds.
 
 ### Database
+
 - Uses Cloudflare D1 (SQLite-compatible)
 - Local development uses miniflare's D1 emulator (data in `.wrangler/state/`)
 - Production uses remote D1 database
@@ -72,7 +84,9 @@ The app is deployed to Cloudflare Workers with D1 database.
 - Migrations in `drizzle/` directory
 
 ### Migration Workflow
+
 When changing the database schema:
+
 1. Update `src/server/db/schema.ts`
 2. Run `bun db:push` to sync changes to local D1
 3. Test locally with `bun dev`
@@ -86,23 +100,25 @@ When changing the database schema:
 
 Automated deployments via GitHub Actions:
 
-| Workflow | Trigger | What it does |
-|----------|---------|--------------|
-| `deploy.yml` | Push to `master` | Deploys to production Worker |
-| `preview.yml` | PR to `master` | Deploys preview Worker, comments URL on PR |
-| `preview.yml` | PR closed | Deletes preview Worker |
+| Workflow      | Trigger          | What it does                                |
+| ------------- | ---------------- | ------------------------------------------- |
+| `ci.yml`      | PR to `master`   | Lint, format check, typecheck, tests, build |
+| `deploy.yml`  | Push to `master` | Lint, typecheck, tests, migrations, deploy  |
+| `preview.yml` | PR to `master`   | Deploys preview Worker, comments URL on PR  |
+| `preview.yml` | PR closed        | Deletes preview Worker                      |
 
 **Preview URLs:** `https://skymning-pr-{number}.daniel-vernberg-6f2.workers.dev`
 
 **GitHub Secrets Required:**
-| Secret | Purpose |
-|--------|---------|
-| `CLOUDFLARE_API_TOKEN` | Wrangler authentication |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID |
-| `CLOUDFLARE_D1_TOKEN` | D1 API token (for migrations) |
-| `AUTH_SECRET` | App login password (for previews) |
-| `SESSION_SECRET` | Session encryption (for previews) |
-| `OPENAI_API_KEY` | AI features (for previews) |
+
+| Secret                  | Purpose                           |
+| ----------------------- | --------------------------------- |
+| `CLOUDFLARE_API_TOKEN`  | Wrangler authentication           |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare account ID             |
+| `CLOUDFLARE_D1_TOKEN`   | D1 API token (for migrations)     |
+| `AUTH_SECRET`           | App login password (for previews) |
+| `SESSION_SECRET`        | Session encryption (for previews) |
+| `OPENAI_API_KEY`        | AI features (for previews)        |
 
 **Note:** Preview Workers share the production D1 database. The D1 token needs `D1 Edit` permissions. Database ID is hardcoded in `drizzle.config.ts` since it's already public in `wrangler.toml`.
 
@@ -111,6 +127,7 @@ Automated deployments via GitHub Actions:
 ### Functions & Variables
 
 - **Always use const arrow functions** instead of function declarations:
+
   ```typescript
   // Good
   const handleClick = () => { ... }
@@ -135,6 +152,7 @@ Automated deployments via GitHub Actions:
 ### React Components
 
 - **Boolean props**: Omit `={true}` for hardcoded true values:
+
   ```tsx
   // Good
   <Button glow disabled />
@@ -145,6 +163,7 @@ Automated deployments via GitHub Actions:
   ```
 
 - **Type props inline** using `type` (not `interface`):
+
   ```typescript
   type ButtonProps = {
     children: React.ReactNode
@@ -168,12 +187,13 @@ Automated deployments via GitHub Actions:
   3. Internal modules (server, components, etc.)
   4. Types (if separate)
 
-- **Use path aliases** when available: `@/*` maps to `./src/*`
+- **Use the `@/` path alias** for anything outside the current directory (`@/*` maps to `./src/*`). Only same-directory imports use `./`
 
 ### TypeScript
 
 - **Strict mode enabled** - no implicit any, unused locals/params flagged
 - **Zod for validation** - use for all server function inputs:
+
   ```typescript
   const inputSchema = z.object({
     mood: z.number().min(1).max(5),
@@ -211,6 +231,9 @@ Automated deployments via GitHub Actions:
     })
   ```
 - **Public functions** (login, logout, isAuthenticated) don't need middleware
+- **Server-only query helpers** shared between server functions, API routes and the dashboard live in `src/server/queries/`. Never export plain DB helpers from `src/server/functions/*`, since client code imports those modules for their RPC stubs
+- Multiple writes that must succeed together go in `db.batch([...])` (D1 runs a batch as a transaction)
+- GET server functions must not have side effects (no deletes or updates)
 
 ### Routes (TanStack Router)
 
@@ -238,6 +261,7 @@ Automated deployments via GitHub Actions:
 - Public functions (login, logout, isAuthenticated) don't use middleware
 
 Key files:
+
 - `src/server/auth/session.ts` - Session configuration with `useAppSession` helper
 - `src/server/middleware/auth.ts` - Auth middleware (`authMiddleware`, `requestAuthMiddleware`)
 - `src/server/functions/auth.ts` - `loginFn`, `logoutFn`, `isAuthenticatedFn`
@@ -252,12 +276,12 @@ Key files:
 - Responsive: mobile-first with `sm:` breakpoints
 - CSS custom properties defined in `:root` for theme colors:
   ```css
-  --color-primary: #10b981;        /* Emerald */
-  --color-mood-awful: #64748b;     /* Slate */
-  --color-mood-bad: #8b5cf6;       /* Violet */
-  --color-mood-okay: #06b6d4;      /* Cyan */
-  --color-mood-good: #22c55e;      /* Green */
-  --color-mood-great: #f472b6;     /* Pink */
+  --color-primary: #10b981; /* Emerald */
+  --color-mood-awful: #64748b; /* Slate */
+  --color-mood-bad: #8b5cf6; /* Violet */
+  --color-mood-okay: #06b6d4; /* Cyan */
+  --color-mood-good: #22c55e; /* Green */
+  --color-mood-great: #f472b6; /* Pink */
   ```
 
 ### Mood Configuration
@@ -273,14 +297,15 @@ export const MOODS: MoodConfig[] = [
 ]
 
 // Helper functions
-getMoodLabel(mood)   // Returns Swedish label
-getMoodCssVar(mood)  // Returns CSS variable name (--color-mood-{name})
+getMoodLabel(mood) // Returns Swedish label
+getMoodCssVar(mood) // Returns CSS variable name (--color-mood-{name})
 
 // For recharts (requires hex values)
-MOOD_COLORS          // Record<number, string>
+MOOD_COLORS // Record<number, string>
 ```
 
 Use CSS variables for dynamic mood colors in components:
+
 ```typescript
 const cssVar = `--color-mood-${name}`
 style={{ backgroundColor: `var(${cssVar})` }}
@@ -293,6 +318,7 @@ style={{ backgroundColor: `var(${cssVar})` }}
 - Uses Cloudflare D1 (accessed via `cloudflare:workers` env)
 - Use query builder for reads, insert/update/delete for writes
 - Dates stored as ISO strings (TEXT columns)
+- **Always resolve "today" and the time of day via `src/utils/date.ts`** (`getTodayDateString`, `getTodayDate`, `getCurrentHour`). The Worker runs in UTC but the user is in Sweden, so `new Date()`, `getHours()` and `isToday()` give the wrong day shortly after midnight and cause SSR hydration mismatches
 - Always use `eq`, `and`, `gte`, `lt` from `drizzle-orm`
 
 ### Error Handling
@@ -300,19 +326,19 @@ style={{ backgroundColor: `var(${cssVar})` }}
 - Use try/catch in async handlers
 - Log errors with `console.error`
 - Return graceful fallbacks in UI components
-- Validate all external input with Zod
+- Validate all external input with Zod, including max lengths and array sizes (inputs go straight into LLM prompts)
 
 ### Naming Conventions
 
-| Type | Convention | Example |
-|------|------------|---------|
-| Components | PascalCase | `MoodEmoji`, `Button` |
-| Functions | camelCase | `handleClick`, `getTodayEntry` |
-| Variables | camelCase | `selectedMood`, `isLoading` |
-| Types | PascalCase | `ButtonProps`, `TrendData` |
-| Files (components) | PascalCase | `MoodTrend.tsx` |
-| Files (routes) | kebab-case | `about-me.tsx` |
-| Database tables | snake_case | `weekly_summaries` |
+| Type               | Convention | Example                        |
+| ------------------ | ---------- | ------------------------------ |
+| Components         | PascalCase | `MoodEmoji`, `Button`          |
+| Functions          | camelCase  | `handleClick`, `getTodayEntry` |
+| Variables          | camelCase  | `selectedMood`, `isLoading`    |
+| Types              | PascalCase | `ButtonProps`, `TrendData`     |
+| Files (components) | PascalCase | `MoodTrend.tsx`                |
+| Files (routes)     | kebab-case | `about-me.tsx`                 |
+| Database tables    | snake_case | `weekly_summaries`             |
 
 ### Comments
 
@@ -330,6 +356,7 @@ style={{ backgroundColor: `var(${cssVar})` }}
   - Explaining trivial operations
 
 Examples:
+
 ```typescript
 // Bad - obvious from function name and code
 // Get today's entry
@@ -371,8 +398,9 @@ src/
     ai/             # AI/LLM integration (client, prompts)
     auth/           # Authentication (session.ts)
     db/             # Database schema and connection
-    functions/      # Server functions (entries, chat, insights, userContext, weeklySummaries, monthlySummaries, auth)
-  utils/            # Utility functions (date, isoWeek, string)
+    functions/      # Server functions (dashboard, entries, chat, insights, userContext, weeklySummaries, monthlySummaries, auth)
+    queries/        # Server-only DB query helpers shared by server functions and API routes
+  utils/            # Utility functions (date, isoWeek, string, streak, weekdayPatterns)
 scripts/            # Utility scripts (test-utils.ts)
 drizzle/            # Database migrations
 ```
@@ -380,11 +408,13 @@ drizzle/            # Database migrations
 ## Common Patterns
 
 ### Fetching data in routes
+
 ```typescript
 const { data } = Route.useLoaderData()
 ```
 
 ### Creating server functions
+
 ```typescript
 export const myFunction = createServerFn({ method: 'GET' })
   .inputValidator((data: unknown) => schema.parse(data))
@@ -395,6 +425,7 @@ export const myFunction = createServerFn({ method: 'GET' })
 ```
 
 ### Conditional rendering with loading states
+
 ```typescript
 const [isLoading, setIsLoading] = useState(false)
 // ...

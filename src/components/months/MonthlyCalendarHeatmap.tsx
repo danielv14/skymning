@@ -6,16 +6,17 @@ import {
   endOfWeek,
   addDays,
   isSameMonth,
-  isToday,
-  isFuture,
+  isSameDay,
+  isAfter,
   getISOWeek,
 } from 'date-fns'
 import { sv } from 'date-fns/locale'
 import { CalendarDays } from 'lucide-react'
-import { MOOD_COLORS, MOODS, getMoodLabel, getPeriodMoodDescription } from '../../constants'
-import { MoodEmoji } from '../mood/MoodEmoji'
-import { Card } from '../ui/Card'
-import type { Entry } from '../../server/db/schema'
+import { MOOD_COLORS, MOODS, getMoodLabel, getPeriodMoodDescription } from '@/constants'
+import { MoodEmoji } from '@/components/mood/MoodEmoji'
+import { getTodayDate } from '@/utils/date'
+import { Card } from '@/components/ui/Card'
+import type { Entry } from '@/server/db/schema'
 
 type MonthlyCalendarHeatmapProps = {
   year: number
@@ -25,6 +26,7 @@ type MonthlyCalendarHeatmapProps = {
 
 export const MonthlyCalendarHeatmap = ({ year, month, entries }: MonthlyCalendarHeatmapProps) => {
   const monthDate = new Date(year, month - 1, 1)
+  const today = getTodayDate()
   const entryByDate = new Map(entries.map((entry) => [entry.date, entry.mood]))
 
   const monthStart = startOfMonth(monthDate)
@@ -89,8 +91,8 @@ export const MonthlyCalendarHeatmap = ({ year, month, entries }: MonthlyCalendar
                   const dateStr = format(day, 'yyyy-MM-dd')
                   const mood = entryByDate.get(dateStr)
                   const isInCurrentMonth = isSameMonth(day, monthDate)
-                  const isDayToday = isToday(day)
-                  const isDayFuture = isFuture(day)
+                  const isDayToday = isSameDay(day, today)
+                  const isDayFuture = isAfter(day, today)
 
                   return (
                     <div
@@ -131,9 +133,7 @@ export const MonthlyCalendarHeatmap = ({ year, month, entries }: MonthlyCalendar
                           <p className="text-slate-400 mb-0.5">
                             {format(day, 'd MMMM', { locale: sv })}
                           </p>
-                          <p className="text-white font-medium">
-                            {getMoodLabel(mood)}
-                          </p>
+                          <p className="text-white font-medium">{getMoodLabel(mood)}</p>
                           <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px">
                             <div className="w-2 h-2 bg-slate-900/95 border-r border-b border-slate-700/50 rotate-45" />
                           </div>
@@ -153,12 +153,14 @@ export const MonthlyCalendarHeatmap = ({ year, month, entries }: MonthlyCalendar
             <div className="flex items-center gap-4">
               {goodDays > 0 && (
                 <span className="text-slate-400">
-                  <span className="text-emerald-400 font-medium">{goodDays}</span> bra {goodDays === 1 ? 'dag' : 'dagar'}
+                  <span className="text-emerald-400 font-medium">{goodDays}</span> bra{' '}
+                  {goodDays === 1 ? 'dag' : 'dagar'}
                 </span>
               )}
               {toughDays > 0 && (
                 <span className="text-slate-400">
-                  <span className="text-violet-400 font-medium">{toughDays}</span> {toughDays === 1 ? 'tuff dag' : 'tuffa dagar'}
+                  <span className="text-violet-400 font-medium">{toughDays}</span>{' '}
+                  {toughDays === 1 ? 'tuff dag' : 'tuffa dagar'}
                 </span>
               )}
             </div>

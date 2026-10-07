@@ -1,82 +1,82 @@
-import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
-import { RefreshCw } from "lucide-react";
-import { useEffect, useState, useRef } from "react";
-import { toast } from "sonner";
-import { ChatInputBar } from "../../components/reflection/ChatInputBar";
-import { ChatMessage } from "../../components/reflection/ChatMessage";
-import { CompletionModal } from "../../components/reflection/CompletionModal";
-import { PastChatRecoveryModal } from "../../components/reflection/PastChatRecoveryModal";
-import { AlertDialog } from "../../components/ui/AlertDialog";
-import { Button } from "../../components/ui/Button";
-import { PageHeader } from "../../components/ui/PageHeader";
+import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
+import { RefreshCw } from 'lucide-react'
+import { useEffect, useState, useRef } from 'react'
+import { toast } from 'sonner'
+import { ChatInputBar } from '@/components/reflection/ChatInputBar'
+import { ChatMessage } from '@/components/reflection/ChatMessage'
+import { CompletionModal } from '@/components/reflection/CompletionModal'
+import { PastChatRecoveryModal } from '@/components/reflection/PastChatRecoveryModal'
+import { AlertDialog } from '@/components/ui/AlertDialog'
+import { Button } from '@/components/ui/Button'
+import { PageHeader } from '@/components/ui/PageHeader'
 import {
   clearTodayChat,
   getTodayChat,
   getValidIncompletePastChat,
   clearPastChats,
   getChatForDate,
-} from "../../server/functions/chat";
-import { createEntry, getTodayEntry } from "../../server/functions/entries";
-import { formatTime, getTodayDateString } from "../../utils/date";
-import { usePersistedChat } from "../../hooks/usePersistedChat";
-import { getMessageText } from "../../utils/messages";
+} from '@/server/functions/chat'
+import { createEntry, getTodayEntry } from '@/server/functions/entries'
+import { formatTime, getTodayDateString } from '@/utils/date'
+import { usePersistedChat } from '@/hooks/usePersistedChat'
+import { getMessageText } from '@/utils/messages'
 
 const ReflectPage = () => {
-  const router = useRouter();
-  const { existingChat, incompletePastChat } = Route.useLoaderData();
-  const [modalOpen, setModalOpen] = useState(false);
-  const [restartDialogOpen, setRestartDialogOpen] = useState(false);
-  const [recoveryModalOpen, setRecoveryModalOpen] = useState(incompletePastChat !== null);
-  const [reflectionDate, setReflectionDate] = useState<string>(getTodayDateString());
-  const [input, setInput] = useState("");
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const hasScrolledOnMount = useRef(false);
+  const router = useRouter()
+  const { existingChat, incompletePastChat } = Route.useLoaderData()
+  const [modalOpen, setModalOpen] = useState(false)
+  const [restartDialogOpen, setRestartDialogOpen] = useState(false)
+  const [recoveryModalOpen, setRecoveryModalOpen] = useState(incompletePastChat !== null)
+  const [reflectionDate, setReflectionDate] = useState<string>(getTodayDateString())
+  const [input, setInput] = useState('')
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const hasScrolledOnMount = useRef(false)
 
   const { messages, visibleMessages, isLoading, sendAndPersist, resetChat, loadMessages } =
     usePersistedChat({
       existingChat,
       hasIncompletePastChat: incompletePastChat !== null,
       reflectionDate,
-    });
+    })
 
   const scrollToBottom = (smooth = false) => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
+    const container = scrollContainerRef.current
+    if (!container) return
 
     if (smooth) {
       container.scrollTo({
         top: container.scrollHeight,
-        behavior: "smooth",
-      });
+        behavior: 'smooth',
+      })
     } else {
-      container.scrollTop = container.scrollHeight;
+      container.scrollTop = container.scrollHeight
     }
-  };
+  }
 
   useEffect(() => {
-    if (messages.length === 0) return;
+    if (messages.length === 0) return
 
     if (!hasScrolledOnMount.current) {
-      requestAnimationFrame(() => scrollToBottom(false));
-      hasScrolledOnMount.current = true;
+      requestAnimationFrame(() => scrollToBottom(false))
+      hasScrolledOnMount.current = true
     } else {
-      scrollToBottom(true);
+      scrollToBottom(true)
     }
-  }, [messages]);
+  }, [messages])
 
   const handleSendMessage = async () => {
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading) return
 
-    const message = input.trim();
-    setInput("");
-    await sendAndPersist(message);
-  };
+    const message = input.trim()
+    setInput('')
+    await sendAndPersist(message)
+  }
 
   const handleOpenModal = () => {
     if (messages.length > 0) {
-      setModalOpen(true);
+      setModalOpen(true)
     }
-  };
+  }
 
   const handleSave = async (mood: number, summary: string) => {
     const result = await createEntry({
@@ -85,53 +85,57 @@ const ReflectPage = () => {
         summary,
         date: reflectionDate,
       },
-    });
+    })
 
-    if (result && "error" in result) {
-      toast.error(result.error);
-      setModalOpen(false);
-      return;
+    if (result && 'error' in result) {
+      toast.error(result.error)
+      setModalOpen(false)
+      return
     }
 
-    setModalOpen(false);
-    router.navigate({ to: "/", viewTransition: true });
-  };
+    setModalOpen(false)
+    router.navigate({ to: '/', viewTransition: true })
+  }
 
   const handleRestartChat = async () => {
     if (reflectionDate === getTodayDateString()) {
-      await clearTodayChat();
+      await clearTodayChat()
     } else {
-      await clearPastChats();
-      setReflectionDate(getTodayDateString());
+      await clearPastChats()
+      setReflectionDate(getTodayDateString())
     }
-    resetChat();
-    setRestartDialogOpen(false);
-  };
+    resetChat()
+    setRestartDialogOpen(false)
+  }
 
   const handleRecoveryContinue = async () => {
-    if (!incompletePastChat) return;
+    if (!incompletePastChat) return
 
-    setReflectionDate(incompletePastChat.date);
-    const pastChatMessages = await getChatForDate({ data: { date: incompletePastChat.date } });
-    loadMessages(pastChatMessages);
-    setRecoveryModalOpen(false);
-  };
+    setReflectionDate(incompletePastChat.date)
+    const pastChatMessages = await getChatForDate({ data: { date: incompletePastChat.date } })
+    loadMessages(pastChatMessages)
+    setRecoveryModalOpen(false)
+  }
 
   const handleRecoveryWriteManually = () => {
     if (incompletePastChat) {
-      router.navigate({ to: '/quick', search: { date: incompletePastChat.date }, viewTransition: true });
+      router.navigate({
+        to: '/quick',
+        search: { date: incompletePastChat.date },
+        viewTransition: true,
+      })
     }
-  };
+  }
 
   const handleRecoveryDiscard = async () => {
-    await clearPastChats();
-    setRecoveryModalOpen(false);
-  };
+    await clearPastChats()
+    setRecoveryModalOpen(false)
+  }
 
   const chatMessages = visibleMessages.map((message) => ({
-    role: message.role as "user" | "assistant",
+    role: message.role as 'user' | 'assistant',
     content: getMessageText(message.parts),
-  }));
+  }))
 
   return (
     <>
@@ -206,11 +210,11 @@ const ReflectPage = () => {
             {visibleMessages.map((message) => (
               <ChatMessage
                 key={message.id}
-                role={message.role as "user" | "assistant"}
+                role={message.role as 'user' | 'assistant'}
                 text={getMessageText(message.parts)}
                 isStreaming={
                   isLoading &&
-                  message.role === "assistant" &&
+                  message.role === 'assistant' &&
                   message === messages[messages.length - 1]
                 }
                 time={formatTime(message.createdAt)}
@@ -229,33 +233,33 @@ const ReflectPage = () => {
         />
       </div>
     </>
-  );
-};
+  )
+}
 
-export const Route = createFileRoute("/_authed/reflect")({
+export const Route = createFileRoute('/_authed/reflect')({
   head: () => ({
-    meta: [{ title: "Reflektera - Skymning" }],
+    meta: [{ title: 'Reflektera - Skymning' }],
   }),
   loader: async () => {
     const [todayEntry, existingChat, incompletePastChat] = await Promise.all([
       getTodayEntry(),
       getTodayChat(),
       getValidIncompletePastChat(),
-    ]);
+    ])
 
     if (todayEntry) {
       if (incompletePastChat) {
-        await clearPastChats();
+        await clearPastChats()
       }
-      throw redirect({ to: "/" });
+      throw redirect({ to: '/' })
     }
 
-    const showRecovery = existingChat.length === 0 && incompletePastChat !== null;
+    const showRecovery = existingChat.length === 0 && incompletePastChat !== null
 
     return {
       existingChat,
       incompletePastChat: showRecovery ? incompletePastChat : null,
-    };
+    }
   },
   component: ReflectPage,
-});
+})

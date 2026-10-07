@@ -1,8 +1,8 @@
 import { CalendarDays } from 'lucide-react'
-import type { WeekdayPatternResult } from '../../server/functions/entries'
-import { getMoodColor, WEEKDAY_PATTERN_DAYS } from '../../constants'
-import { capitalizeFirst } from '../../utils/string'
-import { Card } from '../ui/Card'
+import type { WeekdayPatternResult } from '@/utils/weekdayPatterns'
+import { getMoodColor, WEEKDAY_PATTERN_DAYS } from '@/constants'
+import { capitalizeFirst } from '@/utils/string'
+import { Card } from '@/components/ui/Card'
 
 type WeekdayPatternCardProps = {
   data: WeekdayPatternResult
@@ -63,16 +63,17 @@ export const WeekdayPatternCard = ({ data }: WeekdayPatternCardProps) => {
 
             // Relative scaling: worst day ~15%, best day 100%
             const MIN_HEIGHT = 15
-            const normalized = spread > 0
-              ? (pattern.average - minAverage) / spread
-              : 0.5
+            const normalized = spread > 0 ? (pattern.average - minAverage) / spread : 0.5
             const heightPercent = MIN_HEIGHT + normalized * (100 - MIN_HEIGHT)
             const color = getMoodColorFromAverage(pattern.average)
             const isBest = pattern.dayIndex === bestDay.dayIndex
             const isWorst = pattern.dayIndex === worstDay.dayIndex
 
             return (
-              <div key={dayIndex} className="flex-1 flex flex-col items-center gap-1 group relative">
+              <div
+                key={dayIndex}
+                className="flex-1 flex flex-col items-center gap-1 group relative"
+              >
                 <div className="w-full h-16 flex items-end">
                   <div
                     className="w-full rounded-t-lg transition-all duration-300 group-hover:opacity-80"
@@ -83,14 +84,18 @@ export const WeekdayPatternCard = ({ data }: WeekdayPatternCardProps) => {
                     }}
                   />
                 </div>
-                <span className={`text-[10px] sm:text-xs ${isBest || isWorst ? 'font-semibold text-slate-200' : 'text-slate-500'}`}>
+                <span
+                  className={`text-[10px] sm:text-xs ${isBest || isWorst ? 'font-semibold text-slate-200' : 'text-slate-500'}`}
+                >
                   {SHORT_NAMES[dayIndex]}
                 </span>
 
                 {/* Tooltip */}
                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-slate-900/95 backdrop-blur-sm rounded-lg text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-20 border border-slate-700/50 shadow-xl scale-95 group-hover:scale-100">
                   <p className="text-white font-medium">{pattern.average.toFixed(1)}</p>
-                  <p className="text-slate-400">{pattern.count} {pattern.count === 1 ? 'dag' : 'dagar'}</p>
+                  <p className="text-slate-400">
+                    {pattern.count} {pattern.count === 1 ? 'dag' : 'dagar'}
+                  </p>
                 </div>
               </div>
             )
@@ -100,7 +105,8 @@ export const WeekdayPatternCard = ({ data }: WeekdayPatternCardProps) => {
         {/* Best/worst summary */}
         <div className="flex items-center justify-between text-sm pt-1 border-t border-slate-700/30">
           <span className="text-slate-400">
-            Bäst på <span className="text-white font-medium">{capitalizeFirst(bestDay.dayName)}ar</span>
+            Bäst på{' '}
+            <span className="text-white font-medium">{capitalizeFirst(bestDay.dayName)}ar</span>
           </span>
           {bestDay.dayIndex !== worstDay.dayIndex && (
             <span className="text-slate-500 text-xs">

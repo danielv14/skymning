@@ -15,13 +15,11 @@ export const MOODS: MoodConfig[] = [
 ]
 
 export const getMoodByValue = (value: number): MoodConfig | undefined =>
-  MOODS.find(m => m.value === value)
+  MOODS.find((m) => m.value === value)
 
-export const getMoodColor = (mood: number): string =>
-  getMoodByValue(mood)?.color || '#64748b'
+export const getMoodColor = (mood: number): string => getMoodByValue(mood)?.color || '#64748b'
 
-export const getMoodLabel = (mood: number): string =>
-  getMoodByValue(mood)?.label || 'Okänd'
+export const getMoodLabel = (mood: number): string => getMoodByValue(mood)?.label || 'Okänd'
 
 export const getMoodCssVar = (mood: number): string => {
   const name = getMoodByValue(mood)?.name || 'okay'
@@ -30,14 +28,14 @@ export const getMoodCssVar = (mood: number): string => {
 
 // Recharts requires hex values, can't use CSS variables
 export const MOOD_COLORS: Record<number, string> = Object.fromEntries(
-  MOODS.map(m => [m.value, m.color])
+  MOODS.map((m) => [m.value, m.color]),
 )
 
 export const getWeekMoodDescription = (averageMood: number | null): string => {
   if (averageMood === null) return ''
-  
+
   const rounded = Math.round(averageMood * 10) / 10
-  
+
   if (rounded >= 4.5) return 'En riktigt bra vecka'
   if (rounded >= 4.0) return 'Överlag en bra vecka'
   if (rounded >= 3.5) return 'En ganska bra vecka'

@@ -1,4 +1,4 @@
-import { getDb } from '../db'
+import { getDb } from '@/server/db'
 
 export const getUserContextPrompt = async (): Promise<string | null> => {
   const db = getDb()

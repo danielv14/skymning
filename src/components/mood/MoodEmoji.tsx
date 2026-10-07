@@ -1,5 +1,5 @@
 import { getMoodIcon } from './MoodIcons'
-import { getMoodLabel } from '../../constants'
+import { getMoodLabel } from '@/constants'
 
 type MoodEmojiProps = {
   mood: number
@@ -26,7 +26,9 @@ export const MoodEmoji = ({
   if (showLabel) {
     const isHorizontal = layout === 'horizontal'
     return (
-      <span className={`inline-flex items-center ${isHorizontal ? 'flex-row gap-2' : 'flex-col gap-1.5'}`}>
+      <span
+        className={`inline-flex items-center ${isHorizontal ? 'flex-row gap-2' : 'flex-col gap-1.5'}`}
+      >
         <span className="text-slate-300">
           <IconComponent size={iconSizes[size]} />
         </span>

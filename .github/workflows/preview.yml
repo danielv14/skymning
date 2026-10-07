@@ -56,18 +56,18 @@ jobs:
             const prNumber = context.payload.pull_request.number;
             const previewUrl = `https://skymning-pr-${prNumber}.daniel-vernberg-6f2.workers.dev`;
             const body = `### Preview deployed\n\n${previewUrl}`;
-            
+
             // Find existing comment
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: prNumber,
             });
-            
+
             const botComment = comments.find(c => 
               c.user.type === 'Bot' && c.body.includes('Preview deployed')
             );
-            
+
             if (botComment) {
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,

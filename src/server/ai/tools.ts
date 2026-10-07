@@ -1,11 +1,11 @@
 import { toolDefinition } from '@tanstack/ai'
 import { and, desc, gte, like } from 'drizzle-orm'
 import { z } from 'zod'
-import { getMoodLabel } from '../../constants'
-import { subtractDays, getTodayDateString } from '../../utils/date'
-import { truncateText } from '../../utils/string'
-import { getDb } from '../db'
-import { entries } from '../db/schema'
+import { getMoodLabel } from '@/constants'
+import { subtractDays, getTodayDateString } from '@/utils/date'
+import { truncateText } from '@/utils/string'
+import { getDb } from '@/server/db'
+import { entries } from '@/server/db/schema'
 
 const lookupEntryDefinition = toolDefinition({
   name: 'lookup_entry',
@@ -19,7 +19,7 @@ const lookupEntryDefinition = toolDefinition({
 export const lookupEntry = lookupEntryDefinition.server(async ({ date }) => {
   const db = getDb()
   const entry = await db.query.entries.findFirst({
-    where: (entries, { eq }) => eq(entries.date, date),
+    where: (entriesTable, { eq }) => eq(entriesTable.date, date),
     columns: { date: true, mood: true, summary: true },
   })
 
@@ -45,45 +45,36 @@ const searchEntriesDefinition = toolDefinition({
   }),
 })
 
-export const searchEntries = searchEntriesDefinition.server(
-  async ({ query }) => {
-    const db = getDb()
-    const today = getTodayDateString()
-    const ninetyDaysAgo = subtractDays(today, 90)
+export const searchEntries = searchEntriesDefinition.server(async ({ query }) => {
+  const db = getDb()
+  const today = getTodayDateString()
+  const ninetyDaysAgo = subtractDays(today, 90)
 
-    const results = await db
-      .select({
-        date: entries.date,
-        mood: entries.mood,
-        summary: entries.summary,
-      })
-      .from(entries)
-      .where(and(
-        gte(entries.date, ninetyDaysAgo),
-        like(entries.summary, `%${query}%`),
-      ))
-      .orderBy(desc(entries.date))
-      .limit(5)
+  const results = await db
+    .select({
+      date: entries.date,
+      mood: entries.mood,
+      summary: entries.summary,
+    })
+    .from(entries)
+    .where(and(gte(entries.date, ninetyDaysAgo), like(entries.summary, `%${query}%`)))
+    .orderBy(desc(entries.date))
+    .limit(5)
 
-    return results.map((entry) => ({
-      date: entry.date,
-      mood: entry.mood,
-      moodLabel: getMoodLabel(entry.mood),
-      summaryExcerpt: truncateText(entry.summary, 150),
-    }))
-  },
-)
+  return results.map((entry) => ({
+    date: entry.date,
+    mood: entry.mood,
+    moodLabel: getMoodLabel(entry.mood),
+    summaryExcerpt: truncateText(entry.summary, 150),
+  }))
+})
 
 const getMoodTrendDefinition = toolDefinition({
   name: 'get_mood_trend',
   description:
     'Get mood statistics for a time period. Returns average mood, distribution, and best/worst days.',
   inputSchema: z.object({
-    days: z
-      .number()
-      .min(7)
-      .max(90)
-      .describe('Number of days to look back (7-90)'),
+    days: z.number().min(7).max(90).describe('Number of days to look back (7-90)'),
   }),
 })
 
@@ -113,12 +104,8 @@ export const getMoodTrend = getMoodTrendDefinition.server(async ({ days }) => {
     moodDistribution[mood] = (moodDistribution[mood] ?? 0) + 1
   }
 
-  const bestDay = results.reduce((best, current) =>
-    current.mood > best.mood ? current : best,
-  )
-  const worstDay = results.reduce((worst, current) =>
-    current.mood < worst.mood ? current : worst,
-  )
+  const bestDay = results.reduce((best, current) => (current.mood > best.mood ? current : best))
+  const worstDay = results.reduce((worst, current) => (current.mood < worst.mood ? current : worst))
 
   return {
     averageMood: Math.round(averageMood * 10) / 10,

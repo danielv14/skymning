@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Modal, ModalCloseButton } from '../ui/Modal'
+import { Modal, ModalCloseButton } from '@/components/ui/Modal'
 import { MoodSelector } from './MoodSelector'
 import { SummaryEditor } from './SummaryEditor'
-import { Button } from '../ui/Button'
-import { useAsyncGeneration } from '../../hooks/useAsyncGeneration'
-import { useModalGeneration } from '../../hooks/useModalGeneration'
-import { generateDaySummary } from '../../server/ai'
+import { Button } from '@/components/ui/Button'
+import { useAsyncGeneration } from '@/hooks/useAsyncGeneration'
+import { useModalGeneration } from '@/hooks/useModalGeneration'
+import { generateDaySummary } from '@/server/ai'
 
 type ChatMessage = {
   role: 'user' | 'assistant'
@@ -20,12 +20,7 @@ type CompletionModalProps = {
   onSave: (mood: number, summary: string) => Promise<void>
 }
 
-export const CompletionModal = ({
-  open,
-  onOpenChange,
-  messages,
-  onSave,
-}: CompletionModalProps) => {
+export const CompletionModal = ({ open, onOpenChange, messages, onSave }: CompletionModalProps) => {
   const [selectedMood, setSelectedMood] = useState<number | null>(null)
   const [isSaving, setIsSaving] = useState(false)
 
@@ -85,16 +80,12 @@ export const CompletionModal = ({
       description="Välj hur dagen kändes och redigera sammanfattningen om du vill"
     >
       <div className="mb-6">
-        <h3 className="text-sm font-medium text-slate-300 mb-3">
-          Hur kändes dagen?
-        </h3>
+        <h3 className="text-sm font-medium text-slate-300 mb-3">Hur kändes dagen?</h3>
         <MoodSelector value={selectedMood} onChange={setSelectedMood} />
       </div>
 
       <div className="mb-6">
-        <h3 className="text-sm font-medium text-slate-300 mb-3">
-          Sammanfattning
-        </h3>
+        <h3 className="text-sm font-medium text-slate-300 mb-3">Sammanfattning</h3>
         <SummaryEditor
           value={summary ?? ''}
           onChange={setSummary}

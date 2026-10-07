@@ -1,25 +1,25 @@
 import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { useState } from 'react'
-import { getDay } from 'date-fns'
+import { getDay, parseISO } from 'date-fns'
 import { ChevronLeft, ChevronRight, Home } from 'lucide-react'
-import { getEntriesForWeek } from '../../../../server/functions/entries'
+import { getEntriesForWeek } from '@/server/functions/entries'
 import {
   getWeeklySummary,
   createWeeklySummary,
   updateWeeklySummary,
   getCurrentWeek,
-} from '../../../../server/functions/weeklySummaries'
-import { generateWeeklySummary } from '../../../../server/ai'
-import { AppHeader } from '../../../../components/ui/AppHeader'
-import { AlertDialog } from '../../../../components/ui/AlertDialog'
-import { TimelineDayItem } from '../../../../components/timeline/TimelineDayItem'
-import { EditSummaryModal } from '../../../../components/EditSummaryModal'
-import { SummarySection } from '../../../../components/SummarySection'
-import { getWeekMoodDescription } from '../../../../constants'
-import { getAdjacentWeek, getWeekDays } from '../../../../utils/isoWeek'
-import { getTodayDateString } from '../../../../utils/date'
-import '../../../../components/timeline/timeline.css'
+} from '@/server/functions/weeklySummaries'
+import { generateWeeklySummary } from '@/server/ai'
+import { AppHeader } from '@/components/ui/AppHeader'
+import { AlertDialog } from '@/components/ui/AlertDialog'
+import { TimelineDayItem } from '@/components/timeline/TimelineDayItem'
+import { EditSummaryModal } from '@/components/EditSummaryModal'
+import { SummarySection } from '@/components/SummarySection'
+import { getWeekMoodDescription } from '@/constants'
+import { getAdjacentWeek, getWeekDays } from '@/utils/isoWeek'
+import { getTodayDateString } from '@/utils/date'
+import '@/components/timeline/timeline.css'
 
 const TimelineWeekPage = () => {
   const { year, week, entries, weeklySummary, averageMood, weekDays } = Route.useLoaderData()
@@ -31,7 +31,7 @@ const TimelineWeekPage = () => {
   const currentWeek = getCurrentWeek()
   const isCurrentWeek = year === currentWeek.year && week === currentWeek.week
 
-  const entryMap = new Map(entries.map(e => [e.date, e]))
+  const entryMap = new Map(entries.map((e) => [e.date, e]))
 
   const generateAndSaveSummary = async (saveFn: typeof createWeeklySummary) => {
     const summaryText = await generateWeeklySummary({
@@ -78,13 +78,14 @@ const TimelineWeekPage = () => {
 
   const weekLabel = `Vecka ${week}, ${year}`
 
-  const isSunday = getDay(new Date()) === 0
   const todayDate = getTodayDateString()
+  const isSunday = getDay(parseISO(todayDate)) === 0
   const hasSundayEntry = entries.some((entry) => entry.date === todayDate)
   const isWeekComplete = !isCurrentWeek || (isSunday && hasSundayEntry)
   const moodDescription = isWeekComplete ? getWeekMoodDescription(averageMood) : null
 
-  const weekNavLinkClass = "flex items-center gap-1.5 px-3 py-2 rounded-full text-slate-300 hover:text-white hover:bg-white/10 active:bg-white/15 transition-all duration-200"
+  const weekNavLinkClass =
+    'flex items-center gap-1.5 px-3 py-2 rounded-full text-slate-300 hover:text-white hover:bg-white/10 active:bg-white/15 transition-all duration-200'
 
   return (
     <>
@@ -110,7 +111,11 @@ const TimelineWeekPage = () => {
       <div className="min-h-screen">
         <AppHeader>
           <div className="flex items-center justify-between mb-3 sm:mb-4">
-            <Link to="/" viewTransition className="p-2.5 -ml-2 rounded-full hover:bg-white/10 active:bg-white/15 transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95 inline-flex">
+            <Link
+              to="/"
+              viewTransition
+              className="p-2.5 -ml-2 rounded-full hover:bg-white/10 active:bg-white/15 transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95 inline-flex"
+            >
               <Home className="w-5 h-5 text-slate-200" />
             </Link>
             <div className="text-center">
@@ -150,36 +155,36 @@ const TimelineWeekPage = () => {
           </div>
         </AppHeader>
 
-      <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8">
-        <SummarySection
-          title="Veckans summering"
-          emptyText="Ingen summering finns ännu för denna vecka."
-          summary={weeklySummary?.summary ?? null}
-          hasEntries={entries.length > 0}
-          moodDescription={moodDescription}
-          entryCount={entries.length}
-          averageMood={averageMood}
-          onGenerate={handleGenerateSummary}
-          onOpenRegenerateModal={() => setConfirmModalOpen(true)}
-          onEdit={() => setEditModalOpen(true)}
-          isGenerating={isGenerating}
-        />
+        <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8">
+          <SummarySection
+            title="Veckans summering"
+            emptyText="Ingen summering finns ännu för denna vecka."
+            summary={weeklySummary?.summary ?? null}
+            hasEntries={entries.length > 0}
+            moodDescription={moodDescription}
+            entryCount={entries.length}
+            averageMood={averageMood}
+            onGenerate={handleGenerateSummary}
+            onOpenRegenerateModal={() => setConfirmModalOpen(true)}
+            onEdit={() => setEditModalOpen(true)}
+            isGenerating={isGenerating}
+          />
 
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-slate-200 px-1">Veckans dagar</h2>
-          <div className="timeline-container space-y-3">
-            {weekDays.map((date) => (
-              <TimelineDayItem
-                key={date}
-                date={date}
-                entry={entryMap.get(date) ?? null}
-                useRelativeDates={isCurrentWeek}
-              />
-            ))}
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold text-slate-200 px-1">Veckans dagar</h2>
+            <div className="timeline-container space-y-3">
+              {weekDays.map((date) => (
+                <TimelineDayItem
+                  key={date}
+                  date={date}
+                  entry={entryMap.get(date) ?? null}
+                  useRelativeDates={isCurrentWeek}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
     </>
   )
 }
@@ -198,9 +203,8 @@ export const Route = createFileRoute('/_authed/timeline/$year/$week')({
       getWeeklySummary({ data: { year, week } }),
     ])
 
-    const averageMood = entries.length > 0
-      ? entries.reduce((sum, e) => sum + e.mood, 0) / entries.length
-      : null
+    const averageMood =
+      entries.length > 0 ? entries.reduce((sum, e) => sum + e.mood, 0) / entries.length : null
 
     const weekDays = getWeekDays(year, week)
 

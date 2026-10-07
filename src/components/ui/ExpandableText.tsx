@@ -6,11 +6,7 @@ type ExpandableTextProps = {
   className?: string
 }
 
-export const ExpandableText = ({
-  children,
-  lines = 3,
-  className = '',
-}: ExpandableTextProps) => {
+export const ExpandableText = ({ children, lines = 3, className = '' }: ExpandableTextProps) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const [needsTruncation, setNeedsTruncation] = useState(false)
   const textRef = useRef<HTMLParagraphElement>(null)
@@ -42,11 +38,7 @@ export const ExpandableText = ({
 
   return (
     <div>
-      <p
-        ref={textRef}
-        className={className}
-        style={lineClampStyle}
-      >
+      <p ref={textRef} className={className} style={lineClampStyle}>
         {children}
       </p>
       {needsTruncation && !isExpanded && (

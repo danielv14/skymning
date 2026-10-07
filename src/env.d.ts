@@ -31,6 +31,9 @@ declare module 'markdown-to-jsx' {
 declare namespace Cloudflare {
   interface Env {
     DB: D1Database
+    LOGIN_RATE_LIMITER: RateLimit
+    CHAT_RATE_LIMITER: RateLimit
+    EXPLORE_CHAT_RATE_LIMITER: RateLimit
     SESSION_SECRET: string
     AUTH_SECRET: string
     OPENAI_API_KEY: string

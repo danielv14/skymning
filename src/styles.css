@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* ===== CSS VARIABLER (krävs för dynamisk theming) ===== */
 :root {
@@ -11,21 +11,29 @@
 
   /* Aurora-färger för bakgrunder */
   --color-aurora-green: rgba(16, 185, 129, 0.12);
-  --color-aurora-cyan: rgba(6, 182, 212, 0.10);
+  --color-aurora-cyan: rgba(6, 182, 212, 0.1);
   --color-aurora-violet: rgba(139, 92, 246, 0.08);
 }
 
 /* ===== TYPOGRAFI ===== */
 
 /* Markdown inside chat bubbles: space between block elements, collapse first/last margins */
-.chat-markdown-content > :first-child { margin-top: 0; }
-.chat-markdown-content > :last-child { margin-bottom: 0; }
-.chat-markdown-content p + p { margin-top: 0.5em; }
+.chat-markdown-content > :first-child {
+  margin-top: 0;
+}
+.chat-markdown-content > :last-child {
+  margin-bottom: 0;
+}
+.chat-markdown-content p + p {
+  margin-top: 0.5em;
+}
 .chat-markdown-content :is(ul, ol) + p,
-.chat-markdown-content p + :is(ul, ol) { margin-top: 0.5em; }
+.chat-markdown-content p + :is(ul, ol) {
+  margin-top: 0.5em;
+}
 
 body {
-  font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -92,20 +100,44 @@ body {
 /* ===== KEYFRAME ANIMATIONER ===== */
 
 @keyframes aurora-drift {
-  0%, 100% { opacity: 1; transform: translateX(0) translateY(0); }
-  33% { opacity: 0.7; transform: translateX(2%) translateY(1%); }
-  66% { opacity: 0.9; transform: translateX(-1%) translateY(-1%); }
+  0%,
+  100% {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
+  33% {
+    opacity: 0.7;
+    transform: translateX(2%) translateY(1%);
+  }
+  66% {
+    opacity: 0.9;
+    transform: translateX(-1%) translateY(-1%);
+  }
 }
 
 @keyframes aurora-horizon {
-  0%, 100% { opacity: 1; transform: translateX(0); }
-  50% { opacity: 0.7; transform: translateX(3%); }
+  0%,
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translateX(3%);
+  }
 }
 
 /* Stjärnor - StarField component */
 @keyframes star-twinkle {
-  0%, 100% { filter: brightness(1); transform: scale(1); }
-  50% { filter: brightness(0.3); transform: scale(0.85); }
+  0%,
+  100% {
+    filter: brightness(1);
+    transform: scale(1);
+  }
+  50% {
+    filter: brightness(0.3);
+    transform: scale(0.85);
+  }
 }
 
 .star-twinkle {
@@ -114,8 +146,13 @@ body {
 
 /* Float animation - Welcome page moon */
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .animate-float {
@@ -124,8 +161,13 @@ body {
 
 /* Empty state bounce */
 @keyframes gentle-bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 .empty-state-icon {
@@ -134,8 +176,14 @@ body {
 
 /* Chat message appear */
 @keyframes message-appear {
-  from { opacity: 0; transform: translate3d(0, 10px, 0); }
-  to { opacity: 1; transform: translate3d(0, 0, 0); }
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
 }
 
 .chat-message {
@@ -145,8 +193,14 @@ body {
 
 /* Stagger children - dashboard cards */
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translate3d(0, 20px, 0); }
-  to { opacity: 1; transform: translate3d(0, 0, 0); }
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
 }
 
 .stagger-children > * {
@@ -156,23 +210,52 @@ body {
   backface-visibility: hidden;
 }
 
-.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
-.stagger-children > *:nth-child(2) { animation-delay: 80ms; }
-.stagger-children > *:nth-child(3) { animation-delay: 160ms; }
-.stagger-children > *:nth-child(4) { animation-delay: 240ms; }
-.stagger-children > *:nth-child(5) { animation-delay: 320ms; }
-.stagger-children > *:nth-child(6) { animation-delay: 400ms; }
-.stagger-children > *:nth-child(7) { animation-delay: 480ms; }
-.stagger-children > *:nth-child(8) { animation-delay: 560ms; }
-.stagger-children > *:nth-child(9) { animation-delay: 640ms; }
-.stagger-children > *:nth-child(10) { animation-delay: 720ms; }
+.stagger-children > *:nth-child(1) {
+  animation-delay: 0ms;
+}
+.stagger-children > *:nth-child(2) {
+  animation-delay: 80ms;
+}
+.stagger-children > *:nth-child(3) {
+  animation-delay: 160ms;
+}
+.stagger-children > *:nth-child(4) {
+  animation-delay: 240ms;
+}
+.stagger-children > *:nth-child(5) {
+  animation-delay: 320ms;
+}
+.stagger-children > *:nth-child(6) {
+  animation-delay: 400ms;
+}
+.stagger-children > *:nth-child(7) {
+  animation-delay: 480ms;
+}
+.stagger-children > *:nth-child(8) {
+  animation-delay: 560ms;
+}
+.stagger-children > *:nth-child(9) {
+  animation-delay: 640ms;
+}
+.stagger-children > *:nth-child(10) {
+  animation-delay: 720ms;
+}
 
 /* Flame flicker - streak */
 @keyframes flame-flicker {
-  0%, 100% { transform: scaleY(1) scaleX(1); }
-  25% { transform: scaleY(1.05) scaleX(0.98); }
-  50% { transform: scaleY(0.95) scaleX(1.02); }
-  75% { transform: scaleY(1.02) scaleX(0.97); }
+  0%,
+  100% {
+    transform: scaleY(1) scaleX(1);
+  }
+  25% {
+    transform: scaleY(1.05) scaleX(0.98);
+  }
+  50% {
+    transform: scaleY(0.95) scaleX(1.02);
+  }
+  75% {
+    transform: scaleY(1.02) scaleX(0.97);
+  }
 }
 
 .flame-animate {
@@ -182,8 +265,13 @@ body {
 
 /* Button glow pulse */
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); }
-  50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.35); }
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(16, 185, 129, 0.35);
+  }
 }
 
 .glow-pulse {
@@ -220,11 +308,15 @@ body {
 }
 
 @keyframes vt-header-out {
-  to { opacity: 0; }
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes vt-header-in {
-  from { opacity: 0; }
+  from {
+    opacity: 0;
+  }
 }
 
 @keyframes vt-content-exit {
@@ -386,7 +478,9 @@ textarea {
 /* ===== REDUCED MOTION ===== */
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

@@ -1,182 +1,177 @@
-import { chat } from "@tanstack/ai";
-import { createServerFn } from "@tanstack/react-start";
-import { format, getISOWeek, parseISO } from "date-fns";
-import { sv } from "date-fns/locale";
-import { z } from "zod";
-import { getMoodLabel } from "../../constants";
-import { insightsOutputSchema } from "../../constants/insights";
-import { capitalizeFirst } from "../../utils/string";
-import { authMiddleware } from "../middleware/auth";
-import { openai } from "./client";
+import { chat } from '@tanstack/ai'
+import { createServerFn } from '@tanstack/react-start'
+import { format, getISOWeek, parseISO } from 'date-fns'
+import { sv } from 'date-fns/locale'
+import { z } from 'zod'
+import { dateString, getMoodLabel, INSIGHTS_ANALYSIS_DAYS } from '@/constants'
+import { insightsOutputSchema } from '@/constants/insights'
+import { capitalizeFirst } from '@/utils/string'
+import { authMiddleware } from '@/server/middleware/auth'
+import { openai } from './client'
 import {
   DAY_SUMMARY_SYSTEM_PROMPT,
   INSIGHTS_SYSTEM_PROMPT,
   MONTH_SUMMARY_SYSTEM_PROMPT,
   QUICK_POLISH_SYSTEM_PROMPT,
   WEEK_SUMMARY_SYSTEM_PROMPT,
-} from "./prompts";
-import { getUserContextPrompt } from "./userContext";
+} from './prompts'
+import { getUserContextPrompt } from './userContext'
 
-const formatWeekday = (dateString: string): string => {
-  const date = parseISO(dateString);
-  const weekday = format(date, "EEEE", { locale: sv });
-  return capitalizeFirst(weekday);
-};
+const formatWeekday = (isoDate: string): string => {
+  const date = parseISO(isoDate)
+  const weekday = format(date, 'EEEE', { locale: sv })
+  return capitalizeFirst(weekday)
+}
+
+const MAX_TEXT_LENGTH = 20_000
 
 const messageSchema = z.object({
-  role: z.enum(["user", "assistant"]),
-  content: z.string(),
-});
+  role: z.enum(['user', 'assistant']),
+  content: z.string().max(10_000),
+})
+
+const entryInputSchema = z.object({
+  date: dateString,
+  mood: z.number().int().min(1).max(5),
+  summary: z.string().max(MAX_TEXT_LENGTH),
+})
 
 const generateDaySummarySchema = z.object({
-  messages: z.array(messageSchema),
-});
+  messages: z.array(messageSchema).min(1).max(200),
+})
 
-export const generateDaySummary = createServerFn({ method: "POST" })
+export const generateDaySummary = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
   .inputValidator((data: unknown) => generateDaySummarySchema.parse(data))
   .handler(async ({ data }) => {
     const conversationText = data.messages
-      .map((m) => `${m.role === "user" ? "Användare" : "AI"}: ${m.content}`)
-      .join("\n\n");
+      .map((m) => `${m.role === 'user' ? 'Användare' : 'AI'}: ${m.content}`)
+      .join('\n\n')
 
-    const systemPrompts = [DAY_SUMMARY_SYSTEM_PROMPT];
-    const userContextPrompt = await getUserContextPrompt();
-    if (userContextPrompt) systemPrompts.push(userContextPrompt);
+    const systemPrompts = [DAY_SUMMARY_SYSTEM_PROMPT]
+    const userContextPrompt = await getUserContextPrompt()
+    if (userContextPrompt) systemPrompts.push(userContextPrompt)
 
     const response = await chat({
       adapter: openai,
       systemPrompts,
       messages: [
         {
-          role: "user",
+          role: 'user',
           content: conversationText,
         },
       ],
       stream: false,
-    });
+    })
 
-    return response;
-  });
+    return response
+  })
 
 const generateWeeklySummarySchema = z.object({
-  entries: z.array(
-    z.object({
-      date: z.string(),
-      mood: z.number(),
-      summary: z.string(),
-    }),
-  ),
-});
+  entries: z.array(entryInputSchema).max(7),
+})
 
-export const generateWeeklySummary = createServerFn({ method: "POST" })
+export const generateWeeklySummary = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
   .inputValidator((data: unknown) => generateWeeklySummarySchema.parse(data))
   .handler(async ({ data }) => {
     const entriesText = data.entries
-      .map(
-        (e) =>
-          `${formatWeekday(e.date)} (${getMoodLabel(e.mood)}):\n${e.summary}`,
-      )
-      .join("\n\n---\n\n");
+      .map((e) => `${formatWeekday(e.date)} (${getMoodLabel(e.mood)}):\n${e.summary}`)
+      .join('\n\n---\n\n')
 
-    const systemPrompts = [WEEK_SUMMARY_SYSTEM_PROMPT];
-    const userContextPrompt = await getUserContextPrompt();
-    if (userContextPrompt) systemPrompts.push(userContextPrompt);
+    const systemPrompts = [WEEK_SUMMARY_SYSTEM_PROMPT]
+    const userContextPrompt = await getUserContextPrompt()
+    if (userContextPrompt) systemPrompts.push(userContextPrompt)
 
     const response = await chat({
       adapter: openai,
       systemPrompts,
       messages: [
         {
-          role: "user",
+          role: 'user',
           content: entriesText,
         },
       ],
       stream: false,
-    });
+    })
 
-    return response;
-  });
+    return response
+  })
 
 const generateMonthlySummarySchema = z.object({
-  entries: z.array(
-    z.object({
-      date: z.string(),
-      mood: z.number(),
-      summary: z.string(),
-    }),
-  ),
-  weeklySummaries: z.array(
-    z.object({
-      year: z.number(),
-      week: z.number(),
-      summary: z.string(),
-    }),
-  ),
-});
+  // A month view spans up to 6 ISO weeks, which can include days from adjacent months
+  entries: z.array(entryInputSchema).max(42),
+  weeklySummaries: z
+    .array(
+      z.object({
+        year: z.number().int(),
+        week: z.number().int().min(1).max(53),
+        summary: z.string().max(MAX_TEXT_LENGTH),
+      }),
+    )
+    .max(6),
+})
 
 const formatAverageMood = (entries: Array<{ mood: number }>): string => {
-  if (entries.length === 0) return "?";
-  const average =
-    entries.reduce((sum, entry) => sum + entry.mood, 0) / entries.length;
-  return average.toFixed(1);
-};
+  if (entries.length === 0) return '?'
+  const average = entries.reduce((sum, entry) => sum + entry.mood, 0) / entries.length
+  return average.toFixed(1)
+}
 
-export const generateMonthlySummary = createServerFn({ method: "POST" })
+export const generateMonthlySummary = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
   .inputValidator((data: unknown) => generateMonthlySummarySchema.parse(data))
   .handler(async ({ data }) => {
     const weeklySummariesText = data.weeklySummaries
       .map((weeklySummary) => {
         const weekEntries = data.entries.filter((entry) => {
-          const entryDate = parseISO(entry.date);
-          return getISOWeek(entryDate) === weeklySummary.week;
-        });
-        const averageMood = formatAverageMood(weekEntries);
-        return `Vecka ${weeklySummary.week} (snitthumör: ${averageMood}): ${weeklySummary.summary}`;
+          const entryDate = parseISO(entry.date)
+          return getISOWeek(entryDate) === weeklySummary.week
+        })
+        const averageMood = formatAverageMood(weekEntries)
+        return `Vecka ${weeklySummary.week} (snitthumör: ${averageMood}): ${weeklySummary.summary}`
       })
-      .join("\n\n");
+      .join('\n\n')
 
     const entriesText = data.entries
       .map(
         (entry) =>
           `${formatWeekday(entry.date)} ${entry.date} (${getMoodLabel(entry.mood)}):\n${entry.summary}`,
       )
-      .join("\n\n---\n\n");
+      .join('\n\n---\n\n')
 
     const fullPromptContent = [
-      "Veckosummeringar:",
+      'Veckosummeringar:',
       weeklySummariesText,
-      "",
-      "Enskilda dagboksinlägg:",
+      '',
+      'Enskilda dagboksinlägg:',
       entriesText,
-    ].join("\n\n");
+    ].join('\n\n')
 
-    const systemPrompts = [MONTH_SUMMARY_SYSTEM_PROMPT];
-    const userContextPrompt = await getUserContextPrompt();
-    if (userContextPrompt) systemPrompts.push(userContextPrompt);
+    const systemPrompts = [MONTH_SUMMARY_SYSTEM_PROMPT]
+    const userContextPrompt = await getUserContextPrompt()
+    if (userContextPrompt) systemPrompts.push(userContextPrompt)
 
     const response = await chat({
       adapter: openai,
       systemPrompts,
       messages: [
         {
-          role: "user",
+          role: 'user',
           content: fullPromptContent,
         },
       ],
       stream: false,
-    });
+    })
 
-    return response;
-  });
+    return response
+  })
 
 const polishQuickEntrySchema = z.object({
-  text: z.string().min(10),
-});
+  text: z.string().min(10).max(MAX_TEXT_LENGTH),
+})
 
-export const polishQuickEntry = createServerFn({ method: "POST" })
+export const polishQuickEntry = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
   .inputValidator((data: unknown) => polishQuickEntrySchema.parse(data))
   .handler(async ({ data }) => {
@@ -185,74 +180,66 @@ export const polishQuickEntry = createServerFn({ method: "POST" })
       systemPrompts: [QUICK_POLISH_SYSTEM_PROMPT],
       messages: [
         {
-          role: "user",
+          role: 'user',
           content: data.text,
         },
       ],
       stream: false,
-    });
+    })
 
-    return response;
-  });
+    return response
+  })
 
 const generateInsightsSchema = z.object({
-  entries: z.array(
-    z.object({
-      date: z.string(),
-      mood: z.number(),
-      summary: z.string(),
-    }),
-  ),
-});
+  entries: z
+    .array(entryInputSchema)
+    .min(1)
+    .max(INSIGHTS_ANALYSIS_DAYS + 1),
+})
 
-export const generateInsights = createServerFn({ method: "POST" })
+export const generateInsights = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
   .inputValidator((data: unknown) => generateInsightsSchema.parse(data))
   .handler(async ({ data }) => {
-    const moods = data.entries.map((e) => e.mood);
-    const averageMood = moods.reduce((sum, m) => sum + m, 0) / moods.length;
+    const moods = data.entries.map((e) => e.mood)
+    const averageMood = moods.reduce((sum, m) => sum + m, 0) / moods.length
     const moodDistribution = [1, 2, 3, 4, 5]
-      .map(
-        (value) =>
-          `${getMoodLabel(value)}: ${moods.filter((m) => m === value).length}`,
-      )
-      .join(", ");
+      .map((value) => `${getMoodLabel(value)}: ${moods.filter((m) => m === value).length}`)
+      .join(', ')
 
-    const firstDate = data.entries[0]?.date ?? "?";
-    const lastDate = data.entries[data.entries.length - 1]?.date ?? "?";
+    const firstDate = data.entries[0]?.date ?? '?'
+    const lastDate = data.entries[data.entries.length - 1]?.date ?? '?'
 
     const statsHeader = [
       `Analysperiod: ${firstDate} till ${lastDate}`,
       `Antal inlägg: ${data.entries.length} | Snitthumör: ${averageMood.toFixed(1)}`,
       `Humörfördelning: ${moodDistribution}`,
-    ].join("\n");
+    ].join('\n')
 
     const entriesText = data.entries
       .map(
         (entry) =>
           `${formatWeekday(entry.date)} ${entry.date} (${getMoodLabel(entry.mood)}, humör ${entry.mood}):\n${entry.summary}`,
       )
-      .join("\n\n---\n\n");
+      .join('\n\n---\n\n')
 
-    const fullPromptContent = [statsHeader, "", "---", "", entriesText].join(
-      "\n",
-    );
+    const fullPromptContent = [statsHeader, '', '---', '', entriesText].join('\n')
 
-    const systemPrompts = [INSIGHTS_SYSTEM_PROMPT];
-    const userContextPrompt = await getUserContextPrompt();
-    if (userContextPrompt) systemPrompts.push(userContextPrompt);
+    const systemPrompts = [INSIGHTS_SYSTEM_PROMPT]
+    const userContextPrompt = await getUserContextPrompt()
+    if (userContextPrompt) systemPrompts.push(userContextPrompt)
 
     const response = await chat({
       adapter: openai,
       systemPrompts,
       messages: [
         {
-          role: "user",
+          role: 'user',
           content: fullPromptContent,
         },
       ],
       outputSchema: insightsOutputSchema,
-    });
+    })
 
-    return response.insights;
-  });
+    return response.insights
+  })

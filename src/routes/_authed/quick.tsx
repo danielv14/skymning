@@ -2,43 +2,42 @@ import { useState } from 'react'
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { z } from 'zod'
-import { dateString, MAX_DAYS_TO_FILL_IN } from '../../constants'
-import { differenceInDays, isFuture, parseISO, startOfDay } from 'date-fns'
-import { getTodayEntry, createEntry, getEntryForDate } from '../../server/functions/entries'
-import { clearPastChats } from '../../server/functions/chat'
-import { MoodSelector } from '../../components/reflection/MoodSelector'
-import { Button } from '../../components/ui/Button'
-import { Card } from '../../components/ui/Card'
-import { Textarea } from '../../components/ui/Textarea'
-import { PageHeader } from '../../components/ui/PageHeader'
-import { QuickPolishModal } from '../../components/reflection/QuickPolishModal'
-import { formatRelativeDay } from '../../utils/date'
+import { dateString, MAX_DAYS_TO_FILL_IN } from '@/constants'
+import { differenceInCalendarDays, parseISO } from 'date-fns'
+import { getTodayEntry, createEntry, getEntryForDate } from '@/server/functions/entries'
+import { clearPastChats } from '@/server/functions/chat'
+import { MoodSelector } from '@/components/reflection/MoodSelector'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { Textarea } from '@/components/ui/Textarea'
+import { PageHeader } from '@/components/ui/PageHeader'
+import { QuickPolishModal } from '@/components/reflection/QuickPolishModal'
+import { formatRelativeDay, getTodayDate } from '@/utils/date'
 
 const QuickPage = () => {
   const router = useRouter()
-  const { existingEntry, targetDate } = Route.useLoaderData()
+  const { targetDate } = Route.useLoaderData()
   const [selectedMood, setSelectedMood] = useState<number | null>(null)
   const [summary, setSummary] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [polishModalOpen, setPolishModalOpen] = useState(false)
-
-  if (existingEntry) {
-    router.navigate({ to: '/' })
-    return null
-  }
 
   const handleSave = async () => {
     if (!selectedMood || !summary.trim()) return
 
     setIsSaving(true)
     try {
-      await createEntry({
+      const result = await createEntry({
         data: {
           mood: selectedMood,
           summary: summary.trim(),
           ...(targetDate && { date: targetDate }),
         },
       })
+      if ('error' in result) {
+        toast.error(result.error)
+        return
+      }
       await clearPastChats()
       router.navigate({ to: '/', viewTransition: true })
     } catch (error) {
@@ -64,21 +63,21 @@ const QuickPage = () => {
 
       <PageHeader
         title="Skriv själv"
-        subtitle={targetDate ? `Reflektion för ${formatRelativeDay(targetDate)}` : 'Reflektera utan AI-chatt'}
+        subtitle={
+          targetDate
+            ? `Reflektion för ${formatRelativeDay(targetDate)}`
+            : 'Reflektera utan AI-chatt'
+        }
       />
 
       <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 stagger-children">
         <Card>
-          <h2 className="text-lg font-semibold text-white mb-4">
-            Hur har din dag varit?
-          </h2>
+          <h2 className="text-lg font-semibold text-white mb-4">Hur har din dag varit?</h2>
           <MoodSelector value={selectedMood} onChange={setSelectedMood} />
         </Card>
 
         <Card>
-          <h2 className="text-lg font-semibold text-white mb-2">
-            Sammanfatta dagen
-          </h2>
+          <h2 className="text-lg font-semibold text-white mb-2">Sammanfatta dagen</h2>
           <p className="text-slate-400 text-sm mb-4">
             Skriv några rader om vad som hände eller hur du kände dig
           </p>
@@ -97,9 +96,7 @@ const QuickPage = () => {
             >
               Förbättra med AI
             </Button>
-            <p className="text-sm text-slate-500">
-              {summary.length} tecken
-            </p>
+            <p className="text-sm text-slate-500">{summary.length} tecken</p>
           </div>
         </Card>
 
@@ -139,19 +136,20 @@ export const Route = createFileRoute('/_authed/quick')({
 
     if (targetDate) {
       const parsedDate = parseISO(targetDate)
-      const today = startOfDay(new Date())
-      const daysAgo = differenceInDays(today, startOfDay(parsedDate))
+      const daysAgo = differenceInCalendarDays(getTodayDate(), parsedDate)
 
-      if (isFuture(parsedDate) || daysAgo > MAX_DAYS_TO_FILL_IN) {
+      if (daysAgo < 0 || daysAgo > MAX_DAYS_TO_FILL_IN) {
         throw redirect({ to: '/' })
       }
 
       const existingEntry = await getEntryForDate({ data: { date: targetDate } })
-      return { existingEntry, targetDate }
+      if (existingEntry) throw redirect({ to: '/' })
+      return { targetDate }
     }
 
     const existingEntry = await getTodayEntry()
-    return { existingEntry, targetDate }
+    if (existingEntry) throw redirect({ to: '/' })
+    return { targetDate }
   },
   component: QuickPage,
 })

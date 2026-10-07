@@ -14,6 +14,23 @@ binding = "DB"
 database_name = "skymning-db"
 database_id = "a92bf951-ee0c-49af-8f5b-06c75bf61c3f"
 
+# Cloudflares inbyggda rate limiting (delas mellan alla isolates, till skillnad från in-memory)
+# period måste vara 10 eller 60 sekunder
+[[ratelimits]]
+name = "LOGIN_RATE_LIMITER"
+namespace_id = "1001"
+simple = { limit = 5, period = 60 }
+
+[[ratelimits]]
+name = "CHAT_RATE_LIMITER"
+namespace_id = "1002"
+simple = { limit = 20, period = 60 }
+
+[[ratelimits]]
+name = "EXPLORE_CHAT_RATE_LIMITER"
+namespace_id = "1003"
+simple = { limit = 20, period = 60 }
+
 # Environment variables sätts i Cloudflare Dashboard, inte här
 # Gå till: Settings → Environment variables → Add variables
 # Lägg till (markera alla som "Encrypted"):

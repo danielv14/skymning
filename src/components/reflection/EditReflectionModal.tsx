@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { Trash2 } from 'lucide-react'
-import { Modal, ModalCloseButton } from '../ui/Modal'
-import { AlertDialog } from '../ui/AlertDialog'
+import { Modal, ModalCloseButton } from '@/components/ui/Modal'
+import { AlertDialog } from '@/components/ui/AlertDialog'
 import { MoodSelector } from './MoodSelector'
-import { Textarea } from '../ui/Textarea'
-import { Button } from '../ui/Button'
-import type { Entry } from '../../server/db/schema'
-import { updateEntry, deleteEntry } from '../../server/functions/entries'
+import { Textarea } from '@/components/ui/Textarea'
+import { Button } from '@/components/ui/Button'
+import type { Entry } from '@/server/db/schema'
+import { updateEntry, deleteEntry } from '@/server/functions/entries'
 
 type EditReflectionModalProps = {
   open: boolean
@@ -16,11 +16,7 @@ type EditReflectionModalProps = {
   entry: Entry
 }
 
-export const EditReflectionModal = ({
-  open,
-  onOpenChange,
-  entry,
-}: EditReflectionModalProps) => {
+export const EditReflectionModal = ({ open, onOpenChange, entry }: EditReflectionModalProps) => {
   const router = useRouter()
   const [selectedMood, setSelectedMood] = useState<number>(entry.mood)
   const [summary, setSummary] = useState(entry.summary)
@@ -76,29 +72,15 @@ export const EditReflectionModal = ({
 
   return (
     <>
-      <Modal
-        open={open}
-        onOpenChange={onOpenChange}
-        title="Redigera reflektion"
-      >
+      <Modal open={open} onOpenChange={onOpenChange} title="Redigera reflektion">
         <div className="mb-6">
-          <h3 className="text-sm font-medium text-slate-300 mb-3">
-            Hur kändes dagen?
-          </h3>
+          <h3 className="text-sm font-medium text-slate-300 mb-3">Hur kändes dagen?</h3>
           <MoodSelector value={selectedMood} onChange={setSelectedMood} />
         </div>
 
         <div className="mb-6">
-          <h3 className="text-sm font-medium text-slate-300 mb-3">
-            Sammanfattning
-          </h3>
-          <Textarea
-            value={summary}
-            onChange={setSummary}
-            rows={4}
-            autoResize
-            maxHeight={200}
-          />
+          <h3 className="text-sm font-medium text-slate-300 mb-3">Sammanfattning</h3>
+          <Textarea value={summary} onChange={setSummary} rows={4} autoResize maxHeight={200} />
         </div>
 
         <div className="flex flex-row gap-3">

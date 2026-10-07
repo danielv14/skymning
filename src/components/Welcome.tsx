@@ -12,7 +12,8 @@ export const Welcome = () => {
       <div
         className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse, rgba(16, 185, 129, 0.15) 0%, rgba(6, 182, 212, 0.1) 30%, transparent 70%)',
+          background:
+            'radial-gradient(ellipse, rgba(16, 185, 129, 0.15) 0%, rgba(6, 182, 212, 0.1) 30%, transparent 70%)',
           filter: 'blur(60px)',
         }}
       />
@@ -32,8 +33,8 @@ export const Welcome = () => {
           </h1>
 
           <p className="text-lg sm:text-xl text-slate-300 leading-relaxed max-w-md mx-auto">
-            En plats för reflektion. Varje kväll kan du prata med en varm
-            samtalspartner som hjälper dig sätta ord på hur dagen kändes.
+            En plats för reflektion. Varje kväll kan du prata med en varm samtalspartner som hjälper
+            dig sätta ord på hur dagen kändes.
           </p>
         </div>
 

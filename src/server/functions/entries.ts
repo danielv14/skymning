@@ -1,30 +1,20 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { getDb } from '../db'
-import { entries, chatMessages } from '../db/schema'
-import { eq, desc, and, gte, lt } from 'drizzle-orm'
-import { startOfISOWeek, addWeeks, format, getDay, parseISO } from 'date-fns'
-import { dateString, weekInputSchema, MAX_STREAK_ENTRIES, MOOD_INSIGHT_DAYS, WEEKDAY_PATTERN_DAYS } from '../../constants'
-import {
-  calculateMoodLevel,
-  calculateTrend,
-  calculateStability,
-  type MoodInsight,
-} from '../../constants/moodInsight'
-import { getTodayDateString, subtractDays } from '../../utils/date'
-import { getDateFromISOWeek } from '../../utils/isoWeek'
-import { authMiddleware } from '../middleware/auth'
+import { and, eq, gte, lt } from 'drizzle-orm'
+import { addWeeks, format, startOfISOWeek } from 'date-fns'
+import { dateString, weekInputSchema } from '@/constants'
+import { getDb } from '@/server/db'
+import { chatMessages, entries } from '@/server/db/schema'
+import { authMiddleware } from '@/server/middleware/auth'
+import { findEntryByDate } from '@/server/queries/entries'
+import { getTodayDateString } from '@/utils/date'
+import { getDateFromISOWeek } from '@/utils/isoWeek'
+
+const MAX_SUMMARY_LENGTH = 20_000
 
 export const getTodayEntry = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
-  .handler(async () => {
-    const db = getDb()
-    const today = getTodayDateString()
-    const entry = await db.query.entries.findFirst({
-      where: eq(entries.date, today),
-    })
-    return entry ?? null
-  })
+  .handler(() => findEntryByDate(getTodayDateString()))
 
 const getEntryForDateSchema = z.object({
   date: dateString,
@@ -33,78 +23,7 @@ const getEntryForDateSchema = z.object({
 export const getEntryForDate = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
   .inputValidator((data: unknown) => getEntryForDateSchema.parse(data))
-  .handler(async ({ data }) => {
-    const db = getDb()
-    const entry = await db.query.entries.findFirst({
-      where: eq(entries.date, data.date),
-    })
-    return entry ?? null
-  })
-
-export const getEntriesForWeek = createServerFn({ method: 'GET' })
-  .middleware([authMiddleware])
-  .inputValidator((data: unknown) => weekInputSchema.parse(data))
-  .handler(async ({ data }) => {
-    const db = getDb()
-    const { startDate, endDate } = getWeekDateRange(data.year, data.week)
-
-    const weekEntries = await db.query.entries.findMany({
-      where: and(gte(entries.date, startDate), lt(entries.date, endDate)),
-      orderBy: [entries.date],
-    })
-
-    return weekEntries
-  })
-
-const createEntrySchema = z.object({
-  mood: z.number().min(1).max(5),
-  summary: z.string().min(1),
-  date: dateString.optional(),
-})
-
-export const createEntry = createServerFn({ method: 'POST' })
-  .middleware([authMiddleware])
-  .inputValidator((data: unknown) => createEntrySchema.parse(data))
-  .handler(async ({ data }) => {
-    const db = getDb()
-    const entryDate = data.date ?? getTodayDateString()
-
-    const existingEntry = await db.query.entries.findFirst({
-      where: eq(entries.date, entryDate),
-    })
-
-    if (existingEntry) {
-      return { error: 'Du har redan skapat en reflektion för det datumet' }
-    }
-
-    const [entry] = await db
-      .insert(entries)
-      .values({
-        date: entryDate,
-        mood: data.mood,
-        summary: data.summary,
-      })
-      .returning()
-
-    await db.delete(chatMessages).where(eq(chatMessages.date, entryDate))
-
-    return entry
-  })
-
-export const getMoodTrend = createServerFn({ method: 'GET' })
-  .middleware([authMiddleware])
-  .handler(async () => {
-    const db = getDb()
-    const trendEntries = await db.query.entries.findMany({
-      columns: {
-        date: true,
-        mood: true,
-      },
-      orderBy: [desc(entries.date)],
-    })
-
-    return trendEntries.reverse()
-  })
+  .handler(({ data }) => findEntryByDate(data.date))
 
 const getWeekDateRange = (year: number, week: number) => {
   const weekStart = startOfISOWeek(getDateFromISOWeek(year, week))
@@ -116,59 +35,62 @@ const getWeekDateRange = (year: number, week: number) => {
   }
 }
 
-export const getStreak = createServerFn({ method: 'GET' })
+export const getEntriesForWeek = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
-  .handler(async () => {
-    const db = getDb()
-    const allEntries = await db.query.entries.findMany({
-      columns: { date: true },
-      orderBy: [desc(entries.date)],
-      limit: MAX_STREAK_ENTRIES,
+  .inputValidator((data: unknown) => weekInputSchema.parse(data))
+  .handler(async ({ data }) => {
+    const { startDate, endDate } = getWeekDateRange(data.year, data.week)
+
+    return getDb().query.entries.findMany({
+      where: and(gte(entries.date, startDate), lt(entries.date, endDate)),
+      orderBy: [entries.date],
     })
+  })
 
-    if (allEntries.length === 0) return 0
+const createEntrySchema = z.object({
+  mood: z.number().int().min(1).max(5),
+  summary: z.string().min(1).max(MAX_SUMMARY_LENGTH),
+  date: dateString.optional(),
+})
 
-    const todayStr = getTodayDateString()
-    const yesterdayStr = subtractDays(todayStr, 1)
+export const createEntry = createServerFn({ method: 'POST' })
+  .middleware([authMiddleware])
+  .inputValidator((data: unknown) => createEntrySchema.parse(data))
+  .handler(async ({ data }) => {
+    const db = getDb()
+    const entryDate = data.date ?? getTodayDateString()
 
-    const latestEntryDate = allEntries[0]?.date
+    // Batched so the insert and chat cleanup are atomic. onConflictDoNothing turns a
+    // concurrent double-submit into the friendly error below instead of a constraint crash.
+    const [[entry]] = await db.batch([
+      db
+        .insert(entries)
+        .values({ date: entryDate, mood: data.mood, summary: data.summary })
+        .onConflictDoNothing({ target: entries.date })
+        .returning(),
+      db.delete(chatMessages).where(eq(chatMessages.date, entryDate)),
+    ])
 
-    // Streak is broken if latest entry is neither from today nor yesterday
-    if (latestEntryDate !== todayStr && latestEntryDate !== yesterdayStr) {
-      return 0
+    if (!entry) {
+      return { error: 'Du har redan skapat en reflektion för det datumet' }
     }
 
-    const entryDates = new Set(allEntries.map((e) => e.date))
-
-    let streak = 0
-    let checkDateStr = latestEntryDate
-
-    while (entryDates.has(checkDateStr)) {
-      streak++
-      checkDateStr = subtractDays(checkDateStr, 1)
-    }
-
-    return streak
+    return entry
   })
 
 const updateEntrySchema = z.object({
   id: z.number(),
-  mood: z.number().min(1).max(5),
-  summary: z.string().min(1),
+  mood: z.number().int().min(1).max(5),
+  summary: z.string().min(1).max(MAX_SUMMARY_LENGTH),
 })
 
 export const updateEntry = createServerFn({ method: 'POST' })
   .middleware([authMiddleware])
   .inputValidator((data: unknown) => updateEntrySchema.parse(data))
   .handler(async ({ data }) => {
-    const db = getDb()
-
-    const [updated] = await db
+    const [updated] = await getDb()
       .update(entries)
-      .set({
-        mood: data.mood,
-        summary: data.summary,
-      })
+      .set({ mood: data.mood, summary: data.summary })
       .where(eq(entries.id, data.id))
       .returning()
 
@@ -186,120 +108,16 @@ export const deleteEntry = createServerFn({ method: 'POST' })
     const db = getDb()
 
     const entry = await db.query.entries.findFirst({
+      columns: { date: true },
       where: eq(entries.id, data.id),
     })
 
     if (!entry) return null
 
-    await db.delete(chatMessages).where(eq(chatMessages.date, entry.date))
-    await db.delete(entries).where(eq(entries.id, data.id))
+    await db.batch([
+      db.delete(chatMessages).where(eq(chatMessages.date, entry.date)),
+      db.delete(entries).where(eq(entries.id, data.id)),
+    ])
 
     return { success: true }
-  })
-
-const moodInsightSchema = z.object({
-  entryCount: z.number().min(4).max(30).optional().default(MOOD_INSIGHT_DAYS),
-})
-
-export const getMoodInsight = createServerFn({ method: 'GET' })
-  .middleware([authMiddleware])
-  .inputValidator((data: unknown) => moodInsightSchema.parse(data))
-  .handler(async ({ data }): Promise<MoodInsight | null> => {
-    const db = getDb()
-
-    const recentEntries = await db.query.entries.findMany({
-      columns: { mood: true },
-      orderBy: [desc(entries.date)],
-      limit: data.entryCount,
-    })
-
-    if (recentEntries.length < data.entryCount) return null
-
-    const moods = recentEntries.map((e) => e.mood)
-    const halfIndex = Math.floor(moods.length / 2)
-
-    const recentHalf = moods.slice(0, halfIndex)
-    const olderHalf = moods.slice(halfIndex)
-
-    const recentAverage =
-      recentHalf.reduce((sum, m) => sum + m, 0) / recentHalf.length
-    const olderAverage =
-      olderHalf.reduce((sum, m) => sum + m, 0) / olderHalf.length
-    const totalAverage = moods.reduce((sum, m) => sum + m, 0) / moods.length
-
-    return {
-      trend: calculateTrend(recentAverage, olderAverage),
-      stability: calculateStability(moods),
-      average: totalAverage,
-      level: calculateMoodLevel(totalAverage),
-      entryCount: moods.length,
-    }
-  })
-
-export type WeekdayPattern = {
-  dayIndex: number
-  dayName: string
-  average: number
-  count: number
-}
-
-export type WeekdayPatternResult = {
-  patterns: WeekdayPattern[]
-  bestDay: WeekdayPattern
-  worstDay: WeekdayPattern
-  totalEntries: number
-}
-
-const WEEKDAY_NAMES = ['söndag', 'måndag', 'tisdag', 'onsdag', 'torsdag', 'fredag', 'lördag']
-
-export const getWeekdayPatterns = createServerFn({ method: 'GET' })
-  .middleware([authMiddleware])
-  .handler(async (): Promise<WeekdayPatternResult | null> => {
-    const db = getDb()
-
-    const cutoffDate = subtractDays(getTodayDateString(), WEEKDAY_PATTERN_DAYS)
-
-    const allEntries = await db.query.entries.findMany({
-      columns: { date: true, mood: true },
-      where: gte(entries.date, cutoffDate),
-    })
-
-    // Need at least 14 entries for meaningful patterns
-    if (allEntries.length < 14) return null
-
-    const dayBuckets: { total: number; count: number }[] = Array.from(
-      { length: 7 },
-      () => ({ total: 0, count: 0 })
-    )
-
-    for (const entry of allEntries) {
-      const dayIndex = getDay(parseISO(entry.date))
-      dayBuckets[dayIndex].total += entry.mood
-      dayBuckets[dayIndex].count += 1
-    }
-
-    const patterns: WeekdayPattern[] = dayBuckets
-      .map((bucket, dayIndex) => ({
-        dayIndex,
-        dayName: WEEKDAY_NAMES[dayIndex],
-        average: bucket.count > 0 ? bucket.total / bucket.count : 0,
-        count: bucket.count,
-      }))
-      .filter((pattern) => pattern.count > 0)
-
-    if (patterns.length < 3) return null
-
-    const bestDay = patterns.reduce((best, current) =>
-      current.average > best.average ? current : best
-    )
-    const worstDay = patterns.reduce((worst, current) =>
-      current.average < worst.average ? current : worst
-    )
-
-    return {
-      patterns,
-      bestDay,
-      worstDay,
-      totalEntries: allEntries.length,
-    }
   })

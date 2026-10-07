@@ -1,87 +1,78 @@
-import {
-  Activity,
-  Clock,
-  Lightbulb,
-  Link2,
-  Repeat,
-  TrendingDown,
-  TrendingUp,
-} from "lucide-react";
-import { Card } from "../ui/Card";
+import { Activity, Clock, Lightbulb, Link2, Repeat, TrendingDown, TrendingUp } from 'lucide-react'
+import { Card } from '@/components/ui/Card'
 
-import { type InsightCategory, type InsightItem } from "../../constants/insights";
+import { type InsightCategory, type InsightItem } from '@/constants/insights'
 
-export type { InsightItem };
+export type { InsightItem }
 
 export const CATEGORY_CONFIG: Record<
   InsightCategory,
   {
-    icon: typeof Link2;
-    label: string;
-    description: string;
-    color: string;
-    bgColor: string;
+    icon: typeof Link2
+    label: string
+    description: string
+    color: string
+    bgColor: string
   }
 > = {
   topic_mood_correlation: {
     icon: Link2,
-    label: "Ämne-humör-koppling",
-    description: "Aktiviteter eller ämnen som korrelerar med visst humör",
-    color: "text-cyan-400",
-    bgColor: "bg-cyan-500/20",
+    label: 'Ämne-humör-koppling',
+    description: 'Aktiviteter eller ämnen som korrelerar med visst humör',
+    color: 'text-cyan-400',
+    bgColor: 'bg-cyan-500/20',
   },
   temporal_pattern: {
     icon: Clock,
-    label: "Tidsmönster",
-    description: "Mönster kopplade till veckodagar eller perioder",
-    color: "text-amber-400",
-    bgColor: "bg-amber-500/20",
+    label: 'Tidsmönster',
+    description: 'Mönster kopplade till veckodagar eller perioder',
+    color: 'text-amber-400',
+    bgColor: 'bg-amber-500/20',
   },
   recurring_theme: {
     icon: Repeat,
-    label: "Återkommande tema",
-    description: "Ämnen som dyker upp ofta i reflektionerna",
-    color: "text-violet-400",
-    bgColor: "bg-violet-500/20",
+    label: 'Återkommande tema',
+    description: 'Ämnen som dyker upp ofta i reflektionerna',
+    color: 'text-violet-400',
+    bgColor: 'bg-violet-500/20',
   },
   positive_correlation: {
     icon: TrendingUp,
-    label: "Positiv koppling",
-    description: "Saker som konsekvent kopplas till bra humör",
-    color: "text-emerald-400",
-    bgColor: "bg-emerald-500/20",
+    label: 'Positiv koppling',
+    description: 'Saker som konsekvent kopplas till bra humör',
+    color: 'text-emerald-400',
+    bgColor: 'bg-emerald-500/20',
   },
   negative_correlation: {
     icon: TrendingDown,
-    label: "Negativ koppling",
-    description: "Saker som konsekvent kopplas till dåligt humör",
-    color: "text-rose-400",
-    bgColor: "bg-rose-500/20",
+    label: 'Negativ koppling',
+    description: 'Saker som konsekvent kopplas till dåligt humör',
+    color: 'text-rose-400',
+    bgColor: 'bg-rose-500/20',
   },
   anomaly: {
     icon: Activity,
-    label: "Trendbrott",
-    description: "Avvikelser från etablerade mönster",
-    color: "text-orange-400",
-    bgColor: "bg-orange-500/20",
+    label: 'Trendbrott',
+    description: 'Avvikelser från etablerade mönster',
+    color: 'text-orange-400',
+    bgColor: 'bg-orange-500/20',
   },
   observation: {
     icon: Lightbulb,
-    label: "Observation",
-    description: "Övriga intressanta observationer",
-    color: "text-sky-400",
-    bgColor: "bg-sky-500/20",
+    label: 'Observation',
+    description: 'Övriga intressanta observationer',
+    color: 'text-sky-400',
+    bgColor: 'bg-sky-500/20',
   },
-};
+}
 
 type InsightCardProps = {
-  insight: InsightItem;
-};
+  insight: InsightItem
+}
 
 export const InsightCard = ({ insight }: InsightCardProps) => {
-  const config =
-    CATEGORY_CONFIG[insight.category] ?? CATEGORY_CONFIG.observation;
-  const Icon = config.icon;
+  const config = CATEGORY_CONFIG[insight.category] ?? CATEGORY_CONFIG.observation
+  const Icon = config.icon
 
   return (
     <Card>
@@ -90,9 +81,7 @@ export const InsightCard = ({ insight }: InsightCardProps) => {
           <Icon className={`w-4 h-4 ${config.color}`} />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-white text-sm sm:text-base">
-            {insight.title}
-          </h3>
+          <h3 className="font-semibold text-white text-sm sm:text-base">{insight.title}</h3>
           <p className="text-slate-300 text-sm sm:text-base mt-1 leading-relaxed">
             {insight.description}
           </p>
@@ -106,5 +95,5 @@ export const InsightCard = ({ insight }: InsightCardProps) => {
         </div>
       </div>
     </Card>
-  );
-};
+  )
+}
