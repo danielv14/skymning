@@ -3,18 +3,13 @@
   "plugins": ["typescript", "react", "unicorn", "oxc", "import", "vitest"],
   "categories": {
     "correctness": "error",
-    "suspicious": "warn"
+    "suspicious": "error"
   },
   "rules": {
     "react/react-in-jsx-scope": "off",
-    "react/purity": "warn",
-    "react/refs": "warn",
-    "react/set-state-in-effect": "warn",
-    "react/static-components": "warn",
-    "react/exhaustive-effect-dependencies": "off",
     "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn",
-    "import/no-unassigned-import": "off"
+    "react-hooks/exhaustive-deps": "error",
+    "import/no-unassigned-import": ["error", { "allow": ["**/*.css"] }]
   },
   "ignorePatterns": ["src/routeTree.gen.ts", "drizzle/**", "dist/**", ".wrangler/**"]
 }

@@ -1,5 +1,5 @@
 import { fetchServerSentEvents, useChat } from '@tanstack/ai-react'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { saveExploreChatMessage } from '@/server/functions/exploreChat'
 import type { ExploreChatMessage } from '@/server/db/schema'
@@ -14,7 +14,7 @@ export const useExploreChat = ({ existingMessages }: UseExploreChatOptions) => {
     new Set(existingMessages.map((message) => `db-${message.id}`)),
   )
   const hasMounted = useRef(false)
-  const wasCleared = useRef(false)
+  const [wasCleared, setWasCleared] = useState(false)
 
   const initialMessages = useMemo(
     () => dbMessagesToUIMessages(existingMessages),
@@ -31,7 +31,7 @@ export const useExploreChat = ({ existingMessages }: UseExploreChatOptions) => {
     initialMessages: initialMessages.length > 0 ? initialMessages : undefined,
   })
 
-  const messages = hookMessages.length > 0 || wasCleared.current ? hookMessages : initialMessages
+  const messages = hookMessages.length > 0 || wasCleared ? hookMessages : initialMessages
 
   // Sync loader data on navigation
   useEffect(() => {
@@ -80,7 +80,7 @@ export const useExploreChat = ({ existingMessages }: UseExploreChatOptions) => {
   }
 
   const resetMessages = () => {
-    wasCleared.current = true
+    setWasCleared(true)
     setMessages([])
     savedMessageIds.current.clear()
   }

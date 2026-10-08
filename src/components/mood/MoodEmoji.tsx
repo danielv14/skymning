@@ -1,4 +1,4 @@
-import { getMoodIcon } from './MoodIcons'
+import { MoodIcon } from './MoodIcons'
 import { getMoodLabel } from '@/constants'
 
 type MoodEmojiProps = {
@@ -15,7 +15,6 @@ export const MoodEmoji = ({
   layout = 'vertical',
 }: MoodEmojiProps) => {
   const label = getMoodLabel(mood)
-  const IconComponent = getMoodIcon(mood)
 
   const iconSizes = {
     sm: 18,
@@ -30,7 +29,7 @@ export const MoodEmoji = ({
         className={`inline-flex items-center ${isHorizontal ? 'flex-row gap-2' : 'flex-col gap-1.5'}`}
       >
         <span className="text-slate-300">
-          <IconComponent size={iconSizes[size]} />
+          <MoodIcon mood={mood} size={iconSizes[size]} />
         </span>
         <span className="text-xs text-slate-400 font-medium">{label}</span>
       </span>
@@ -39,7 +38,7 @@ export const MoodEmoji = ({
 
   return (
     <span className="inline-flex text-slate-300" aria-label={label}>
-      <IconComponent size={iconSizes[size]} />
+      <MoodIcon mood={mood} size={iconSizes[size]} />
     </span>
   )
 }

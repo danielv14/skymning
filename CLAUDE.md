@@ -28,7 +28,7 @@ bun run deploy             # Build and deploy to Cloudflare Workers
 
 # Quality checks
 bun run check              # Lint + format check + typecheck + tests (same as CI)
-bun run lint               # oxlint
+bun run lint               # oxlint (warnings fail too)
 bun run format             # Format all files with oxfmt
 bun run format:check       # Verify formatting
 bun run typecheck          # tsc --noEmit
@@ -240,6 +240,7 @@ Automated deployments via GitHub Actions:
 - Routes live in `src/routes/`
 - Protected routes live in `src/routes/_authed/` (requires authentication)
 - Use `createFileRoute` for page routes
+- **Redirects go in `beforeLoad`, never in `loader`.** Loaders run in parallel with loading the route's code-split chunks, so a redirect thrown there ends the request while a module import is still in flight. In the workerd dev server that import is tied to the finished request, and the next request needing the same module hangs forever
 - Loaders fetch data before render:
   ```typescript
   export const Route = createFileRoute('/_authed/path')({

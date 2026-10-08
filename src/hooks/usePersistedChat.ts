@@ -54,7 +54,8 @@ export const usePersistedChat = ({
     }
   }, [existingChat, hookMessages.length, setMessages])
 
-  // Auto-trigger personalized greeting when starting a fresh conversation
+  // Auto-trigger personalized greeting when starting a fresh conversation.
+  // The ref guard makes sure it is sent at most once, however often the effect re-runs.
   useEffect(() => {
     if (greetingSent.current) return
     if (existingChat.length > 0) return
@@ -62,7 +63,7 @@ export const usePersistedChat = ({
 
     greetingSent.current = true
     sendMessage(GREETING_TRIGGER)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [existingChat.length, hasIncompletePastChat, sendMessage])
 
   // Auto-save assistant messages to DB
   useEffect(() => {

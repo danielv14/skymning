@@ -130,26 +130,24 @@ export const Route = createFileRoute('/_authed/quick')({
     meta: [{ title: 'Skriv själv - Skymning' }],
   }),
   validateSearch: (search) => searchSchema.parse(search),
-  loaderDeps: ({ search }) => ({ date: search.date }),
-  loader: async ({ deps }) => {
-    const targetDate = deps.date ?? null
-
-    if (targetDate) {
-      const parsedDate = parseISO(targetDate)
-      const daysAgo = differenceInCalendarDays(getTodayDate(), parsedDate)
-
-      if (daysAgo < 0 || daysAgo > MAX_DAYS_TO_FILL_IN) {
-        throw redirect({ to: '/' })
-      }
-
-      const existingEntry = await getEntryForDate({ data: { date: targetDate } })
-      if (existingEntry) throw redirect({ to: '/' })
-      return { targetDate }
+  // Redirects happen in beforeLoad so no route chunks are mid-import when the redirect
+  // response is sent (see the timeline route for why that hangs the dev server)
+  beforeLoad: async ({ search }) => {
+    if (!search.date) {
+      if (await getTodayEntry()) throw redirect({ to: '/' })
+      return
     }
 
-    const existingEntry = await getTodayEntry()
-    if (existingEntry) throw redirect({ to: '/' })
-    return { targetDate }
+    const daysAgo = differenceInCalendarDays(getTodayDate(), parseISO(search.date))
+    if (daysAgo < 0 || daysAgo > MAX_DAYS_TO_FILL_IN) {
+      throw redirect({ to: '/' })
+    }
+
+    if (await getEntryForDate({ data: { date: search.date } })) {
+      throw redirect({ to: '/' })
+    }
   },
+  loaderDeps: ({ search }) => ({ date: search.date }),
+  loader: ({ deps }) => ({ targetDate: deps.date ?? null }),
   component: QuickPage,
 })

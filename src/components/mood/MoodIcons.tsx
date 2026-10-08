@@ -107,16 +107,23 @@ export const MoodSunny = ({ size = 24, className = '' }: IconProps) => (
   </svg>
 )
 
-export const MOOD_ICONS = {
-  1: MoodStormy,
-  2: MoodRainy,
-  3: MoodCloudy,
-  4: MoodPartlySunny,
-  5: MoodSunny,
-} as const
+type MoodIconProps = IconProps & {
+  mood: number
+}
 
-export const getMoodIcon = (mood: number) => {
-  return MOOD_ICONS[mood as keyof typeof MOOD_ICONS] ?? MOOD_ICONS[3]
+export const MoodIcon = ({ mood, ...iconProps }: MoodIconProps) => {
+  switch (mood) {
+    case 1:
+      return <MoodStormy {...iconProps} />
+    case 2:
+      return <MoodRainy {...iconProps} />
+    case 4:
+      return <MoodPartlySunny {...iconProps} />
+    case 5:
+      return <MoodSunny {...iconProps} />
+    default:
+      return <MoodCloudy {...iconProps} />
+  }
 }
 
 // Streak-ikon: Eld/flamma

@@ -10,44 +10,19 @@ import { Textarea } from '@/components/ui/Textarea'
 import { clearExploreChat, getExploreChatMessages } from '@/server/functions/exploreChat'
 import { getMessageText } from '@/utils/messages'
 import { useExploreChat } from '@/hooks/useExploreChat'
+import { useScrollToBottom } from '@/hooks/useScrollToBottom'
 import { formatTime } from '@/utils/date'
 
 const ExplorePage = () => {
   const { existingMessages } = Route.useLoaderData()
   const [clearDialogOpen, setClearDialogOpen] = useState(false)
   const [input, setInput] = useState('')
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const hasScrolledOnMount = useRef(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const { messages, isLoading, sendAndPersist, resetMessages } = useExploreChat({
     existingMessages,
   })
-
-  const scrollToBottom = (smooth = false) => {
-    const container = scrollContainerRef.current
-    if (!container) return
-
-    if (smooth) {
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: 'smooth',
-      })
-    } else {
-      container.scrollTop = container.scrollHeight
-    }
-  }
-
-  useEffect(() => {
-    if (messages.length === 0) return
-
-    if (!hasScrolledOnMount.current) {
-      requestAnimationFrame(() => scrollToBottom(false))
-      hasScrolledOnMount.current = true
-    } else {
-      scrollToBottom(true)
-    }
-  }, [messages])
+  const scrollContainerRef = useScrollToBottom<HTMLDivElement>(messages)
 
   useEffect(() => {
     textareaRef.current?.focus()

@@ -1,6 +1,6 @@
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { RefreshCw } from 'lucide-react'
-import { useEffect, useState, useRef } from 'react'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import { ChatInputBar } from '@/components/reflection/ChatInputBar'
 import { ChatMessage } from '@/components/reflection/ChatMessage'
@@ -19,6 +19,7 @@ import {
 import { createEntry, getTodayEntry } from '@/server/functions/entries'
 import { formatTime, getTodayDateString } from '@/utils/date'
 import { usePersistedChat } from '@/hooks/usePersistedChat'
+import { useScrollToBottom } from '@/hooks/useScrollToBottom'
 import { getMessageText } from '@/utils/messages'
 
 const ReflectPage = () => {
@@ -29,8 +30,6 @@ const ReflectPage = () => {
   const [recoveryModalOpen, setRecoveryModalOpen] = useState(incompletePastChat !== null)
   const [reflectionDate, setReflectionDate] = useState<string>(getTodayDateString())
   const [input, setInput] = useState('')
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const hasScrolledOnMount = useRef(false)
 
   const { messages, visibleMessages, isLoading, sendAndPersist, resetChat, loadMessages } =
     usePersistedChat({
@@ -38,31 +37,7 @@ const ReflectPage = () => {
       hasIncompletePastChat: incompletePastChat !== null,
       reflectionDate,
     })
-
-  const scrollToBottom = (smooth = false) => {
-    const container = scrollContainerRef.current
-    if (!container) return
-
-    if (smooth) {
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: 'smooth',
-      })
-    } else {
-      container.scrollTop = container.scrollHeight
-    }
-  }
-
-  useEffect(() => {
-    if (messages.length === 0) return
-
-    if (!hasScrolledOnMount.current) {
-      requestAnimationFrame(() => scrollToBottom(false))
-      hasScrolledOnMount.current = true
-    } else {
-      scrollToBottom(true)
-    }
-  }, [messages])
+  const scrollContainerRef = useScrollToBottom<HTMLDivElement>(messages)
 
   const handleSendMessage = async () => {
     if (!input.trim() || isLoading) return
@@ -240,19 +215,20 @@ export const Route = createFileRoute('/_authed/reflect')({
   head: () => ({
     meta: [{ title: 'Reflektera - Skymning' }],
   }),
+  // Redirects happen in beforeLoad so no route chunks are mid-import when the redirect
+  // response is sent (see the timeline route for why that hangs the dev server)
+  beforeLoad: async () => {
+    if (await getTodayEntry()) {
+      // Today is already done, so any unfinished chat from earlier days is obsolete
+      await clearPastChats()
+      throw redirect({ to: '/' })
+    }
+  },
   loader: async () => {
-    const [todayEntry, existingChat, incompletePastChat] = await Promise.all([
-      getTodayEntry(),
+    const [existingChat, incompletePastChat] = await Promise.all([
       getTodayChat(),
       getValidIncompletePastChat(),
     ])
-
-    if (todayEntry) {
-      if (incompletePastChat) {
-        await clearPastChats()
-      }
-      throw redirect({ to: '/' })
-    }
 
     const showRecovery = existingChat.length === 0 && incompletePastChat !== null
 

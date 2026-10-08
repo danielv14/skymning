@@ -22,7 +22,8 @@ declare module 'markdown-to-jsx' {
     options?: MarkdownOptions
   }
 
-  const Markdown: ComponentType<MarkdownProps>
+  // The published 9.x package ships without index.d.ts, so its types are declared here
+  export const Markdown: ComponentType<MarkdownProps>
   export default Markdown
 }
 

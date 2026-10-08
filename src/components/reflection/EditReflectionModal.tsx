@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { Trash2 } from 'lucide-react'
@@ -16,19 +16,17 @@ type EditReflectionModalProps = {
   entry: Entry
 }
 
-export const EditReflectionModal = ({ open, onOpenChange, entry }: EditReflectionModalProps) => {
-  const router = useRouter()
+type EditReflectionFormProps = {
+  entry: Entry
+  onSaved: () => void
+  onDeleteClick: () => void
+}
+
+// Mounted only while the modal is open, so the form starts from the saved entry every time
+const EditReflectionForm = ({ entry, onSaved, onDeleteClick }: EditReflectionFormProps) => {
   const [selectedMood, setSelectedMood] = useState<number>(entry.mood)
   const [summary, setSummary] = useState(entry.summary)
   const [isSaving, setIsSaving] = useState(false)
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-
-  useEffect(() => {
-    if (open) {
-      setSelectedMood(entry.mood)
-      setSummary(entry.summary)
-    }
-  }, [open, entry])
 
   const handleSave = async () => {
     if (!summary.trim()) return
@@ -43,9 +41,7 @@ export const EditReflectionModal = ({ open, onOpenChange, entry }: EditReflectio
         },
       })
       if (updated) {
-        onOpenChange(false)
-        toast.success('Reflektionen har uppdaterats')
-        router.invalidate()
+        onSaved()
       }
     } catch (error) {
       console.error('Failed to update entry:', error)
@@ -53,6 +49,56 @@ export const EditReflectionModal = ({ open, onOpenChange, entry }: EditReflectio
     } finally {
       setIsSaving(false)
     }
+  }
+
+  const hasChanges = selectedMood !== entry.mood || summary.trim() !== entry.summary
+
+  return (
+    <>
+      <div className="mb-6">
+        <h3 className="text-sm font-medium text-slate-300 mb-3">Hur kändes dagen?</h3>
+        <MoodSelector value={selectedMood} onChange={setSelectedMood} />
+      </div>
+
+      <div className="mb-6">
+        <h3 className="text-sm font-medium text-slate-300 mb-3">Sammanfattning</h3>
+        <Textarea value={summary} onChange={setSummary} rows={4} autoResize maxHeight={200} />
+      </div>
+
+      <div className="flex flex-row gap-3">
+        <ModalCloseButton variant="secondary" className="flex-1">
+          Avbryt
+        </ModalCloseButton>
+        <Button
+          onClick={handleSave}
+          disabled={!summary.trim() || isSaving || !hasChanges}
+          className="flex-1"
+        >
+          {isSaving ? 'Sparar...' : 'Uppdatera'}
+        </Button>
+      </div>
+
+      <div className="mt-4 pt-4 border-t border-slate-700/50 flex justify-center">
+        <button
+          onClick={onDeleteClick}
+          className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-red-400 transition-colors duration-200"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+          Ta bort reflektion
+        </button>
+      </div>
+    </>
+  )
+}
+
+export const EditReflectionModal = ({ open, onOpenChange, entry }: EditReflectionModalProps) => {
+  const router = useRouter()
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+
+  const handleSaved = () => {
+    onOpenChange(false)
+    toast.success('Reflektionen har uppdaterats')
+    router.invalidate()
   }
 
   const handleDelete = async () => {
@@ -68,43 +114,14 @@ export const EditReflectionModal = ({ open, onOpenChange, entry }: EditReflectio
     }
   }
 
-  const hasChanges = selectedMood !== entry.mood || summary.trim() !== entry.summary
-
   return (
     <>
       <Modal open={open} onOpenChange={onOpenChange} title="Redigera reflektion">
-        <div className="mb-6">
-          <h3 className="text-sm font-medium text-slate-300 mb-3">Hur kändes dagen?</h3>
-          <MoodSelector value={selectedMood} onChange={setSelectedMood} />
-        </div>
-
-        <div className="mb-6">
-          <h3 className="text-sm font-medium text-slate-300 mb-3">Sammanfattning</h3>
-          <Textarea value={summary} onChange={setSummary} rows={4} autoResize maxHeight={200} />
-        </div>
-
-        <div className="flex flex-row gap-3">
-          <ModalCloseButton variant="secondary" className="flex-1">
-            Avbryt
-          </ModalCloseButton>
-          <Button
-            onClick={handleSave}
-            disabled={!summary.trim() || isSaving || !hasChanges}
-            className="flex-1"
-          >
-            {isSaving ? 'Sparar...' : 'Uppdatera'}
-          </Button>
-        </div>
-
-        <div className="mt-4 pt-4 border-t border-slate-700/50 flex justify-center">
-          <button
-            onClick={() => setIsDeleteDialogOpen(true)}
-            className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-red-400 transition-colors duration-200"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            Ta bort reflektion
-          </button>
-        </div>
+        <EditReflectionForm
+          entry={entry}
+          onSaved={handleSaved}
+          onDeleteClick={() => setIsDeleteDialogOpen(true)}
+        />
       </Modal>
 
       <AlertDialog

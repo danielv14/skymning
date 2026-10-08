@@ -1,4 +1,4 @@
-import Markdown from 'markdown-to-jsx'
+import { Markdown } from 'markdown-to-jsx'
 
 type ChatMarkdownProps = {
   children: string

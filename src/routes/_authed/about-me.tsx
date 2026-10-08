@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { getUserContext, updateUserContext } from '@/server/functions/userContext'
@@ -17,12 +17,9 @@ const AboutMePage = () => {
   const [content, setContent] = useState(userContext.content)
   const [isSaving, setIsSaving] = useState(false)
   const [showSaved, setShowSaved] = useState(false)
-  const [hasChanges, setHasChanges] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
-  useEffect(() => {
-    setHasChanges(content !== userContext.content)
-  }, [content, userContext.content])
+  const hasChanges = content !== userContext.content
 
   const handleSave = async () => {
     setIsSaving(true)
@@ -30,7 +27,6 @@ const AboutMePage = () => {
       await updateUserContext({ data: { content } })
       await router.invalidate()
       setShowSaved(true)
-      setHasChanges(false)
       setTimeout(() => setShowSaved(false), 2000)
     } catch (error) {
       console.error('Failed to save context:', error)

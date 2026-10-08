@@ -8,14 +8,14 @@ type MoodInsightCardProps = {
   insight: MoodInsight
 }
 
-const getTrendIcon = (trend: MoodTrend) => {
+const TrendIcon = ({ trend }: { trend: MoodTrend }) => {
   switch (trend) {
     case 'improving':
-      return TrendingUp
+      return <TrendingUp className="size-5" />
     case 'declining':
-      return TrendingDown
+      return <TrendingDown className="size-5" />
     case 'stable':
-      return Minus
+      return <Minus className="size-5" />
   }
 }
 
@@ -42,7 +42,6 @@ const getGradientClass = (insight: MoodInsight): string => {
 
 export const MoodInsightCard = ({ insight }: MoodInsightCardProps) => {
   const message = getInsightMessage(insight)
-  const TrendIcon = getTrendIcon(insight.trend)
   const trendColor = getTrendColor(insight.trend)
   const gradientClass = getGradientClass(insight)
 
@@ -51,7 +50,7 @@ export const MoodInsightCard = ({ insight }: MoodInsightCardProps) => {
       <div className="flex flex-col h-full">
         <div className="flex items-center justify-between mb-3">
           <div className={`flex items-center gap-1.5 ${trendColor}`}>
-            <TrendIcon className="size-5" />
+            <TrendIcon trend={insight.trend} />
             <span className="text-xs font-semibold uppercase tracking-wider">
               {insight.trend === 'improving' && 'Uppåt'}
               {insight.trend === 'declining' && 'Nedåt'}
