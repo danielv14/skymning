@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import { getUserContext, updateUserContext } from '../../server/functions/userContext'
-import { logoutFn } from '../../server/functions/auth'
-import { Button } from '../../components/ui/Button'
-import { Card } from '../../components/ui/Card'
-import { Textarea } from '../../components/ui/Textarea'
-import { PageHeader } from '../../components/ui/PageHeader'
+import { getUserContext, updateUserContext } from '@/server/functions/userContext'
+import { logoutFn } from '@/server/functions/auth'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { Textarea } from '@/components/ui/Textarea'
+import { PageHeader } from '@/components/ui/PageHeader'
 import { format, parseISO } from 'date-fns'
 import { sv } from 'date-fns/locale'
 import { Check, Info, LogOut } from 'lucide-react'
@@ -17,12 +17,9 @@ const AboutMePage = () => {
   const [content, setContent] = useState(userContext.content)
   const [isSaving, setIsSaving] = useState(false)
   const [showSaved, setShowSaved] = useState(false)
-  const [hasChanges, setHasChanges] = useState(false)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
-  useEffect(() => {
-    setHasChanges(content !== userContext.content)
-  }, [content, userContext.content])
+  const hasChanges = content !== userContext.content
 
   const handleSave = async () => {
     setIsSaving(true)
@@ -30,7 +27,6 @@ const AboutMePage = () => {
       await updateUserContext({ data: { content } })
       await router.invalidate()
       setShowSaved(true)
-      setHasChanges(false)
       setTimeout(() => setShowSaved(false), 2000)
     } catch (error) {
       console.error('Failed to save context:', error)
@@ -55,22 +51,17 @@ const AboutMePage = () => {
 
   return (
     <div className="min-h-screen bg-slate-950">
-      <PageHeader
-        title="Om mig"
-        subtitle="Personlig kontext för AI:n"
-      />
+      <PageHeader title="Om mig" subtitle="Personlig kontext för AI:n" />
 
       <main className="max-w-2xl mx-auto p-6 sm:p-8 space-y-6 sm:space-y-8 stagger-children">
         <Card>
           <div className="space-y-4">
             <div>
-              <h2 className="text-lg font-semibold text-white mb-2">
-                Berätta om dig själv
-              </h2>
+              <h2 className="text-lg font-semibold text-white mb-2">Berätta om dig själv</h2>
               <p className="text-slate-400 text-sm sm:text-base">
-                Skriv information som du vill att AI:n ska känna till när ni pratar.
-                Till exempel vilka dina barn heter, vad du jobbar med, eller andra saker
-                som ger kontext till dina reflektioner.
+                Skriv information som du vill att AI:n ska känna till när ni pratar. Till exempel
+                vilka dina barn heter, vad du jobbar med, eller andra saker som ger kontext till
+                dina reflektioner.
               </p>
             </div>
 
@@ -102,10 +93,7 @@ const AboutMePage = () => {
                     Sparat
                   </span>
                 )}
-                <Button 
-                  onClick={handleSave} 
-                  disabled={isSaving || !hasChanges}
-                >
+                <Button onClick={handleSave} disabled={isSaving || !hasChanges}>
                   {isSaving ? 'Sparar...' : 'Spara'}
                 </Button>
               </div>
@@ -119,11 +107,13 @@ const AboutMePage = () => {
               <Info className="w-4 h-4 text-cyan-400" />
             </div>
             <div>
-              <h3 className="text-sm sm:text-base font-medium text-slate-300 mb-1">Hur används detta?</h3>
+              <h3 className="text-sm sm:text-base font-medium text-slate-300 mb-1">
+                Hur används detta?
+              </h3>
               <p className="text-sm sm:text-base text-slate-400">
-                Informationen du skriver här inkluderas automatiskt i alla dina samtal med AI:n.
-                Det hjälper AI:n att förstå din situation bättre och ge mer relevanta svar utan
-                att du behöver upprepa samma kontext varje gång.
+                Informationen du skriver här inkluderas automatiskt i alla dina samtal med AI:n. Det
+                hjälper AI:n att förstå din situation bättre och ge mer relevanta svar utan att du
+                behöver upprepa samma kontext varje gång.
               </p>
             </div>
           </div>

@@ -1,9 +1,9 @@
-import { Modal, ModalCloseButton } from '../ui/Modal'
+import { Modal, ModalCloseButton } from '@/components/ui/Modal'
 import { SummaryEditor } from './SummaryEditor'
-import { Button } from '../ui/Button'
-import { useAsyncGeneration } from '../../hooks/useAsyncGeneration'
-import { useModalGeneration } from '../../hooks/useModalGeneration'
-import { polishQuickEntry } from '../../server/ai'
+import { Button } from '@/components/ui/Button'
+import { useAsyncGeneration } from '@/hooks/useAsyncGeneration'
+import { useModalGeneration } from '@/hooks/useModalGeneration'
+import { polishQuickEntry } from '@/server/ai'
 
 type QuickPolishModalProps = {
   open: boolean

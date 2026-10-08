@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react'
 import { SendHorizontal } from 'lucide-react'
-import { Textarea } from '../ui/Textarea'
+import { Textarea } from '@/components/ui/Textarea'
 
 type ChatInputBarProps = {
   input: string

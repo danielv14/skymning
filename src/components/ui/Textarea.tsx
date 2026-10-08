@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 
 type TextareaProps = {
   value: string
@@ -30,15 +30,16 @@ export const Textarea = ({
   const internalRef = useRef<HTMLTextAreaElement>(null)
   const textareaRef = (ref as React.RefObject<HTMLTextAreaElement>) ?? internalRef
 
-  useEffect(() => {
-    if (autoResize && textareaRef.current) {
-      const textarea = textareaRef.current
-      textarea.style.height = 'auto'
-      const newHeight = Math.min(textarea.scrollHeight, maxHeight)
-      textarea.style.height = `${newHeight}px`
-      textarea.style.overflowY = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden'
-    }
-  }, [value, autoResize, maxHeight, textareaRef])
+  // Runs after every render (no dependency array) so the height always matches the
+  // content, including when the value is changed programmatically, e.g. cleared after sending.
+  useLayoutEffect(() => {
+    const textarea = textareaRef.current
+    if (!autoResize || !textarea) return
+
+    textarea.style.height = 'auto'
+    textarea.style.height = `${Math.min(textarea.scrollHeight, maxHeight)}px`
+    textarea.style.overflowY = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden'
+  })
 
   const baseStyles =
     'w-full px-4 py-3 rounded-xl border border-slate-600 bg-slate-700/50 text-slate-100 placeholder-slate-500 focus:bg-slate-700 focus:outline-2 focus:-outline-offset-2 focus:outline-emerald-500 focus:border-transparent transition-colors resize-none'

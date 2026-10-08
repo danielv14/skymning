@@ -10,14 +10,7 @@ type ModalProps = {
   footer?: React.ReactNode
 }
 
-export const Modal = ({
-  open,
-  onOpenChange,
-  title,
-  description,
-  children,
-  footer,
-}: ModalProps) => {
+export const Modal = ({ open, onOpenChange, title, description, children, footer }: ModalProps) => {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
@@ -43,9 +36,6 @@ export const Modal = ({
 
 type ModalCloseButtonProps = Omit<ButtonProps, 'onClick'>
 
-export const ModalCloseButton = ({
-  children,
-  ...props
-}: ModalCloseButtonProps) => {
+export const ModalCloseButton = ({ children, ...props }: ModalCloseButtonProps) => {
   return <Dialog.Close render={<Button {...props}>{children}</Button>} />
 }

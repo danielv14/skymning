@@ -22,7 +22,7 @@ En personlig reflektions- och dagboksapp på svenska. Följ ditt mående över t
 - **Hosting**: Cloudflare Workers
 - **Database**: Cloudflare D1 (SQLite-compatible) med Drizzle ORM
 - **Styling**: Tailwind CSS v4
-- **AI**: TanStack AI med OpenAI (gpt-4o)
+- **AI**: TanStack AI med OpenAI (gpt-5.2)
 - **Language**: TypeScript (strict mode)
 
 ## Kom igång
@@ -53,11 +53,11 @@ AUTH_SECRET=ditt-hemliga-losenord
 SESSION_SECRET=din-32-tecken-langa-krypteringsnyckel
 ```
 
-| Variabel | Beskrivning | Krav |
-|----------|-------------|------|
-| `OPENAI_API_KEY` | API-nyckel från OpenAI | Krävs för AI-funktioner |
-| `AUTH_SECRET` | Lösenordet du anger vid inloggning | Valfri sträng |
-| `SESSION_SECRET` | Intern nyckel för att kryptera session-cookies | Minst 32 tecken |
+| Variabel         | Beskrivning                                    | Krav                    |
+| ---------------- | ---------------------------------------------- | ----------------------- |
+| `OPENAI_API_KEY` | API-nyckel från OpenAI                         | Krävs för AI-funktioner |
+| `AUTH_SECRET`    | Lösenordet du anger vid inloggning             | Valfri sträng           |
+| `SESSION_SECRET` | Intern nyckel för att kryptera session-cookies | Minst 32 tecken         |
 
 4. Starta utvecklingsservern:
 
@@ -78,8 +78,8 @@ bun run build              # Produktionsbygge
 bun run preview            # Förhandsgranska produktionsbygge
 bun run deploy             # Bygg och deploya till Cloudflare Workers
 
-# Type Checking
-npx tsc --noEmit           # Kör TypeScript-kontroll
+# Kvalitetskontroller
+bun run check              # Lint, formatering, TypeScript och tester
 
 # Database (lokal D1)
 bun db:push                # Synka schema till lokal D1

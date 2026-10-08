@@ -27,9 +27,7 @@ export const PageHeader = ({
         </Link>
         <div className="flex-1 min-w-0">
           <h1 className="text-xl font-semibold text-white tracking-tight">{title}</h1>
-          {subtitle && (
-            <p className="text-sm text-slate-400 mt-0.5">{subtitle}</p>
-          )}
+          {subtitle && <p className="text-sm text-slate-400 mt-0.5">{subtitle}</p>}
         </div>
         {rightContent && <div className="shrink-0">{rightContent}</div>}
       </div>

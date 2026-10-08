@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { Modal, ModalCloseButton } from './ui/Modal'
@@ -15,24 +15,20 @@ type EditSummaryModalProps = {
   errorMessage: string
 }
 
-export const EditSummaryModal = ({
-  open,
-  onOpenChange,
-  title,
-  summary: initialSummary,
+type EditSummaryFormProps = Pick<EditSummaryModalProps, 'onSave' | 'errorMessage'> & {
+  initialSummary: string
+  onSaved: () => void
+}
+
+// Mounted only while the modal is open, so the form starts from the saved summary every time
+const EditSummaryForm = ({
+  initialSummary,
   onSave,
-  successMessage,
+  onSaved,
   errorMessage,
-}: EditSummaryModalProps) => {
-  const router = useRouter()
+}: EditSummaryFormProps) => {
   const [summary, setSummary] = useState(initialSummary)
   const [isSaving, setIsSaving] = useState(false)
-
-  useEffect(() => {
-    if (open) {
-      setSummary(initialSummary)
-    }
-  }, [open, initialSummary])
 
   const handleSave = async () => {
     if (!summary.trim()) return
@@ -41,9 +37,7 @@ export const EditSummaryModal = ({
     try {
       const updated = await onSave(summary.trim())
       if (updated) {
-        onOpenChange(false)
-        toast.success(successMessage)
-        router.invalidate()
+        onSaved()
       }
     } catch (error) {
       console.error('Failed to update summary:', error)
@@ -56,15 +50,9 @@ export const EditSummaryModal = ({
   const hasChanges = summary.trim() !== initialSummary
 
   return (
-    <Modal open={open} onOpenChange={onOpenChange} title={title}>
+    <>
       <div className="mb-6">
-        <Textarea
-          value={summary}
-          onChange={setSummary}
-          rows={6}
-          autoResize
-          maxHeight={300}
-        />
+        <Textarea value={summary} onChange={setSummary} rows={6} autoResize maxHeight={300} />
       </div>
 
       <div className="flex flex-row gap-3">
@@ -79,6 +67,35 @@ export const EditSummaryModal = ({
           {isSaving ? 'Sparar...' : 'Uppdatera'}
         </Button>
       </div>
+    </>
+  )
+}
+
+export const EditSummaryModal = ({
+  open,
+  onOpenChange,
+  title,
+  summary,
+  onSave,
+  successMessage,
+  errorMessage,
+}: EditSummaryModalProps) => {
+  const router = useRouter()
+
+  const handleSaved = () => {
+    onOpenChange(false)
+    toast.success(successMessage)
+    router.invalidate()
+  }
+
+  return (
+    <Modal open={open} onOpenChange={onOpenChange} title={title}>
+      <EditSummaryForm
+        initialSummary={summary}
+        onSave={onSave}
+        onSaved={handleSaved}
+        errorMessage={errorMessage}
+      />
     </Modal>
   )
 }

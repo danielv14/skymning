@@ -1,12 +1,7 @@
-import {
-  HeadContent,
-  Outlet,
-  Scripts,
-  createRootRoute,
-} from '@tanstack/react-router'
+import { HeadContent, Outlet, Scripts, createRootRoute } from '@tanstack/react-router'
 import { Toaster } from 'sonner'
 
-import appCss from '../styles.css?url'
+import appCss from '@/styles.css?url'
 
 const RootComponent = () => {
   return (
@@ -41,7 +36,8 @@ export const Route = createRootRoute({
       },
       {
         name: 'viewport',
-        content: 'width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content',
+        content:
+          'width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content',
       },
       {
         title: 'Skymning',

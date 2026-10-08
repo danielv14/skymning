@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Clock, MessageCircle, Trash2, ArrowRight, PenLine } from 'lucide-react'
-import { Modal } from '../ui/Modal'
-import { Button } from '../ui/Button'
-import { formatRelativeDay } from '../../utils/date'
-import { truncateText } from '../../utils/string'
+import { Modal } from '@/components/ui/Modal'
+import { Button } from '@/components/ui/Button'
+import { formatRelativeDay } from '@/utils/date'
+import { truncateText } from '@/utils/string'
 
 type PastChatRecoveryModalProps = {
   open: boolean
@@ -30,7 +30,7 @@ export const PastChatRecoveryModal = ({
 
   const relativeDateLabel = formatRelativeDay(pastChat.date)
   const firstUserMessage = pastChat.messages.find((m) => m.role === 'user')
-  const lastAssistantMessage = [...pastChat.messages].reverse().find((m) => m.role === 'assistant')
+  const lastAssistantMessage = pastChat.messages.findLast((m) => m.role === 'assistant')
 
   const handleContinue = async () => {
     setLoadingAction('continue')
@@ -98,7 +98,8 @@ export const PastChatRecoveryModal = ({
           )}
         </div>
         <p className="text-xs text-slate-500 text-center mt-2">
-          {pastChat.messageCount} {pastChat.messageCount === 1 ? 'meddelande' : 'meddelanden'} totalt
+          {pastChat.messageCount} {pastChat.messageCount === 1 ? 'meddelande' : 'meddelanden'}{' '}
+          totalt
         </p>
       </div>
 

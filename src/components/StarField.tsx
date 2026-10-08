@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useMemo } from 'react'
+import { useIsClient } from '@/hooks/useIsClient'
 
 type Star = {
   id: number
@@ -28,12 +29,10 @@ const generateStars = (count: number): Star[] => {
 }
 
 export const StarField = ({ starCount = 40, className = '' }: StarFieldProps) => {
-  const [stars, setStars] = useState<Star[]>([])
+  const isClient = useIsClient()
 
-  // Generate stars only on client to avoid hydration mismatch
-  useEffect(() => {
-    setStars(generateStars(starCount))
-  }, [starCount])
+  // Random positions are generated only on the client to avoid a hydration mismatch
+  const stars = useMemo(() => (isClient ? generateStars(starCount) : []), [isClient, starCount])
 
   return (
     <div

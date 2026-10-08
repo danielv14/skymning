@@ -77,17 +77,17 @@ type WeekArchetype = 'terrible' | 'tough' | 'meh' | 'normal' | 'good' | 'great'
 
 const WEEK_MOOD_WEIGHTS: Record<WeekArchetype, number[]> = {
   //                          mood: 1     2     3     4     5
-  terrible: /* avg ~2.0 */       [0.25, 0.35, 0.25, 0.10, 0.05],
-  tough:    /* avg ~2.5 */       [0.10, 0.35, 0.30, 0.20, 0.05],
-  meh:      /* avg ~2.8 */       [0.05, 0.25, 0.40, 0.20, 0.10],
-  normal:   /* avg ~3.2 */       [0.05, 0.15, 0.35, 0.30, 0.15],
-  good:     /* avg ~3.7 */       [0.03, 0.07, 0.25, 0.40, 0.25],
-  great:    /* avg ~4.2 */       [0.02, 0.05, 0.13, 0.35, 0.45],
+  terrible: /* avg ~2.0 */ [0.25, 0.35, 0.25, 0.1, 0.05],
+  tough: /* avg ~2.5 */ [0.1, 0.35, 0.3, 0.2, 0.05],
+  meh: /* avg ~2.8 */ [0.05, 0.25, 0.4, 0.2, 0.1],
+  normal: /* avg ~3.2 */ [0.05, 0.15, 0.35, 0.3, 0.15],
+  good: /* avg ~3.7 */ [0.03, 0.07, 0.25, 0.4, 0.25],
+  great: /* avg ~4.2 */ [0.02, 0.05, 0.13, 0.35, 0.45],
 }
 
 // How likely to skip a day per archetype (tougher weeks = more skips)
 const WEEK_SKIP_CHANCE: Record<WeekArchetype, number> = {
-  terrible: 0.30,
+  terrible: 0.3,
   tough: 0.25,
   meh: 0.18,
   normal: 0.12,
@@ -98,19 +98,19 @@ const WEEK_SKIP_CHANCE: Record<WeekArchetype, number> = {
 // A hand-crafted narrative arc over ~13 weeks (3 months)
 // Reads chronologically: week 0 is the oldest, week 12 is the most recent
 const WEEK_NARRATIVE: WeekArchetype[] = [
-  'normal',    // w0: Starting point - ordinary life
-  'good',      // w1: Things pick up
-  'good',      // w2: Continued good stretch
-  'meh',       // w3: Slight dip - maybe work stress
-  'tough',     // w4: A tough week hits
-  'terrible',  // w5: Rock bottom - hardest week
-  'meh',       // w6: Slow recovery
-  'normal',    // w7: Getting back on track
-  'good',      // w8: Feeling better
-  'great',     // w9: Peak - a really great week
-  'good',      // w10: Still riding high
-  'normal',    // w11: Settling back
-  'good',      // w12: Recent - ending on a positive note
+  'normal', // w0: Starting point - ordinary life
+  'good', // w1: Things pick up
+  'good', // w2: Continued good stretch
+  'meh', // w3: Slight dip - maybe work stress
+  'tough', // w4: A tough week hits
+  'terrible', // w5: Rock bottom - hardest week
+  'meh', // w6: Slow recovery
+  'normal', // w7: Getting back on track
+  'good', // w8: Feeling better
+  'great', // w9: Peak - a really great week
+  'good', // w10: Still riding high
+  'normal', // w11: Settling back
+  'good', // w12: Recent - ending on a positive note
 ]
 
 // -- Weekly summaries matched to archetypes --
@@ -225,7 +225,7 @@ const clearToday = async () => {
   const today = format(new Date(), 'yyyy-MM-dd')
   console.log(`Clearing today's entry (${today})...`)
   await execSql(`DELETE FROM entries WHERE date = '${today}'`)
-  console.log('Today\'s entry cleared!')
+  console.log("Today's entry cleared!")
 }
 
 const seed = async () => {
@@ -242,7 +242,8 @@ const seed = async () => {
     const weekIndex = getWeekIndex(daysBack)
 
     // Map daysBack to narrative arc (oldest = highest weekIndex)
-    const narrativeIndex = WEEK_NARRATIVE.length - 1 - Math.min(weekIndex, WEEK_NARRATIVE.length - 1)
+    const narrativeIndex =
+      WEEK_NARRATIVE.length - 1 - Math.min(weekIndex, WEEK_NARRATIVE.length - 1)
     const archetype = WEEK_NARRATIVE[narrativeIndex]
     const skipChance = WEEK_SKIP_CHANCE[archetype]
 
@@ -279,7 +280,7 @@ const seed = async () => {
     const escapedSummary = entry.summary.replace(/'/g, "''")
     const createdAt = new Date().toISOString()
     await execSql(
-      `INSERT INTO entries (date, mood, summary, created_at) VALUES ('${entry.date}', ${entry.mood}, '${escapedSummary}', '${createdAt}')`
+      `INSERT INTO entries (date, mood, summary, created_at) VALUES ('${entry.date}', ${entry.mood}, '${escapedSummary}', '${createdAt}')`,
     )
   }
   console.log(`   ${entriesData.length} reflections created`)
@@ -295,7 +296,7 @@ const seed = async () => {
     const summaryText = randomFrom(WEEKLY_SUMMARIES_BY_ARCHETYPE[archetype]).replace(/'/g, "''")
     const createdAt = new Date().toISOString()
     await execSql(
-      `INSERT INTO weekly_summaries (year, week, summary, created_at) VALUES (${yearStr}, ${weekStr}, '${summaryText}', '${createdAt}')`
+      `INSERT INTO weekly_summaries (year, week, summary, created_at) VALUES (${yearStr}, ${weekStr}, '${summaryText}', '${createdAt}')`,
     )
     weekCount++
   }
@@ -314,7 +315,7 @@ const seed = async () => {
     const summaryText = randomFrom(MONTHLY_SUMMARIES_BY_TONE[tone]).replace(/'/g, "''")
     const createdAt = new Date().toISOString()
     await execSql(
-      `INSERT INTO monthly_summaries (year, month, summary, created_at) VALUES (${yearStr}, ${monthStr}, '${summaryText}', '${createdAt}')`
+      `INSERT INTO monthly_summaries (year, month, summary, created_at) VALUES (${yearStr}, ${monthStr}, '${summaryText}', '${createdAt}')`,
     )
     monthCount++
   }
@@ -323,7 +324,12 @@ const seed = async () => {
   // Log the narrative arc for visibility
   console.log('\n   Narrative arc (oldest → newest):')
   const archetypeEmoji: Record<WeekArchetype, string> = {
-    terrible: '💀', tough: '😔', meh: '😐', normal: '🙂', good: '😊', great: '🌟',
+    terrible: '💀',
+    tough: '😔',
+    meh: '😐',
+    normal: '🙂',
+    good: '😊',
+    great: '🌟',
   }
   const arcLine = WEEK_NARRATIVE.map((a) => `${archetypeEmoji[a]} ${a}`).join(' → ')
   console.log(`   ${arcLine}`)
@@ -332,10 +338,25 @@ const seed = async () => {
 }
 
 const PAST_CHAT_MESSAGES = [
-  { role: 'user', content: 'Idag har varit en lång dag på jobbet. Mycket möten och lite tid för fokusarbete.' },
-  { role: 'assistant', content: 'Det låter som en intensiv dag! Hur känner du dig efter alla möten? Fick du ändå känslan av att ha åstadkommit något?' },
-  { role: 'user', content: 'Jo, faktiskt. Ett av mötena ledde till ett viktigt beslut som vi har skjutit upp länge.' },
-  { role: 'assistant', content: 'Vad bra att ni fick till det beslutet! Det måste kännas skönt. Är det något annat som ligger i tankarna inför kvällen?' },
+  {
+    role: 'user',
+    content: 'Idag har varit en lång dag på jobbet. Mycket möten och lite tid för fokusarbete.',
+  },
+  {
+    role: 'assistant',
+    content:
+      'Det låter som en intensiv dag! Hur känner du dig efter alla möten? Fick du ändå känslan av att ha åstadkommit något?',
+  },
+  {
+    role: 'user',
+    content:
+      'Jo, faktiskt. Ett av mötena ledde till ett viktigt beslut som vi har skjutit upp länge.',
+  },
+  {
+    role: 'assistant',
+    content:
+      'Vad bra att ni fick till det beslutet! Det måste kännas skönt. Är det något annat som ligger i tankarna inför kvällen?',
+  },
 ]
 
 const seedPastChat = async () => {
@@ -349,7 +370,7 @@ const seedPastChat = async () => {
     const createdAt = new Date().toISOString()
     const escapedContent = msg.content.replace(/'/g, "''")
     await execSql(
-      `INSERT INTO chat_messages (date, role, content, order_index, created_at) VALUES ('${yesterday}', '${msg.role}', '${escapedContent}', ${i}, '${createdAt}')`
+      `INSERT INTO chat_messages (date, role, content, order_index, created_at) VALUES ('${yesterday}', '${msg.role}', '${escapedContent}', ${i}, '${createdAt}')`,
     )
   }
 
@@ -364,7 +385,7 @@ const syncProd = async () => {
   console.log('Exporting production database...')
   try {
     await $`bunx wrangler d1 export skymning-db --remote --output=${tempFile}`.quiet()
-  } catch (error) {
+  } catch {
     console.error('Failed to export production database.')
     console.error('Make sure you are authenticated with Cloudflare (run: wrangler login)')
     process.exit(1)
@@ -380,7 +401,7 @@ const syncProd = async () => {
     APP_TABLES.map((table) => [
       table,
       (sqlContent.match(new RegExp(`INSERT INTO "${table}"`, 'g')) || []).length,
-    ])
+    ]),
   )
 
   // Use grep to filter - keep only INSERT statements for app tables

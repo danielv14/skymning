@@ -1,12 +1,9 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { subDays } from 'date-fns'
-import { getDb } from '../db'
-import { userContext } from '../db/schema'
+import { getDb } from '@/server/db'
+import { userContext } from '@/server/db/schema'
 import { eq } from 'drizzle-orm'
-import { authMiddleware } from '../middleware/auth'
-
-const STALENESS_DAYS = 30
+import { authMiddleware } from '@/server/middleware/auth'
 
 export const getUserContext = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
@@ -15,10 +12,7 @@ export const getUserContext = createServerFn({ method: 'GET' })
     let context = await db.query.userContext.findFirst()
 
     if (!context) {
-      const [newContext] = await db
-        .insert(userContext)
-        .values({ content: '', historyCount: 10 })
-        .returning()
+      const [newContext] = await db.insert(userContext).values({ content: '' }).returning()
       context = newContext
     }
 
@@ -53,29 +47,6 @@ export const updateUserContext = createServerFn({ method: 'POST' })
         .values({ content: data.content })
         .returning()
       return newContext
-    }
-  })
-
-export const getUserContextStaleness = createServerFn({ method: 'GET' })
-  .middleware([authMiddleware])
-  .handler(async () => {
-    const db = getDb()
-    const context = await db.query.userContext.findFirst()
-
-    if (!context || !context.content) {
-      return { isStale: false, updatedAt: null }
-    }
-
-    const threshold = subDays(new Date(), STALENESS_DAYS)
-    const updatedAt = new Date(context.updatedAt)
-    const isOld = updatedAt < threshold
-
-    const isDismissed =
-      context.dismissedAt && new Date(context.dismissedAt) > threshold
-
-    return {
-      isStale: isOld && !isDismissed,
-      updatedAt: context.updatedAt,
     }
   })
 

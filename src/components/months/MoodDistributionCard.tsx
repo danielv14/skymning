@@ -1,7 +1,7 @@
 import { BarChart3 } from 'lucide-react'
-import { MOODS } from '../../constants'
-import { Card } from '../ui/Card'
-import type { Entry } from '../../server/db/schema'
+import { MOODS } from '@/constants'
+import { Card } from '@/components/ui/Card'
+import type { Entry } from '@/server/db/schema'
 
 type MoodDistributionCardProps = {
   entries: Entry[]
@@ -27,10 +27,11 @@ export const MoodDistributionCard = ({ entries }: MoodDistributionCardProps) => 
         </div>
 
         <div className="space-y-2.5">
-          {[...MOODS].reverse().map((mood) => {
+          {MOODS.toReversed().map((mood) => {
             const count = counts.get(mood.value) ?? 0
             const percentage = entries.length > 0 ? (count / entries.length) * 100 : 0
-            const barWidth = maxCount > 0 ? Math.max(count > 0 ? 8 : 0, (count / maxCount) * 100) : 0
+            const barWidth =
+              maxCount > 0 ? Math.max(count > 0 ? 8 : 0, (count / maxCount) * 100) : 0
 
             return (
               <div key={mood.value} className="flex items-center gap-3">

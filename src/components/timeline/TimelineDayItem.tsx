@@ -1,15 +1,15 @@
 import { useState } from 'react'
-import { format, parseISO, isFuture, differenceInDays, startOfDay } from 'date-fns'
+import { differenceInCalendarDays, format, parseISO } from 'date-fns'
 import { sv } from 'date-fns/locale'
 import { Link } from '@tanstack/react-router'
 import { Pencil } from 'lucide-react'
-import type { Entry } from '../../server/db/schema'
-import { MOODS, getMoodColor, MAX_DAYS_TO_FILL_IN } from '../../constants'
-import { Card } from '../ui/Card'
-import { MoodEmoji } from '../mood/MoodEmoji'
-import { EditReflectionModal } from '../reflection/EditReflectionModal'
-import { ExpandableText } from '../ui/ExpandableText'
-import { formatRelativeDay } from '../../utils/date'
+import type { Entry } from '@/server/db/schema'
+import { MOODS, getMoodColor, MAX_DAYS_TO_FILL_IN } from '@/constants'
+import { Card } from '@/components/ui/Card'
+import { MoodEmoji } from '@/components/mood/MoodEmoji'
+import { EditReflectionModal } from '@/components/reflection/EditReflectionModal'
+import { ExpandableText } from '@/components/ui/ExpandableText'
+import { formatRelativeDay, getTodayDate } from '@/utils/date'
 
 type TimelineDayItemProps = {
   date: string
@@ -18,15 +18,15 @@ type TimelineDayItemProps = {
 }
 
 const getMoodCardClass = (mood: number): string => {
-  const name = MOODS.find(m => m.value === mood)?.name || 'okay'
+  const name = MOODS.find((m) => m.value === mood)?.name || 'okay'
   return `card-mood-${name}`
 }
 
 export const TimelineDayItem = ({ date, entry, useRelativeDates }: TimelineDayItemProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const parsedDate = parseISO(date)
-  const isFutureDay = isFuture(parsedDate)
-  const daysAgo = differenceInDays(startOfDay(new Date()), startOfDay(parsedDate))
+  const daysAgo = differenceInCalendarDays(getTodayDate(), parsedDate)
+  const isFutureDay = daysAgo < 0
   const canFillIn = !isFutureDay && daysAgo <= MAX_DAYS_TO_FILL_IN
   const dayAbbrev = format(parsedDate, 'EEEEE', { locale: sv }).toUpperCase()
 

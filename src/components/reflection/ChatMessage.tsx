@@ -1,5 +1,5 @@
-import { ChatMarkdown } from '../ui/ChatMarkdown'
-import { TypingIndicator } from '../ui/TypingIndicator'
+import { ChatMarkdown } from '@/components/ui/ChatMarkdown'
+import { TypingIndicator } from '@/components/ui/TypingIndicator'
 
 type ChatMessageProps = {
   role: 'user' | 'assistant'
@@ -31,11 +31,7 @@ export const ChatMessage = ({ role, text, isStreaming = false, time }: ChatMessa
           </div>
         )}
       </div>
-      {time && (
-        <span className="text-xs text-slate-500 mt-1.5 px-1">
-          {time}
-        </span>
-      )}
+      {time && <span className="text-xs text-slate-500 mt-1.5 px-1">{time}</span>}
     </div>
   )
 }

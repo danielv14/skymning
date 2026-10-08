@@ -1,5 +1,5 @@
-import { MOODS } from '../../constants'
-import { MoodEmoji } from '../mood/MoodEmoji'
+import { MOODS } from '@/constants'
+import { MoodEmoji } from '@/components/mood/MoodEmoji'
 
 type MoodSelectorProps = {
   value: number | null
@@ -18,9 +18,7 @@ export const MoodSelector = ({ value, onChange }: MoodSelectorProps) => {
             type="button"
             onClick={() => onChange(moodValue)}
             className={`relative p-3 rounded-2xl transition-all duration-300 cursor-pointer ${
-              isSelected
-                ? 'scale-110'
-                : 'hover:bg-slate-700/30 hover:scale-105 active:scale-95'
+              isSelected ? 'scale-110' : 'hover:bg-slate-700/30 hover:scale-105 active:scale-95'
             }`}
             style={
               isSelected

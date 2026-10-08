@@ -2,54 +2,27 @@ import { createFileRoute } from '@tanstack/react-router'
 import { SendHorizontal, Trash2 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
-import { ChatMessage } from '../../components/reflection/ChatMessage'
-import { AlertDialog } from '../../components/ui/AlertDialog'
-import { Button } from '../../components/ui/Button'
-import { PageHeader } from '../../components/ui/PageHeader'
-import { Textarea } from '../../components/ui/Textarea'
-import {
-  clearExploreChat,
-  getExploreChatMessages,
-} from '../../server/functions/exploreChat'
-import { getMessageText } from '../../utils/messages'
-import { useExploreChat } from '../../hooks/useExploreChat'
-import { formatTime } from '../../utils/date'
+import { ChatMessage } from '@/components/reflection/ChatMessage'
+import { AlertDialog } from '@/components/ui/AlertDialog'
+import { Button } from '@/components/ui/Button'
+import { PageHeader } from '@/components/ui/PageHeader'
+import { Textarea } from '@/components/ui/Textarea'
+import { clearExploreChat, getExploreChatMessages } from '@/server/functions/exploreChat'
+import { getMessageText } from '@/utils/messages'
+import { useExploreChat } from '@/hooks/useExploreChat'
+import { useScrollToBottom } from '@/hooks/useScrollToBottom'
+import { formatTime } from '@/utils/date'
 
 const ExplorePage = () => {
   const { existingMessages } = Route.useLoaderData()
   const [clearDialogOpen, setClearDialogOpen] = useState(false)
   const [input, setInput] = useState('')
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const hasScrolledOnMount = useRef(false)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  const { messages, isLoading, sendAndPersist, resetMessages } =
-    useExploreChat({ existingMessages })
-
-  const scrollToBottom = (smooth = false) => {
-    const container = scrollContainerRef.current
-    if (!container) return
-
-    if (smooth) {
-      container.scrollTo({
-        top: container.scrollHeight,
-        behavior: 'smooth',
-      })
-    } else {
-      container.scrollTop = container.scrollHeight
-    }
-  }
-
-  useEffect(() => {
-    if (messages.length === 0) return
-
-    if (!hasScrolledOnMount.current) {
-      requestAnimationFrame(() => scrollToBottom(false))
-      hasScrolledOnMount.current = true
-    } else {
-      scrollToBottom(true)
-    }
-  }, [messages])
+  const { messages, isLoading, sendAndPersist, resetMessages } = useExploreChat({
+    existingMessages,
+  })
+  const scrollContainerRef = useScrollToBottom<HTMLDivElement>(messages)
 
   useEffect(() => {
     textareaRef.current?.focus()
@@ -121,10 +94,7 @@ const ExplorePage = () => {
           }
         />
 
-        <div
-          ref={scrollContainerRef}
-          className="flex-1 min-h-0 overflow-y-auto overscroll-contain"
-        >
+        <div ref={scrollContainerRef} className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
           <div className="max-w-2xl mx-auto px-4 sm:px-8 py-6 space-y-4">
             {messages.length === 0 && !isLoading && (
               <div className="text-center py-16 sm:py-20">
@@ -138,8 +108,7 @@ const ExplorePage = () => {
                   Utforska dina reflektioner
                 </h2>
                 <p className="text-slate-400 text-base sm:text-lg max-w-sm mx-auto leading-relaxed mb-6">
-                  Ställ frågor om din historik, hitta mönster, eller gräv i
-                  specifika perioder
+                  Ställ frågor om din historik, hitta mönster, eller gräv i specifika perioder
                 </p>
                 <div className="flex flex-wrap justify-center gap-2 max-w-md mx-auto">
                   {[

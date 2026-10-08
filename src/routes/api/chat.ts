@@ -1,128 +1,75 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { chat, convertMessagesToModelMessages, toServerSentEventsResponse } from '@tanstack/ai'
-import type { ModelMessage, UIMessage } from '@tanstack/ai'
-import { desc } from 'drizzle-orm'
-import { z } from 'zod'
+import { chat, toServerSentEventsResponse } from '@tanstack/ai'
 import { format } from 'date-fns'
 import { sv } from 'date-fns/locale'
-import { REFLECTION_SYSTEM_PROMPT } from '../../server/ai/prompts'
-import { openai } from '../../server/ai/client'
-import { chatTools } from '../../server/ai/tools'
-import { getUserContextPrompt } from '../../server/ai/userContext'
-import { getDb } from '../../server/db'
-import { entries } from '../../server/db/schema'
-import { getMoodLabel } from '../../constants'
-import { requestAuthMiddleware } from '../../server/middleware/auth'
-import { chatLimiter } from '../../server/auth/rateLimit'
-import { getTodayDateString, subtractDays } from '../../utils/date'
+import { getMoodLabel } from '@/constants'
+import { parseChatRequest } from '@/server/ai/chatRequest'
+import { openai } from '@/server/ai/client'
+import { REFLECTION_SYSTEM_PROMPT } from '@/server/ai/prompts'
+import { chatTools } from '@/server/ai/tools'
+import { getUserContextPrompt } from '@/server/ai/userContext'
+import { requestAuthMiddleware } from '@/server/middleware/auth'
+import { findRecentEntries, findStreak } from '@/server/queries/entries'
+import { getCurrentHour, getTodayDate, getTodayDateString, subtractDays } from '@/utils/date'
 
-const chatRequestSchema = z.object({
-  messages: z.array(z.any()).min(1).max(100),
-})
+const RECENT_ENTRIES_IN_PROMPT = 5
+
+const getTimeOfDay = (hour: number) => {
+  if (hour < 10) return 'morgon'
+  if (hour < 17) return 'eftermiddag'
+  return 'kväll'
+}
 
 export const Route = createFileRoute('/api/chat')({
   server: {
     middleware: [requestAuthMiddleware],
     handlers: {
       POST: async ({ request }) => {
-        const clientIp = request.headers.get('CF-Connecting-IP') ?? 'unknown'
+        const chatRequest = await parseChatRequest(request, 'CHAT_RATE_LIMITER')
+        if (!chatRequest.success) return chatRequest.response
 
-        if (chatLimiter.isRateLimited(clientIp)) {
-          return new Response(
-            JSON.stringify({ error: 'Too many requests. Please wait a few minutes.' }),
-            { status: 429, headers: { 'Content-Type': 'application/json' } }
-          )
-        }
-
-        chatLimiter.recordAttempt(clientIp)
-
-        const body = await request.json()
-        const parsed = chatRequestSchema.safeParse(body)
-
-        if (!parsed.success) {
-          return new Response(
-            JSON.stringify({ error: 'Invalid request body' }),
-            { status: 400, headers: { 'Content-Type': 'application/json' } }
-          )
-        }
-
-        const modelMessages = convertMessagesToModelMessages(
-          parsed.data.messages as Array<UIMessage>
-        ) as Array<ModelMessage<string>>
-
-        const db = getDb()
-        const [userContextPrompt, recentEntriesResult] = await Promise.all([
+        const [userContextPrompt, recentEntries, streak] = await Promise.all([
           getUserContextPrompt(),
-          db.query.entries.findMany({
-            columns: {
-              date: true,
-              mood: true,
-              summary: true,
-            },
-            orderBy: [desc(entries.date)],
-            limit: 5,
-          }),
+          findRecentEntries(RECENT_ENTRIES_IN_PROMPT),
+          findStreak(),
         ])
 
-        let previousEntriesPrompt = ''
-        if (recentEntriesResult.length > 0) {
-          const entriesText = [...recentEntriesResult]
-            .reverse()
-            .map(
-              (e) => `[${e.date}] Humör: ${getMoodLabel(e.mood)}\n${e.summary}`
-            )
-            .join('\n\n')
-
-          previousEntriesPrompt = `## Användarens senaste reflektioner (urval)\nNedan visas de ${recentEntriesResult.length} senaste reflektionerna. Användaren kan ha fler -- använd dina verktyg om du behöver mer historik.\n\n${entriesText}`
-        }
-
-        // Build current context for greeting and conversation awareness
-        const todayStr = getTodayDateString()
-        const weekday = format(new Date(), 'EEEE', { locale: sv })
-        const hour = new Date().getHours()
-        const timeOfDay = hour < 10 ? 'morgon' : hour < 17 ? 'eftermiddag' : 'kväll'
-
-        const yesterdayStr = subtractDays(todayStr, 1)
-        const yesterdayEntry = recentEntriesResult.find((e) => e.date === yesterdayStr)
-
-        let streak = 0
-        if (recentEntriesResult.length > 0) {
-          const latestDate = recentEntriesResult[0].date
-          if (latestDate === todayStr || latestDate === yesterdayStr) {
-            const dateSet = new Set(recentEntriesResult.map((e) => e.date))
-            let checkDate = latestDate
-            while (dateSet.has(checkDate)) {
-              streak++
-              checkDate = subtractDays(checkDate, 1)
-            }
-          }
-        }
+        const yesterday = subtractDays(getTodayDateString(), 1)
+        const yesterdayEntry = recentEntries.find((entry) => entry.date === yesterday)
 
         const contextLines = [
-          `- Veckodag: ${weekday}`,
-          `- Tid på dygnet: ${timeOfDay}`,
+          `- Veckodag: ${format(getTodayDate(), 'EEEE', { locale: sv })}`,
+          `- Tid på dygnet: ${getTimeOfDay(getCurrentHour())}`,
           `- Streak: ${streak} dagar i rad`,
         ]
         if (yesterdayEntry) {
           contextLines.push(`- Gårdagens humör: ${getMoodLabel(yesterdayEntry.mood)}`)
         }
 
-        const systemPrompts = [REFLECTION_SYSTEM_PROMPT]
-
-        systemPrompts.push(`## Aktuell kontext\n${contextLines.join('\n')}`)
+        const systemPrompts = [
+          REFLECTION_SYSTEM_PROMPT,
+          `## Aktuell kontext\n${contextLines.join('\n')}`,
+        ]
 
         if (userContextPrompt) {
           systemPrompts.push(userContextPrompt)
         }
 
-        if (previousEntriesPrompt) {
-          systemPrompts.push(previousEntriesPrompt)
+        if (recentEntries.length > 0) {
+          const entriesText = recentEntries
+            .toReversed()
+            .map((entry) => `[${entry.date}] Humör: ${getMoodLabel(entry.mood)}\n${entry.summary}`)
+            .join('\n\n')
+
+          systemPrompts.push(
+            `## Användarens senaste reflektioner (urval)\nNedan visas de ${recentEntries.length} senaste reflektionerna. Användaren kan ha fler -- använd dina verktyg om du behöver mer historik.\n\n${entriesText}`,
+          )
         }
 
         const stream = chat({
           adapter: openai,
           systemPrompts,
-          messages: modelMessages,
+          messages: chatRequest.modelMessages,
           tools: chatTools,
         })
 

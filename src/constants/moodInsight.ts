@@ -1,3 +1,6 @@
+import { getDayOfYear } from 'date-fns'
+import { getTodayDate } from '@/utils/date'
+
 export type MoodTrend = 'improving' | 'declining' | 'stable'
 export type MoodStability = 'stable' | 'fluctuating'
 export type MoodLevel = 'low' | 'medium' | 'high'
@@ -105,13 +108,9 @@ const FLUCTUATING_ADDITIONS: string[] = [
 
 // Changes daily but stays consistent for SSR/client to avoid hydration mismatch
 const getStableIndex = (insight: MoodInsight, arrayLength: number): number => {
-  const today = new Date()
-  const dayOfYear = Math.floor(
-    (today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) /
-      (1000 * 60 * 60 * 24)
-  )
+  const dayOfYear = getDayOfYear(getTodayDate())
   const hash = Math.abs(
-    Math.round(insight.average * 1000) + insight.entryCount * 7 + dayOfYear * 13
+    Math.round(insight.average * 1000) + insight.entryCount * 7 + dayOfYear * 13,
   )
   return hash % arrayLength
 }
@@ -137,10 +136,7 @@ export const calculateMoodLevel = (average: number): MoodLevel => {
   return 'low'
 }
 
-export const calculateTrend = (
-  recentAverage: number,
-  olderAverage: number
-): MoodTrend => {
+export const calculateTrend = (recentAverage: number, olderAverage: number): MoodTrend => {
   const difference = recentAverage - olderAverage
   if (difference > 0.3) return 'improving'
   if (difference < -0.3) return 'declining'
@@ -156,4 +152,23 @@ export const calculateStability = (moods: number[]): MoodStability => {
   const standardDeviation = Math.sqrt(variance)
 
   return standardDeviation >= 0.8 ? 'fluctuating' : 'stable'
+}
+
+const average = (values: number[]): number =>
+  values.reduce((sum, value) => sum + value, 0) / values.length
+
+// Expects moods ordered newest first; compares the newer half against the older half
+export const buildMoodInsight = (moodsNewestFirst: number[]): MoodInsight => {
+  const halfIndex = Math.floor(moodsNewestFirst.length / 2)
+  const recentHalf = moodsNewestFirst.slice(0, halfIndex)
+  const olderHalf = moodsNewestFirst.slice(halfIndex)
+  const totalAverage = average(moodsNewestFirst)
+
+  return {
+    trend: calculateTrend(average(recentHalf), average(olderHalf)),
+    stability: calculateStability(moodsNewestFirst),
+    average: totalAverage,
+    level: calculateMoodLevel(totalAverage),
+    entryCount: moodsNewestFirst.length,
+  }
 }

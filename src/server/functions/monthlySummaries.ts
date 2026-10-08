@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { z } from 'zod'
-import { getDb } from '../db'
-import { monthlySummaries, entries, weeklySummaries } from '../db/schema'
+import { getDb } from '@/server/db'
+import { monthlySummaries, entries, weeklySummaries } from '@/server/db/schema'
 import { and, eq, gte, lt, or } from 'drizzle-orm'
 import {
   startOfMonth,
@@ -14,10 +14,10 @@ import {
   startOfISOWeek,
   addWeeks,
 } from 'date-fns'
-import { monthInputSchema } from '../../constants'
-import { authMiddleware } from '../middleware/auth'
-import { getDateFromISOWeek } from '../../utils/isoWeek'
-import type { Entry, WeeklySummary, MonthlySummary } from '../db/schema'
+import { monthInputSchema } from '@/constants'
+import { authMiddleware } from '@/server/middleware/auth'
+import { getDateFromISOWeek } from '@/utils/isoWeek'
+import type { Entry, WeeklySummary, MonthlySummary } from '@/server/db/schema'
 
 export const getMonthlySummary = createServerFn({ method: 'GET' })
   .middleware([authMiddleware])
@@ -25,10 +25,7 @@ export const getMonthlySummary = createServerFn({ method: 'GET' })
   .handler(async ({ data }) => {
     const db = getDb()
     const summary = await db.query.monthlySummaries.findFirst({
-      where: and(
-        eq(monthlySummaries.year, data.year),
-        eq(monthlySummaries.month, data.month)
-      ),
+      where: and(eq(monthlySummaries.year, data.year), eq(monthlySummaries.month, data.month)),
     })
     return summary ?? null
   })
@@ -66,12 +63,7 @@ export const updateMonthlySummary = createServerFn({ method: 'POST' })
       .set({
         summary: data.summary,
       })
-      .where(
-        and(
-          eq(monthlySummaries.year, data.year),
-          eq(monthlySummaries.month, data.month)
-        )
-      )
+      .where(and(eq(monthlySummaries.year, data.year), eq(monthlySummaries.month, data.month)))
       .returning()
 
     return updated
@@ -107,22 +99,18 @@ export const getMonthlyOverview = createServerFn({ method: 'GET' })
 
     const isoWeeks = getISOWeeksInMonth(data.year, data.month)
 
-    const allWeeklySummaries = isoWeeks.length > 0
-      ? await db.query.weeklySummaries.findMany({
-          where: or(
-            ...isoWeeks.map((isoWeek) =>
-              and(
-                eq(weeklySummaries.year, isoWeek.year),
-                eq(weeklySummaries.week, isoWeek.week)
-              )
-            )
-          ),
-        })
-      : []
+    const allWeeklySummaries =
+      isoWeeks.length > 0
+        ? await db.query.weeklySummaries.findMany({
+            where: or(
+              ...isoWeeks.map((isoWeek) =>
+                and(eq(weeklySummaries.year, isoWeek.year), eq(weeklySummaries.week, isoWeek.week)),
+              ),
+            ),
+          })
+        : []
 
-    const summaryByKey = new Map(
-      allWeeklySummaries.map((s) => [`${s.year}-${s.week}`, s])
-    )
+    const summaryByKey = new Map(allWeeklySummaries.map((s) => [`${s.year}-${s.week}`, s]))
 
     const weeks: WeekOverview[] = isoWeeks.map((isoWeek) => {
       const weekStart = startOfISOWeek(getDateFromISOWeek(isoWeek.year, isoWeek.week))
@@ -130,12 +118,13 @@ export const getMonthlyOverview = createServerFn({ method: 'GET' })
       const weekEndDate = format(addWeeks(weekStart, 1), 'yyyy-MM-dd')
 
       const weekEntries = monthEntries.filter(
-        (entry) => entry.date >= weekStartDate && entry.date < weekEndDate
+        (entry) => entry.date >= weekStartDate && entry.date < weekEndDate,
       )
 
-      const averageMood = weekEntries.length > 0
-        ? weekEntries.reduce((sum, entry) => sum + entry.mood, 0) / weekEntries.length
-        : null
+      const averageMood =
+        weekEntries.length > 0
+          ? weekEntries.reduce((sum, entry) => sum + entry.mood, 0) / weekEntries.length
+          : null
 
       return {
         year: isoWeek.year,
@@ -146,30 +135,29 @@ export const getMonthlyOverview = createServerFn({ method: 'GET' })
       }
     })
 
-    const overallAverage = monthEntries.length > 0
-      ? monthEntries.reduce((sum, entry) => sum + entry.mood, 0) / monthEntries.length
-      : null
+    const overallAverage =
+      monthEntries.length > 0
+        ? monthEntries.reduce((sum, entry) => sum + entry.mood, 0) / monthEntries.length
+        : null
 
     const monthlySummary = await db.query.monthlySummaries.findFirst({
-      where: and(
-        eq(monthlySummaries.year, data.year),
-        eq(monthlySummaries.month, data.month)
-      ),
+      where: and(eq(monthlySummaries.year, data.year), eq(monthlySummaries.month, data.month)),
     })
 
     const prevMonthDate = new Date(data.year, data.month - 2, 1)
     const { startDate: prevStartDate, endDate: prevEndDate } = getMonthDateRange(
       prevMonthDate.getFullYear(),
-      prevMonthDate.getMonth() + 1
+      prevMonthDate.getMonth() + 1,
     )
 
     const prevMonthEntries = await db.query.entries.findMany({
       where: and(gte(entries.date, prevStartDate), lt(entries.date, prevEndDate)),
     })
 
-    const previousMonthAverage = prevMonthEntries.length > 0
-      ? prevMonthEntries.reduce((sum, entry) => sum + entry.mood, 0) / prevMonthEntries.length
-      : null
+    const previousMonthAverage =
+      prevMonthEntries.length > 0
+        ? prevMonthEntries.reduce((sum, entry) => sum + entry.mood, 0) / prevMonthEntries.length
+        : null
 
     return {
       weeks,
@@ -193,10 +181,7 @@ const getISOWeeksInMonth = (year: number, month: number): Array<{ year: number; 
   const monthStart = new Date(year, month - 1, 1)
   const monthEnd = endOfMonth(monthStart)
 
-  const weekStarts = eachWeekOfInterval(
-    { start: monthStart, end: monthEnd },
-    { weekStartsOn: 1 }
-  )
+  const weekStarts = eachWeekOfInterval({ start: monthStart, end: monthEnd }, { weekStartsOn: 1 })
 
   const seen = new Set<string>()
   const isoWeeks: Array<{ year: number; week: number }> = []

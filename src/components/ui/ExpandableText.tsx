@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useCallback, useState } from 'react'
 
 type ExpandableTextProps = {
   children: string
@@ -6,30 +6,21 @@ type ExpandableTextProps = {
   className?: string
 }
 
-export const ExpandableText = ({
-  children,
-  lines = 3,
-  className = '',
-}: ExpandableTextProps) => {
+export const ExpandableText = ({ children, lines = 3, className = '' }: ExpandableTextProps) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const [needsTruncation, setNeedsTruncation] = useState(false)
-  const textRef = useRef<HTMLParagraphElement>(null)
-
-  useEffect(() => {
-    const element = textRef.current
+  // ResizeObserver reports the initial size as soon as observation starts, so it covers
+  // both the first measurement and later layout changes.
+  const observeTruncation = useCallback((element: HTMLParagraphElement | null) => {
     if (!element) return
 
-    const checkTruncation = () => {
+    const resizeObserver = new ResizeObserver(() => {
       setNeedsTruncation(element.scrollHeight > element.clientHeight)
-    }
-
-    checkTruncation()
-
-    const resizeObserver = new ResizeObserver(checkTruncation)
+    })
     resizeObserver.observe(element)
 
     return () => resizeObserver.disconnect()
-  }, [children])
+  }, [])
 
   const lineClampStyle = !isExpanded
     ? {
@@ -42,11 +33,8 @@ export const ExpandableText = ({
 
   return (
     <div>
-      <p
-        ref={textRef}
-        className={className}
-        style={lineClampStyle}
-      >
+      {/* Keyed on the text so new content gets a fresh element and a new measurement */}
+      <p key={children} ref={observeTruncation} className={className} style={lineClampStyle}>
         {children}
       </p>
       {needsTruncation && !isExpanded && (

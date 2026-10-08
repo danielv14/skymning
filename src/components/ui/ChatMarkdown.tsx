@@ -1,4 +1,4 @@
-import Markdown from 'markdown-to-jsx'
+import { Markdown } from 'markdown-to-jsx'
 
 type ChatMarkdownProps = {
   children: string
@@ -24,8 +24,7 @@ const userOverrides = {
   h3: { props: { className: 'font-bold' } },
   blockquote: {
     props: {
-      className:
-        'border-l-2 border-white/30 pl-3 italic opacity-90',
+      className: 'border-l-2 border-white/30 pl-3 italic opacity-90',
     },
   },
   code: {
@@ -61,29 +60,23 @@ const assistantOverrides = {
   h3: { props: { className: 'font-bold text-white' } },
   blockquote: {
     props: {
-      className:
-        'border-l-2 border-slate-600 pl-3 italic text-slate-400',
+      className: 'border-l-2 border-slate-600 pl-3 italic text-slate-400',
     },
   },
   code: {
     props: {
-      className:
-        'bg-slate-700/60 rounded px-1.5 py-0.5 text-sm font-mono text-slate-200',
+      className: 'bg-slate-700/60 rounded px-1.5 py-0.5 text-sm font-mono text-slate-200',
     },
   },
   pre: {
     props: {
-      className:
-        'bg-slate-900/60 rounded-lg p-3 overflow-x-auto text-sm font-mono my-2',
+      className: 'bg-slate-900/60 rounded-lg p-3 overflow-x-auto text-sm font-mono my-2',
     },
   },
   hr: { props: { className: 'border-slate-700 my-3' } },
 }
 
-export const ChatMarkdown = ({
-  children,
-  variant = 'assistant',
-}: ChatMarkdownProps) => {
+export const ChatMarkdown = ({ children, variant = 'assistant' }: ChatMarkdownProps) => {
   const overrides = variant === 'user' ? userOverrides : assistantOverrides
 
   return (

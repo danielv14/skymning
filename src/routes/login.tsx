@@ -1,8 +1,8 @@
 import { useState, FormEvent } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { loginFn } from '../server/functions/auth'
-import { Button } from '../components/ui/Button'
-import { Card } from '../components/ui/Card'
+import { loginFn } from '@/server/functions/auth'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
 
 const LoginPage = () => {
   const [secret, setSecret] = useState('')
@@ -50,15 +50,9 @@ const LoginPage = () => {
             />
           </div>
 
-          {error && (
-            <p className="text-red-400 text-sm text-center">{error}</p>
-          )}
+          {error && <p className="text-red-400 text-sm text-center">{error}</p>}
 
-          <Button
-            type="submit"
-            disabled={isLoading || !secret}
-            className="w-full"
-          >
+          <Button type="submit" disabled={isLoading || !secret} className="w-full">
             {isLoading ? 'Loggar in...' : 'Logga in'}
           </Button>
         </form>

@@ -1,7 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { CalendarX } from 'lucide-react'
-import { Card } from '../ui/Card'
-import { Button } from '../ui/Button'
+import { Card } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
 
 type MissedYesterdayCardProps = {
   yesterdayDate: string
@@ -15,12 +15,14 @@ export const MissedYesterdayCard = ({ yesterdayDate }: MissedYesterdayCardProps)
           <CalendarX className="w-4 h-4 text-violet-400" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm text-slate-300">
-            Du glömde logga igår
-          </p>
+          <p className="text-sm text-slate-300">Du glömde logga igår</p>
         </div>
         <Link to="/quick" viewTransition search={{ date: yesterdayDate }} className="shrink-0">
-          <Button variant="ghost" size="sm" className="text-violet-300 hover:text-violet-200 hover:bg-violet-500/15">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-violet-300 hover:text-violet-200 hover:bg-violet-500/15"
+          >
             Fyll i →
           </Button>
         </Link>

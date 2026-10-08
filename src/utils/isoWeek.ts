@@ -17,7 +17,7 @@ export const getDateFromISOWeek = (year: number, week: number): Date => {
 export const getAdjacentWeek = (
   year: number,
   week: number,
-  direction: 'prev' | 'next'
+  direction: 'prev' | 'next',
 ): { year: number; week: number } => {
   const date = getDateFromISOWeek(year, week)
   const adjacentDate = direction === 'prev' ? subWeeks(date, 1) : addWeeks(date, 1)
@@ -26,7 +26,5 @@ export const getAdjacentWeek = (
 
 export const getWeekDays = (year: number, week: number): string[] => {
   const weekStart = startOfISOWeek(getDateFromISOWeek(year, week))
-  return Array.from({ length: 7 }, (_, i) =>
-    format(addDays(weekStart, i), 'yyyy-MM-dd')
-  )
+  return Array.from({ length: 7 }, (_, i) => format(addDays(weekStart, i), 'yyyy-MM-dd'))
 }

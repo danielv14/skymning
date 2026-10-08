@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { getISOWeek, getISOWeekYear } from "date-fns";
+import { createFileRoute, Link } from '@tanstack/react-router'
+import { getISOWeek, getISOWeekYear } from 'date-fns'
 import {
   BarChart3,
   Calendar,
@@ -9,41 +9,21 @@ import {
   Search,
   Sparkles,
   User,
-} from "lucide-react";
-import { ContextStalenessCard } from "../../components/dashboard/ContextStalenessCard";
-import { MissedYesterdayCard } from "../../components/dashboard/MissedYesterdayCard";
-import { MoodInsightCard } from "../../components/dashboard/MoodInsightCard";
-import { StreakCard } from "../../components/dashboard/StreakCard";
-import { TodayEntryCard } from "../../components/dashboard/TodayEntryCard";
-import { WeekdayPatternCard } from "../../components/dashboard/WeekdayPatternCard";
-import { MoodTrendHeatmap } from "../../components/mood/MoodTrendHeatmap";
-import { AppHeader } from "../../components/ui/AppHeader";
-import { Button } from "../../components/ui/Button";
-import { Card } from "../../components/ui/Card";
-import { Welcome } from "../../components/Welcome";
-import {
-  getChatPreview,
-  getValidIncompletePastChat,
-} from "../../server/functions/chat";
-import { getExploreChatPreview } from "../../server/functions/exploreChat";
-import {
-  getEntryForDate,
-  getMoodInsight,
-  getMoodTrend,
-  getStreak,
-  getTodayEntry,
-  getWeekdayPatterns,
-} from "../../server/functions/entries";
-import { getUserContextStaleness } from "../../server/functions/userContext";
-import { getLastWeekSummary } from "../../server/functions/weeklySummaries";
-import {
-  formatRelativeDay,
-  formatTime,
-  getTimeOfDayGreeting,
-  getTodayDateString,
-  subtractDays,
-} from "../../utils/date";
-import { truncateText } from "../../utils/string";
+} from 'lucide-react'
+import { ContextStalenessCard } from '@/components/dashboard/ContextStalenessCard'
+import { MissedYesterdayCard } from '@/components/dashboard/MissedYesterdayCard'
+import { MoodInsightCard } from '@/components/dashboard/MoodInsightCard'
+import { StreakCard } from '@/components/dashboard/StreakCard'
+import { TodayEntryCard } from '@/components/dashboard/TodayEntryCard'
+import { WeekdayPatternCard } from '@/components/dashboard/WeekdayPatternCard'
+import { MoodTrendHeatmap } from '@/components/mood/MoodTrendHeatmap'
+import { AppHeader } from '@/components/ui/AppHeader'
+import { Button } from '@/components/ui/Button'
+import { Card } from '@/components/ui/Card'
+import { Welcome } from '@/components/Welcome'
+import { getDashboardData } from '@/server/functions/dashboard'
+import { formatRelativeDay, formatTime, getTimeOfDayGreeting, getTodayDate } from '@/utils/date'
+import { truncateText } from '@/utils/string'
 
 const HomePage = () => {
   const {
@@ -60,14 +40,16 @@ const HomePage = () => {
     yesterdayEntry,
     contextStaleness,
     exploreChatPreview,
-  } = Route.useLoaderData();
+  } = Route.useLoaderData()
 
   if (!hasEntries) {
-    return <Welcome />;
+    return <Welcome />
   }
 
+  const today = getTodayDate()
+
   const navLinkClass =
-    "nav-link flex items-center gap-2 p-2.5 sm:px-4 sm:py-2 rounded-full hover:bg-white/10 active:bg-white/15 transition-all duration-200 text-slate-300 hover:text-white";
+    'nav-link flex items-center gap-2 p-2.5 sm:px-4 sm:py-2 rounded-full hover:bg-white/10 active:bg-white/15 transition-all duration-200 text-slate-300 hover:text-white'
 
   return (
     <div className="min-h-screen">
@@ -75,9 +57,7 @@ const HomePage = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                Skymning
-              </h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">Skymning</h1>
               <p className="text-slate-400 mt-1 text-sm sm:text-base">
                 {getTimeOfDayGreeting(yesterdayEntry?.mood)}
               </p>
@@ -95,38 +75,32 @@ const HomePage = () => {
             <Link
               to="/timeline/$year/$week"
               params={{
-                year: String(getISOWeekYear(new Date())),
-                week: String(getISOWeek(new Date())),
+                year: String(getISOWeekYear(today)),
+                week: String(getISOWeek(today)),
               }}
               viewTransition
               className={navLinkClass}
               title="Tidslinje"
             >
               <Calendar className="w-5 h-5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline text-sm font-medium">
-                Tidslinje
-              </span>
+              <span className="hidden sm:inline text-sm font-medium">Tidslinje</span>
             </Link>
             <Link
               to="/months/$year/$month"
               params={{
-                year: String(new Date().getFullYear()),
-                month: String(new Date().getMonth() + 1),
+                year: String(today.getFullYear()),
+                month: String(today.getMonth() + 1),
               }}
               viewTransition
               className={navLinkClass}
               title="Månader"
             >
               <BarChart3 className="w-5 h-5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline text-sm font-medium">
-                Månader
-              </span>
+              <span className="hidden sm:inline text-sm font-medium">Månader</span>
             </Link>
             <Link to="/insights" viewTransition className={navLinkClass} title="Insikter">
               <Sparkles className="w-5 h-5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline text-sm font-medium">
-                Insikter
-              </span>
+              <span className="hidden sm:inline text-sm font-medium">Insikter</span>
             </Link>
           </nav>
         </div>
@@ -141,14 +115,10 @@ const HomePage = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-2">
-                  <h3 className="font-semibold text-white">
-                    Pågående reflektion
-                  </h3>
+                  <h3 className="font-semibold text-white">Pågående reflektion</h3>
                   <span className="text-xs text-slate-400">
-                    {chatPreview.messageCount}{" "}
-                    {chatPreview.messageCount === 1
-                      ? "meddelande"
-                      : "meddelanden"}
+                    {chatPreview.messageCount}{' '}
+                    {chatPreview.messageCount === 1 ? 'meddelande' : 'meddelanden'}
                     {chatPreview.lastMessage &&
                       ` · ${formatTime(chatPreview.lastMessage.createdAt)}`}
                   </span>
@@ -176,9 +146,7 @@ const HomePage = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-2">
-                  <h3 className="font-semibold text-white">
-                    Osparad reflektion
-                  </h3>
+                  <h3 className="font-semibold text-white">Osparad reflektion</h3>
                   <span className="text-xs text-slate-400">
                     från {formatRelativeDay(incompletePastChat.date)}
                   </span>
@@ -202,9 +170,7 @@ const HomePage = () => {
 
         <TodayEntryCard entry={todayEntry} hasChatPreview={!!chatPreview} />
 
-        {!yesterdayEntry && (
-          <MissedYesterdayCard yesterdayDate={yesterdayDate} />
-        )}
+        {!yesterdayEntry && <MissedYesterdayCard yesterdayDate={yesterdayDate} />}
 
         {contextStaleness.isStale && <ContextStalenessCard />}
 
@@ -218,16 +184,12 @@ const HomePage = () => {
                 <Search className="w-5 h-5 text-violet-400" />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-white">
-                  Utforska din historik
-                </h3>
+                <h3 className="font-semibold text-white">Utforska din historik</h3>
                 {exploreChatPreview ? (
                   <p className="text-sm text-slate-400 mt-0.5 truncate">
-                    {exploreChatPreview.messageCount}{" "}
-                    {exploreChatPreview.messageCount === 1
-                      ? "meddelande"
-                      : "meddelanden"}{" "}
-                    · Fortsätt konversationen
+                    {exploreChatPreview.messageCount}{' '}
+                    {exploreChatPreview.messageCount === 1 ? 'meddelande' : 'meddelanden'} ·
+                    Fortsätt konversationen
                   </p>
                 ) : (
                   <p className="text-sm text-slate-400 mt-0.5">
@@ -293,58 +255,13 @@ const HomePage = () => {
         )}
       </main>
     </div>
-  );
-};
+  )
+}
 
-export const Route = createFileRoute("/_authed/")({
+export const Route = createFileRoute('/_authed/')({
   head: () => ({
-    meta: [{ title: "Skymning" }],
+    meta: [{ title: 'Skymning' }],
   }),
-  loader: async () => {
-    const yesterdayDate = subtractDays(getTodayDateString(), 1);
-    const [
-      todayEntry,
-      moodTrend,
-      streak,
-      moodInsight,
-      lastWeekSummary,
-      chatPreview,
-      incompletePastChat,
-      weekdayPatterns,
-      yesterdayEntry,
-      contextStaleness,
-      exploreChatPreview,
-    ] = await Promise.all([
-      getTodayEntry(),
-      getMoodTrend(),
-      getStreak(),
-      getMoodInsight({ data: {} }),
-      getLastWeekSummary(),
-      getChatPreview(),
-      getValidIncompletePastChat(),
-      getWeekdayPatterns(),
-      getEntryForDate({ data: { date: yesterdayDate } }),
-      getUserContextStaleness(),
-      getExploreChatPreview(),
-    ]);
-
-    const hasEntries = moodTrend.length > 0;
-
-    return {
-      hasEntries,
-      todayEntry,
-      moodTrend,
-      streak,
-      moodInsight,
-      lastWeekSummary,
-      chatPreview,
-      incompletePastChat,
-      weekdayPatterns,
-      yesterdayDate,
-      yesterdayEntry,
-      contextStaleness,
-      exploreChatPreview,
-    };
-  },
+  loader: () => getDashboardData(),
   component: HomePage,
-});
+})
