@@ -2,6 +2,7 @@
 # Dokumentation: https://developers.cloudflare.com/workers/wrangler/configuration/
 
 name = "skymning"
+account_id = "6f2919f1cf71f3876121f51afa7e38bf"
 compatibility_date = "2026-01-08"
 compatibility_flags = ["nodejs_compat"]
 
